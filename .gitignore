@@ -37,3 +37,8 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+# ----- own entries -----
+
+# ignore data folder contents
+/data/*
