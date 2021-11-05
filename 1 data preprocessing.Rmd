@@ -5,25 +5,101 @@ author: "Dennis Klein, Daniel Seussler "
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
   cleanrmd::html_document_clean:
-    theme: water  # see cleanrmd::cleanrmd_themes()
+    theme: tacit  # see cleanrmd::cleanrmd_themes()
                   # or set to NULL for dynamic theme picker (requires internet)
 ---
 
 
-# Sources
+# Start
+
+## Sources
+
+* CEPII TRADEHIST <http://www.cepii.fr/cepii/en/bdd_modele/presentation.asp?id=32>
+    * Bilateral Trade and Bilateral Tariffs
+* Exchange Rates <https://www.measuringworth.com/datasets/exchangeglobal/>
+* CPI US <https://www.statbureau.org/en/united-states/cpi-u>
+* Replication files <https://www.cambridge.org/core/journals/network-science/article/separable-and-semiparametric-networkbased-counting-processes-applied-to-the-international-combat-aircraft-trades/0D57EC7B7E1775B0BEF72BDE101E507F#article>
 
 ## ToDo's
 
-* Alternative Handelsdaten vom Ifo Institut
+* Alternative Handelsdaten vom Ifo Institut?
+* Rebase nominal trade values for constant USD.
+
+
+## Setup
+
+```{r message = FALSE}
+library(countrycode)
+library(readxl)
+library(tidyverse)
+```
 
 
 # Bilateral Tradeflows
 
 ## UN COMTRADE
 
-
+Useful extension for 2014 onwards?
 
 ## TRADEHIST
 
+Load trade data. 
+
+```{r}
+TRADHIST_BITRADE_BITARIFF_1 <- read_excel("data raw/CEPII TRADEHIST/TRADHIST_BITRADE_BITARIFF_1.xlsx")
+TRADHIST_BITRADE_BITARIFF_2 <- read_excel("data raw/CEPII TRADEHIST/TRADHIST_BITRADE_BITARIFF_2.xlsx")
+TRADHIST_BITRADE_BITARIFF_3 <- read_excel("data raw/CEPII TRADEHIST/TRADHIST_BITRADE_BITARIFF_3.xlsx")
+```
+
+Currency British Pound Sterling. Nominal trade flows, rebase to constant 2000$ USD. Or something else?
+
+```{r}
+exchange_usd_gbp <- read.csv(file = "data raw/EXCHANGEGLOBAL_1945-2020.csv", 
+                             header = FALSE) %>%
+  rename(year = V1, GBP_USD = V2) %>%
+  mutate(GBP_USD = as.numeric(gsub(" British Pound", "", GBP_USD)))
+
+cpi_us <- read.csv(file = "data raw/united-states.index.cpi-u (statbureau.org).csv") %>%
+  rename(year = ï..Year) %>%
+  filter(year %in% c(1950:2020)) %>%
+  pivot_longer(cols = c("January", "February", "March", "April", "May", "June",
+                        "July", "August", "September", "October", "November",
+                        "December"),
+               names_to = "month", values_to = "cpi") %>% 
+  group_by(year) %>%
+  summarize(cpi = mean(cpi)) %>%
+  mutate(cpi_factor = cpi / as.numeric(filter(., year == 2000)[,2]))
+```
+
+Merge data, filter for out time-frame, 1950 and newer (?). Do conversions. Replace flow_0 values. 
+
+```{r}
+trade <- TRADHIST_BITRADE_BITARIFF_1 %>%
+  bind_rows(TRADHIST_BITRADE_BITARIFF_2) %>%
+  bind_rows(TRADHIST_BITRADE_BITARIFF_3) %>%
+  filter(year %in% c(1950:2020)) %>%
+  mutate(FLOW = replace(FLOW, FLOW_0 == 0, 0)) %>%
+  left_join(exchange_usd_gbp, by = c("year" = "year"), na_matches = "never") %>%
+  left_join(cpi_us, by = c("year" = "year"), na_matches = "never") %>%
+  mutate(FLOW = (FLOW / GBP_USD) / cpi_factor) %>% 
+  select(iso_o, iso_d, year, FLOW)
+```
+
+Countries included in our time frame. Useful Coverage? Selection?
+
+```{r}
+countries <- data.frame(iso = c(trade$iso_o, trade$iso_d)) %>% 
+  unique() %>%
+  mutate(name = countrycode(iso, "iso3c", "country.name")) %>%
+  arrange(name)
+
+head(countries)
+```
 
 # MCW Weapon Transfers
+
+Replication files from *Separable and semiparametric network-based counting processes applied to the international combat aircraft trades*.
+
+
+
+
