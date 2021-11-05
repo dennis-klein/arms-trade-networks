@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Dennis Klein, Daniel Seussler" />
+  <title>Statistical Consulting</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+
+  <script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
+  <link href="data:text/css,%40charset%20%22UTF%2D8%22%3B%0Abody%20%7B%0Afont%2Dfamily%3A%20system%2Dui%2C%20%2Dapple%2Dsystem%2C%20BlinkMacSystemFont%2C%20%27Segoe%20UI%27%2C%20%27Roboto%27%2C%20%27Oxygen%27%2C%20%27Ubuntu%27%2C%20%27Cantarell%27%2C%20%27Fira%20Sans%27%2C%20%27Droid%20Sans%27%2C%20%27Helvetica%20Neue%27%2C%20sans%2Dserif%3B%0Aline%2Dheight%3A%201%2E4%3B%0Amax%2Dwidth%3A%20800px%3B%0Amargin%3A%2020px%20auto%3B%0Apadding%3A%200%2010px%3B%0Acolor%3A%20%23363636%3B%0Abackground%3A%20%23ffffff%3B%0Atext%2Drendering%3A%20optimizeLegibility%3B%0A%7D%0Abutton%2C%20input%2C%20textarea%20%7B%0Atransition%3A%20background%2Dcolor%200%2E1s%20linear%2C%20border%2Dcolor%200%2E1s%20linear%2C%20color%200%2E1s%20linear%2C%20box%2Dshadow%200%2E1s%20linear%2C%20transform%200%2E1s%20ease%3B%0A%7D%0Ah1%20%7B%0Afont%2Dsize%3A%202%2E2em%3B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Ah1%2C%0Ah2%2C%0Ah3%2C%0Ah4%2C%0Ah5%2C%0Ah6%20%7B%0Amargin%2Dbottom%3A%2012px%3B%0A%7D%0Ah1%2C%0Ah2%2C%0Ah3%2C%0Ah4%2C%0Ah5%2C%0Ah6%2C%0Astrong%20%7B%0Acolor%3A%20%23000000%3B%0A%7D%0Ah1%2C%0Ah2%2C%0Ah3%2C%0Ah4%2C%0Ah5%2C%0Ah6%2C%0Ab%2C%0Astrong%2C%0Ath%20%7B%0Afont%2Dweight%3A%20600%3B%0A%7D%0Ablockquote%20%7B%0Aborder%2Dleft%3A%204px%20solid%20%230096bfab%3B%0Amargin%3A%201%2E5em%200em%3B%0Apadding%3A%200%2E5em%201em%3B%0Afont%2Dstyle%3A%20italic%3B%0A%7D%0Ablockquote%20%3E%20footer%20%7B%0Amargin%2Dtop%3A%2010px%3B%0Afont%2Dstyle%3A%20normal%3B%0A%7D%0Ablockquote%20cite%20%7B%0Afont%2Dstyle%3A%20normal%3B%0A%7D%0Aaddress%20%7B%0Afont%2Dstyle%3A%20normal%3B%0A%7D%0Aa%5Bhref%5E%3D%27mailto%27%5D%3A%3Abefore%20%7B%0Acontent%3A%20%27%F0%9F%93%A7%20%27%3B%0A%7D%0Aa%5Bhref%5E%3D%27tel%27%5D%3A%3Abefore%20%7B%0Acontent%3A%20%27%F0%9F%93%9E%20%27%3B%0A%7D%0Aa%5Bhref%5E%3D%27sms%27%5D%3A%3Abefore%20%7B%0Acontent%3A%20%27%F0%9F%92%AC%20%27%3B%0A%7D%0Abutton%2C%0Ainput%5Btype%3D%27submit%27%5D%2C%0Ainput%5Btype%3D%27button%27%5D%2C%0Ainput%5Btype%3D%27checkbox%27%5D%20%7B%0Acursor%3A%20pointer%3B%0A%7D%0Ainput%3Anot%28%5Btype%3D%27checkbox%27%5D%29%3Anot%28%5Btype%3D%27radio%27%5D%29%2C%0Aselect%20%7B%0Adisplay%3A%20block%3B%0A%7D%0Ainput%2C%20select%2C%20button%2C%20textarea%20%7B%0Acolor%3A%20%23000000%3B%0Abackground%2Dcolor%3A%20%23efefef%3B%0Afont%2Dfamily%3A%20inherit%3B%0Afont%2Dsize%3A%20inherit%3B%0Amargin%2Dright%3A%206px%3B%0Amargin%2Dbottom%3A%206px%3B%0Apadding%3A%2010px%3B%0Aborder%3A%20none%3B%0Aborder%2Dradius%3A%206px%3B%0Aoutline%3A%20none%3B%0A%7D%0Ainput%3Anot%28%5Btype%3D%27checkbox%27%5D%29%3Anot%28%5Btype%3D%27radio%27%5D%29%2C%0Aselect%2C%20button%2C%20textarea%20%7B%0A%2Dwebkit%2Dappearance%3A%20none%3B%0A%7D%0Atextarea%20%7B%0Amargin%2Dright%3A%200%3B%0Awidth%3A%20100%25%3B%0Abox%2Dsizing%3A%20border%2Dbox%3B%0Aresize%3A%20vertical%3B%0A%7D%0Abutton%2C%20input%5Btype%3D%27submit%27%5D%2C%20input%5Btype%3D%27button%27%5D%20%7B%0Apadding%2Dright%3A%2030px%3B%0Apadding%2Dleft%3A%2030px%3B%0A%7D%0Abutton%3Ahover%2C%0Ainput%5Btype%3D%27submit%27%5D%3Ahover%2C%0Ainput%5Btype%3D%27button%27%5D%3Ahover%20%7B%0Abackground%3A%20%23dddddd%3B%0A%7D%0Ainput%3Afocus%2C%0Aselect%3Afocus%2C%0Abutton%3Afocus%2C%0Atextarea%3Afocus%20%7B%0Abox%2Dshadow%3A%200%200%200%202px%20%230096bfab%3B%0A%7D%0Ainput%5Btype%3D%27checkbox%27%5D%3Aactive%2C%0Ainput%5Btype%3D%27radio%27%5D%3Aactive%2C%0Ainput%5Btype%3D%27submit%27%5D%3Aactive%2C%0Ainput%5Btype%3D%27button%27%5D%3Aactive%2C%0Abutton%3Aactive%20%7B%0Atransform%3A%20translateY%282px%29%3B%0A%7D%0Ainput%3Adisabled%2C%0Aselect%3Adisabled%2C%0Abutton%3Adisabled%2C%0Atextarea%3Adisabled%20%7B%0Acursor%3A%20not%2Dallowed%3B%0Aopacity%3A%20%2E5%3B%0A%7D%0A%3A%3A%2Dwebkit%2Dinput%2Dplaceholder%20%7B%0Acolor%3A%20%23949494%3B%0A%7D%0A%3A%2Dms%2Dinput%2Dplaceholder%20%7B%0Acolor%3A%20%23949494%3B%0A%7D%0A%3A%3A%2Dms%2Dinput%2Dplaceholder%20%7B%0Acolor%3A%20%23949494%3B%0A%7D%0A%3A%3Aplaceholder%20%7B%0Acolor%3A%20%23949494%3B%0A%7D%0Aa%20%7B%0Atext%2Ddecoration%3A%20none%3B%0Acolor%3A%20%230076d1%3B%0A%7D%0Aa%3Ahover%20%7B%0Atext%2Ddecoration%3A%20underline%3B%0A%7D%0Acode%2C%20kbd%20%7B%0Abackground%3A%20%23efefef%3B%0Acolor%3A%20%23000000%3B%0Apadding%3A%205px%3B%0Aborder%2Dradius%3A%206px%3B%0A%7D%0Apre%20%3E%20code%20%7B%0Apadding%3A%2010px%3B%0Adisplay%3A%20block%3B%0Aoverflow%2Dx%3A%20auto%3B%0A%7D%0Aimg%20%7B%0Amax%2Dwidth%3A%20100%25%3B%0A%7D%0Ahr%20%7B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23dbdbdb%3B%0A%7D%0Atable%20%7B%0Aborder%2Dcollapse%3A%20collapse%3B%0Amargin%2Dbottom%3A%2010px%3B%0Awidth%3A%20100%25%3B%0A%7D%0Atd%2C%20th%20%7B%0Apadding%3A%206px%3B%0Atext%2Dalign%3A%20left%3B%0A%7D%0Ath%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23dbdbdb%3B%0A%7D%0Atbody%20tr%3Anth%2Dchild%28even%29%20%7B%0Abackground%2Dcolor%3A%20%23efefef%3B%0A%7D%0A%3A%3A%2Dwebkit%2Dscrollbar%20%7B%0Aheight%3A%2010px%3B%0Awidth%3A%2010px%3B%0A%7D%0A%3A%3A%2Dwebkit%2Dscrollbar%2Dtrack%20%7B%0Abackground%3A%20%23efefef%3B%0Aborder%2Dradius%3A%206px%3B%0A%7D%0A%3A%3A%2Dwebkit%2Dscrollbar%2Dthumb%20%7B%0Abackground%3A%20%23d5d5d5%3B%0Aborder%2Dradius%3A%206px%3B%0A%7D%0A%3A%3A%2Dwebkit%2Dscrollbar%2Dthumb%3Ahover%20%7B%0Abackground%3A%20%23c4c4c4%3B%0A%7D%0A%0A" rel="stylesheet" />
+</head>
+<body>
+<style type="text/css" charset="utf-8">
+main {
+  max-width: 48em;
+  margin: auto;
+}
+
+@media only screen and (max-width: 768px) {
+  main {
+    max-width: 100%;
+  }
+}
+
+img {
+  max-width: 100%;
+}
+</style>
+
+
+<main>
+<header>
+<h1 id="title" class="toc-ignore">Statistical Consulting</h1>
+<h2 id="subtitle" class="toc-ignore">Data Preprocessing</h2>
+<p id="date">05 November, 2021</p>
+<p id="author">Dennis Klein, Daniel Seussler</p>
+
+</header>
+
+
+<h1 id="sources">Sources</h1>
+<h2 id="todos">ToDo’s</h2>
+<ul>
+<li>Alternative Handelsdaten vom Ifo Institut</li>
+</ul>
+<h1 id="bilateral-tradeflows">Bilateral Tradeflows</h1>
+<h2 id="un-comtrade">UN COMTRADE</h2>
+<h2 id="tradehist">TRADEHIST</h2>
+<h1 id="mcw-weapon-transfers">MCW Weapon Transfers</h1>
+
+</main>
+
+
+</body>
+</html>

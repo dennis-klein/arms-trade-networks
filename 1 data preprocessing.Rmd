@@ -1,0 +1,29 @@
+---
+title: "Statistical Consulting"
+subtitle: "Data Preprocessing"
+author: "Dennis Klein, Daniel Seussler "
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  cleanrmd::html_document_clean:
+    theme: water  # see cleanrmd::cleanrmd_themes()
+                  # or set to NULL for dynamic theme picker (requires internet)
+---
+
+
+# Sources
+
+## ToDo's
+
+* Alternative Handelsdaten vom Ifo Institut
+
+
+# Bilateral Tradeflows
+
+## UN COMTRADE
+
+
+
+## TRADEHIST
+
+
+# MCW Weapon Transfers
