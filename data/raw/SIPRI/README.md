@@ -3,6 +3,7 @@
 
 How to download the SIPRI data:
 
+```text
 curl http://armstrade.sipri.org/armstrade/html/export_trade_register.php --compressed \
     --data 'low_year=2014' \
     --data 'high_year=2014' \
@@ -14,5 +15,5 @@ curl http://armstrade.sipri.org/armstrade/html/export_trade_register.php --compr
     --data 'include_open_deals=on' \
     --data 'sum_deliveries=on' \
     --data 'Submit4=Download' \
-PUT LESS THAN SYMBOL HERE sipri-arms-by-seller-2014.csv
-
+> sipri-arms-by-seller-2014.csv
+```
