@@ -46,7 +46,4 @@ vignettes/*.pdf
 /data/**/*.xlsx
 /data/**/*.txt
 /data/**/*.Rdata
-<<<<<<< HEAD
 /data/**/*.rtf
-=======
->>>>>>> c5dc3a8b1276a3d74bf4b61351ab929ca9d9a51f
