@@ -40,5 +40,10 @@ vignettes/*.pdf
 
 # ----- own entries -----
 
-# ignore data folder contents
-/data/*
+# ignore data files in data folder
+/data/**/*.csv
+/data/**/*.dta
+/data/**/*.xlsx
+/data/**/*.txt
+/data/**/*.Rdata
+/data/**/*.rtf
