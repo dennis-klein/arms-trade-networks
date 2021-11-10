@@ -46,7 +46,7 @@ deals <- deals_raw %>%
 # NOTE: warning message, but data seems fine
 
 # save cleaned deal data
-saveRDS(deals, "data/processed/sipri_arms_deals_1950_2019.rds")
+saveRDS(deals, "data/out/sipri_arms_deals_1950_2019.rds")
 
 ### build panel (seller, buyer, year)
 
@@ -65,7 +65,7 @@ arms <- deals %>%
   arrange(desc(TIV_total_delivered))
 
 # save data
-saveRDS(arms, "data/processed/sipri_arms_trade_1990_2019.rds")
+saveRDS(arms, "data/out/sipri_arms_trade_1990_2019.rds")
 
 
 # BACKUP
