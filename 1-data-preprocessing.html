@@ -120,95 +120,161 @@ img {
 <li>Exchange Rates <a href="https://www.measuringworth.com/datasets/exchangeglobal/" class="uri">https://www.measuringworth.com/datasets/exchangeglobal/</a></li>
 <li>CPI US <a href="https://www.statbureau.org/en/united-states/cpi-u" class="uri">https://www.statbureau.org/en/united-states/cpi-u</a></li>
 <li>Replication files <a href="https://www.cambridge.org/core/journals/network-science/article/separable-and-semiparametric-networkbased-counting-processes-applied-to-the-international-combat-aircraft-trades/0D57EC7B7E1775B0BEF72BDE101E507F#article" class="uri">https://www.cambridge.org/core/journals/network-science/article/separable-and-semiparametric-networkbased-counting-processes-applied-to-the-international-combat-aircraft-trades/0D57EC7B7E1775B0BEF72BDE101E507F#article</a></li>
-</ul>
-<h2 id="todos">ToDo’s</h2>
-<ul>
-<li>Alternative Handelsdaten vom Ifo Institut?</li>
-<li>Rebase nominal trade values for constant USD.</li>
+<li>Peacesciencer <a href="http://svmiller.com/peacesciencer/index.html" class="uri">http://svmiller.com/peacesciencer/index.html</a></li>
 </ul>
 <h2 id="setup">Setup</h2>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(countrycode)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(peacesciencer)</span></code></pre></div>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>time_frame <span class="ot">&lt;-</span> <span class="dv">1950</span><span class="sc">:</span><span class="dv">2017</span></span></code></pre></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(peacesciencer)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(statnet)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>time_frame <span class="ot">&lt;-</span> <span class="dv">1991</span><span class="sc">:</span><span class="dv">2014</span></span></code></pre></div>
+<h2 id="create-state-year-nodelist">Create state-year nodelist</h2>
+<p>Countries included in the COW System for our time frame. Use COW codes to link across data sets. Include control variables, constructed using <code>peacesciencer</code>.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">create_stateyears</span>(<span class="at">system =</span> <span class="st">&quot;cow&quot;</span>, <span class="at">mry =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_democracy</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_nmc</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_sdp_gdp</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">%in%</span> time_frame) <span class="ot">-&gt;</span> nodes</span></code></pre></div>
+<pre><code>## Joining, by = c(&quot;ccode&quot;, &quot;year&quot;)
+## Joining, by = c(&quot;ccode&quot;, &quot;year&quot;)
+## Joining, by = c(&quot;ccode&quot;, &quot;year&quot;)</code></pre>
+<h2 id="create-state-state-year-nodelist">Create state-state-year nodelist</h2>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">create_dyadyears</span>(<span class="at">system =</span> <span class="st">&quot;cow&quot;</span>, <span class="at">mry =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  add_capital_distance <span class="sc">%&gt;%</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_contiguity</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_minimum_distance</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_atop_alliance</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">%in%</span> time_frame)<span class="ot">-&gt;</span> dyads</span></code></pre></div>
+<pre><code>## Joining, by = c(&quot;ccode1&quot;, &quot;ccode2&quot;, &quot;year&quot;)
+## Joining, by = c(&quot;ccode1&quot;, &quot;ccode2&quot;, &quot;year&quot;)
+## Joining, by = c(&quot;ccode1&quot;, &quot;ccode2&quot;, &quot;year&quot;)</code></pre>
 <h1 id="bilateral-tradeflows">Bilateral Tradeflows</h1>
 <h2 id="tradehist">TRADEHIST</h2>
 <p>Load trade data.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>TRADHIST_BITRADE_BITARIFF_1 <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">&quot;data raw/CEPII TRADEHIST/TRADHIST_BITRADE_BITARIFF_1.xlsx&quot;</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>TRADHIST_BITRADE_BITARIFF_2 <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">&quot;data raw/CEPII TRADEHIST/TRADHIST_BITRADE_BITARIFF_2.xlsx&quot;</span>)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>TRADHIST_BITRADE_BITARIFF_3 <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">&quot;data raw/CEPII TRADEHIST/TRADHIST_BITRADE_BITARIFF_3.xlsx&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>TRADHIST_BITRADE_BITARIFF_1 <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">&quot;data raw/CEPII TRADEHIST/TRADHIST_BITRADE_BITARIFF_1.xlsx&quot;</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>TRADHIST_BITRADE_BITARIFF_2 <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">&quot;data raw/CEPII TRADEHIST/TRADHIST_BITRADE_BITARIFF_2.xlsx&quot;</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>TRADHIST_BITRADE_BITARIFF_3 <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">&quot;data raw/CEPII TRADEHIST/TRADHIST_BITRADE_BITARIFF_3.xlsx&quot;</span>)</span></code></pre></div>
 <p>Currency British Pound Sterling. Nominal trade flows, rebase to constant 2011$ USD.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>exchange_usd_gbp <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="at">file =</span> <span class="st">&quot;data raw/EXCHANGEGLOBAL_1945-2020.csv&quot;</span>, </span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                             <span class="at">header =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">year =</span> V1, <span class="at">GBP_USD =</span> V2) <span class="sc">%&gt;%</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">GBP_USD =</span> <span class="fu">as.numeric</span>(<span class="fu">gsub</span>(<span class="st">&quot; British Pound&quot;</span>, <span class="st">&quot;&quot;</span>, GBP_USD)))</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>cpi_us <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="at">file =</span> <span class="st">&quot;data raw/united-states.index.cpi-u (statbureau.org).csv&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">year =</span> ï..Year) <span class="sc">%&gt;%</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">1950</span><span class="sc">:</span><span class="dv">2020</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">c</span>(<span class="st">&quot;January&quot;</span>, <span class="st">&quot;February&quot;</span>, <span class="st">&quot;March&quot;</span>, <span class="st">&quot;April&quot;</span>, <span class="st">&quot;May&quot;</span>, <span class="st">&quot;June&quot;</span>,</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>                        <span class="st">&quot;July&quot;</span>, <span class="st">&quot;August&quot;</span>, <span class="st">&quot;September&quot;</span>, <span class="st">&quot;October&quot;</span>, <span class="st">&quot;November&quot;</span>,</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>                        <span class="st">&quot;December&quot;</span>),</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="st">&quot;month&quot;</span>, <span class="at">values_to =</span> <span class="st">&quot;cpi&quot;</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(year) <span class="sc">%&gt;%</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">cpi =</span> <span class="fu">mean</span>(cpi)) <span class="sc">%&gt;%</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">cpi_factor =</span> cpi <span class="sc">/</span> <span class="fu">as.numeric</span>(<span class="fu">filter</span>(., year <span class="sc">==</span> <span class="dv">2011</span>)[,<span class="dv">2</span>]))</span></code></pre></div>
-<p>Merge data, filter for out time-frame, 1950 and newer. Do conversions. Replace flow_0 values.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>trade <span class="ot">&lt;-</span> TRADHIST_BITRADE_BITARIFF_1 <span class="sc">%&gt;%</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(TRADHIST_BITRADE_BITARIFF_2) <span class="sc">%&gt;%</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(TRADHIST_BITRADE_BITARIFF_3) <span class="sc">%&gt;%</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">1950</span><span class="sc">:</span><span class="dv">2020</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">FLOW =</span> <span class="fu">replace</span>(FLOW, FLOW_0 <span class="sc">==</span> <span class="dv">0</span>, <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(exchange_usd_gbp, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;year&quot;</span> <span class="ot">=</span> <span class="st">&quot;year&quot;</span>), <span class="at">na_matches =</span> <span class="st">&quot;never&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(cpi_us, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;year&quot;</span> <span class="ot">=</span> <span class="st">&quot;year&quot;</span>), <span class="at">na_matches =</span> <span class="st">&quot;never&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">FLOW =</span> (FLOW <span class="sc">/</span> GBP_USD) <span class="sc">/</span> cpi_factor) <span class="sc">%&gt;%</span> </span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(iso_o, iso_d, year, FLOW)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>exchange_usd_gbp <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="at">file =</span> <span class="st">&quot;data raw/EXCHANGEGLOBAL_1945-2020.csv&quot;</span>, </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>                             <span class="at">header =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">year =</span> V1, <span class="at">GBP_USD =</span> V2) <span class="sc">%&gt;%</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">GBP_USD =</span> <span class="fu">as.numeric</span>(<span class="fu">gsub</span>(<span class="st">&quot; British Pound&quot;</span>, <span class="st">&quot;&quot;</span>, GBP_USD)))</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>cpi_us <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="at">file =</span> <span class="st">&quot;data raw/united-states.index.cpi-u (statbureau.org).csv&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">year =</span> ï..Year) <span class="sc">%&gt;%</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">1950</span><span class="sc">:</span><span class="dv">2020</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">c</span>(<span class="st">&quot;January&quot;</span>, <span class="st">&quot;February&quot;</span>, <span class="st">&quot;March&quot;</span>, <span class="st">&quot;April&quot;</span>, <span class="st">&quot;May&quot;</span>, <span class="st">&quot;June&quot;</span>,</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>                        <span class="st">&quot;July&quot;</span>, <span class="st">&quot;August&quot;</span>, <span class="st">&quot;September&quot;</span>, <span class="st">&quot;October&quot;</span>, <span class="st">&quot;November&quot;</span>,</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>                        <span class="st">&quot;December&quot;</span>),</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="st">&quot;month&quot;</span>, <span class="at">values_to =</span> <span class="st">&quot;cpi&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(year) <span class="sc">%&gt;%</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">cpi =</span> <span class="fu">mean</span>(cpi)) <span class="sc">%&gt;%</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">cpi_factor =</span> cpi <span class="sc">/</span> <span class="fu">as.numeric</span>(<span class="fu">filter</span>(., year <span class="sc">==</span> <span class="dv">2011</span>)[,<span class="dv">2</span>]))</span></code></pre></div>
+<p>Merge data, filter for out time-frame. Do conversions. Replace flow_0 values. Include COW codes.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>TRADHIST_BITRADE_BITARIFF_1 <span class="sc">%&gt;%</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(TRADHIST_BITRADE_BITARIFF_2) <span class="sc">%&gt;%</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(TRADHIST_BITRADE_BITARIFF_3) <span class="sc">%&gt;%</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">%in%</span> time_frame) <span class="sc">%&gt;%</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">FLOW =</span> <span class="fu">replace</span>(FLOW, FLOW_0 <span class="sc">==</span> <span class="dv">0</span>, <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(exchange_usd_gbp, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;year&quot;</span> <span class="ot">=</span> <span class="st">&quot;year&quot;</span>), <span class="at">na_matches =</span> <span class="st">&quot;never&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(cpi_us, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;year&quot;</span> <span class="ot">=</span> <span class="st">&quot;year&quot;</span>), <span class="at">na_matches =</span> <span class="st">&quot;never&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">FLOW =</span> (FLOW <span class="sc">/</span> GBP_USD) <span class="sc">/</span> cpi_factor) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(iso_o, iso_d, year, FLOW) <span class="ot">-&gt;</span> bilateral_trade</span></code></pre></div>
 <p>Countries included in our time frame. Useful Coverage? Selection?</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>countries <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">iso =</span> <span class="fu">c</span>(trade<span class="sc">$</span>iso_o, trade<span class="sc">$</span>iso_d)) <span class="sc">%&gt;%</span> </span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unique</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">name =</span> <span class="fu">countrycode</span>(iso, <span class="st">&quot;iso3c&quot;</span>, <span class="st">&quot;country.name&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(name)</span></code></pre></div>
-<pre><code>## Warning in countrycode_convert(sourcevar = sourcevar, origin = origin, destination = dest, : Some values were not matched unambiguously: ANT, CZSK, EDEU, ROM, USSR, WDEU, YAR, YMD, YUG</code></pre>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(countries)</span></code></pre></div>
-<pre><code>##   iso              name
-## 1 AFG       Afghanistan
-## 2 ALB           Albania
-## 3 DZA           Algeria
-## 4 AND           Andorra
-## 5 AGO            Angola
-## 6 ATG Antigua &amp; Barbuda</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>dictionary <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;ABW&quot;</span> <span class="ot">=</span> <span class="cn">NA</span>, </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;ANT&quot;</span> <span class="ot">=</span> <span class="cn">NA</span>, </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;BMU&quot;</span> <span class="ot">=</span> <span class="cn">NA</span>, </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CUW&quot;</span> <span class="ot">=</span> <span class="cn">NA</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;CZSK&quot;</span> <span class="ot">=</span> <span class="dv">315</span>, </span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;EDEU&quot;</span> <span class="ot">=</span> <span class="dv">265</span>, </span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;FLK&quot;</span> <span class="ot">=</span> <span class="cn">NA</span>, </span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;FRO&quot;</span> <span class="ot">=</span> <span class="cn">NA</span>, </span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;GIB&quot;</span> <span class="ot">=</span> <span class="cn">NA</span>, </span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;GLP&quot;</span> <span class="ot">=</span> <span class="cn">NA</span>, </span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;GRL&quot;</span> <span class="ot">=</span> <span class="cn">NA</span>, </span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;GUF&quot;</span> <span class="ot">=</span> <span class="cn">NA</span>, </span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;HKG&quot;</span> <span class="ot">=</span> <span class="cn">NA</span>, </span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;MAC&quot;</span> <span class="ot">=</span> <span class="cn">NA</span>,</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;MTQ&quot;</span> <span class="ot">=</span> <span class="cn">NA</span>, </span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;NCL&quot;</span> <span class="ot">=</span> <span class="cn">NA</span>, </span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;PYF&quot;</span> <span class="ot">=</span> <span class="cn">NA</span>,</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;REU&quot;</span> <span class="ot">=</span> <span class="cn">NA</span>,</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;ROM&quot;</span> <span class="ot">=</span> <span class="dv">360</span>, </span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;SHN&quot;</span> <span class="ot">=</span> <span class="cn">NA</span>,</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;SPM&quot;</span> <span class="ot">=</span> <span class="cn">NA</span>,</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;USSR&quot;</span> <span class="ot">=</span> <span class="dv">365</span>, </span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;WDEU&quot;</span> <span class="ot">=</span> <span class="dv">260</span>, </span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;YAR&quot;</span> <span class="ot">=</span> <span class="cn">NA</span>,</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;YMD&quot;</span> <span class="ot">=</span> <span class="cn">NA</span>, </span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;YUG&quot;</span><span class="ot">=</span> <span class="dv">345</span></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>bilateral_trade <span class="sc">%&gt;%</span></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ccode1 =</span> <span class="fu">countrycode</span>(iso_o, <span class="st">&quot;iso3c&quot;</span>, <span class="st">&quot;cown&quot;</span>, <span class="at">custom_match =</span> dictionary)) <span class="sc">%&gt;%</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ccode2 =</span> <span class="fu">countrycode</span>(iso_d, <span class="st">&quot;iso3c&quot;</span>, <span class="st">&quot;cown&quot;</span>, <span class="at">custom_match =</span> dictionary)) <span class="ot">-&gt;</span> bilateral_trade</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>dyads <span class="sc">%&gt;%</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(bilateral_trade, </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;ccode1&quot;</span> <span class="ot">=</span> <span class="st">&quot;ccode1&quot;</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;ccode2&quot;</span> <span class="ot">=</span> <span class="st">&quot;ccode2&quot;</span>, </span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;year&quot;</span> <span class="ot">=</span> <span class="st">&quot;year&quot;</span>), </span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">na_matches =</span> <span class="st">&quot;never&quot;</span>) <span class="ot">-&gt;</span> dyads</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(dyads)</span></code></pre></div>
+<pre><code>##      ccode1          ccode2           year         capdist         
+##  Min.   :  2.0   Min.   :  2.0   Min.   :1991   Min.   :    7.412  
+##  1st Qu.:255.0   1st Qu.:255.0   1st Qu.:1997   1st Qu.: 4322.456  
+##  Median :450.0   Median :450.0   Median :2003   Median : 7410.907  
+##  Mean   :465.1   Mean   :465.1   Mean   :2003   Mean   : 7847.156  
+##  3rd Qu.:679.0   3rd Qu.:679.0   3rd Qu.:2009   3rd Qu.:11016.448  
+##  Max.   :990.0   Max.   :990.0   Max.   :2014   Max.   :19952.315  
+##                                                                    
+##     conttype          mindist       atop_defense      atop_offense
+##  Min.   :0.00000   Min.   :    0   Min.   :0.00000   Min.   :0    
+##  1st Qu.:0.00000   1st Qu.: 3374   1st Qu.:0.00000   1st Qu.:0    
+##  Median :0.00000   Median : 6488   Median :0.00000   Median :0    
+##  Mean   :0.07447   Mean   : 6952   Mean   :0.07155   Mean   :0    
+##  3rd Qu.:0.00000   3rd Qu.:10039   3rd Qu.:0.00000   3rd Qu.:0    
+##  Max.   :5.00000   Max.   :19642   Max.   :1.00000   Max.   :0    
+##                    NA&#39;s   :11708                                  
+##   atop_neutral       atop_nonagg      atop_consul         iso_o          
+##  Min.   :0.000000   Min.   :0.0000   Min.   :0.00000   Length:864988     
+##  1st Qu.:0.000000   1st Qu.:0.0000   1st Qu.:0.00000   Class :character  
+##  Median :0.000000   Median :0.0000   Median :0.00000   Mode  :character  
+##  Mean   :0.002768   Mean   :0.1762   Mean   :0.06929                     
+##  3rd Qu.:0.000000   3rd Qu.:0.0000   3rd Qu.:0.00000                     
+##  Max.   :1.000000   Max.   :1.0000   Max.   :1.00000                     
+##                                                                          
+##     iso_d                FLOW          
+##  Length:864988      Min.   :0.000e+00  
+##  Class :character   1st Qu.:0.000e+00  
+##  Mode  :character   Median :6.006e+04  
+##                     Mean   :3.183e+08  
+##                     3rd Qu.:8.323e+06  
+##                     Max.   :4.443e+11  
+##                     NA&#39;s   :76080</code></pre>
+<p>What is the distribution of bilateral trade flows normed by country GDP? Select appropiate cut-off to binarize the network.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># to do</span></span></code></pre></div>
+<p>Create trade network.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>network_trade <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="st">&quot;list&quot;</span>, <span class="fu">length</span>(time_frame))</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>network_trade_binary <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="st">&quot;list&quot;</span>, <span class="fu">length</span>(time_frame))</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (num <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(time_frame)) {</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(dyads, year <span class="sc">==</span> time_frame[num])[, <span class="fu">c</span>(<span class="st">&quot;ccode1&quot;</span>, <span class="st">&quot;ccode2&quot;</span>, <span class="st">&quot;FLOW&quot;</span>)] <span class="sc">%&gt;%</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> ccode2, <span class="at">names_sort =</span> <span class="cn">TRUE</span>, <span class="at">values_from =</span> FLOW) <span class="sc">%&gt;%</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">column_to_rownames</span>(<span class="at">var =</span> <span class="st">&quot;ccode1&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.matrix</span>() <span class="ot">-&gt;</span> net</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  network_trade[[num]] <span class="ot">&lt;-</span> <span class="fu">as.network</span>(net)</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Does not work because types nodes enter and exit the international system. Drop these?</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># trade_dynamic_network &lt;- networkDynamic(network.list=network_trade)</span></span></code></pre></div>
 <h1 id="mcw-weapon-transfers">MCW Weapon Transfers</h1>
 <p>Replication files from <em>Separable and semiparametric network-based counting processes applied to the international combat aircraft trades</em>.</p>
-<h1 id="other-covariates-using-peacesciencer">Other Covariates using <code>peacesciencer</code></h1>
-<h2 id="nodal-covariates">Nodal Covariates</h2>
-<p>Include , constructed using <code>peacesciencer</code>.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">create_stateyears</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_democracy</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_nmc</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_sdp_gdp</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_cow_wars</span>(<span class="at">type =</span> <span class="st">&quot;intra&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">%in%</span> time_frame) <span class="ot">-&gt;</span> nodal</span></code></pre></div>
-<pre><code>## Joining, by = c(&quot;ccode&quot;, &quot;year&quot;)
-## Joining, by = c(&quot;ccode&quot;, &quot;year&quot;)
-## Joining, by = c(&quot;ccode&quot;, &quot;year&quot;)
-## Joining, by = c(&quot;ccode&quot;, &quot;year&quot;)</code></pre>
-<h2 id="dyadic-covariates">Dyadic Covariates</h2>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">create_dyadyears</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  add_capital_distance <span class="sc">%&gt;%</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_contiguity</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_minimum_distance</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_atop_alliance</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_cow_mids</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_cow_wars</span>(<span class="at">type =</span> <span class="st">&quot;inter&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">%in%</span> time_frame)<span class="ot">-&gt;</span> dyadic</span></code></pre></div>
-<pre><code>## Joining, by = c(&quot;ccode1&quot;, &quot;ccode2&quot;, &quot;year&quot;)
-## Joining, by = c(&quot;ccode1&quot;, &quot;ccode2&quot;, &quot;year&quot;)
-## Joining, by = c(&quot;ccode1&quot;, &quot;ccode2&quot;, &quot;year&quot;)
-## Joining, by = c(&quot;ccode1&quot;, &quot;ccode2&quot;, &quot;year&quot;)</code></pre>
-<pre><code>## add_cow_mids() IMPORTANT MESSAGE: By default, this function whittles dispute-year data into dyad-year data by first selecting on unique onsets. Thereafter, where duplicates remain, it whittles dispute-year data into dyad-year data in the following order: 1) retaining highest `fatality`, 2) retaining highest `hostlev`, 3) retaining highest estimated `mindur`, 4) retaining reciprocated over non-reciprocated observations, 5) retaining the observation with the lowest start month, and, where duplicates still remained (and they don&#39;t), 6) forcibly dropping all duplicates for observations that are otherwise very similar.
-## See: http://svmiller.com/peacesciencer/articles/coerce-dispute-year-dyad-year.html</code></pre>
-<pre><code>## Joining, by = c(&quot;ccode1&quot;, &quot;ccode2&quot;, &quot;year&quot;, &quot;sidea1&quot;, &quot;sidea2&quot;)</code></pre>
+<h1 id="save">Save</h1>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(network_trade, <span class="st">&quot;data/out/network_trade.rds&quot;</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co"># saveRDS(network_armstrade, &quot;data/out/network_trade.rds&quot;)</span></span></code></pre></div>
 
 </main>
 
