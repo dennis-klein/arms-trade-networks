@@ -1,7 +1,12 @@
 # SIPRI raw data
 
 
-How to download the SIPRI data:
+1950-1970.txt etc. until 2019  
+from Cornelius Fritz
+
+
+
+The file "sipri-arms-by-seller_1980_2020.csv" was downloaded in the following way:
 
 ```text
 curl http://armstrade.sipri.org/armstrade/html/export_trade_register.php --compressed \
