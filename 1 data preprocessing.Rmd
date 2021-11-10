@@ -5,10 +5,10 @@ author: "Dennis Klein, Daniel Seussler "
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
   cleanrmd::html_document_clean:
+    keep_md: true
     theme: tacit  # see cleanrmd::cleanrmd_themes()
                   # or set to NULL for dynamic theme picker (requires internet)
 ---
-
 
 # Start
 
