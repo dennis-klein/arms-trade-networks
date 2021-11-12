@@ -1,4 +1,4 @@
-# Data Preprocessing 
+# Data Preprocessing: CEPII Tradehist
 
 # Sources
 
@@ -7,34 +7,19 @@
 # Exchange Rates <https://www.measuringworth.com/datasets/exchangeglobal/>
 #   CPI US <https://www.statbureau.org/en/united-states/cpi-u>
 # Replication files <https://www.cambridge.org/core/journals/network-science/article/separable-and-semiparametric-networkbased-counting-processes-applied-to-the-international-combat-aircraft-trades/0D57EC7B7E1775B0BEF72BDE101E507F#article>
-# Peacesciencer <http://svmiller.com/peacesciencer/index.html>
 
-library(countrycode)
-library(readxl)
+
+library(data.table)
 library(tidyverse)
-library(peacesciencer)
-library(statnet)
+library(readxl)
 
 
-# define time frame of analysis
-time_frame <- 1991:2014
+# load countrylist
+load("data/out/country_list.RData")
 
 
-# create state-year nodelist
-create_stateyears(system = "cow", mry = FALSE) %>%
-  add_democracy() %>%
-  add_nmc() %>%
-  add_sdp_gdp() %>%
-  filter(year %in% time_frame) -> nodes
-
-
-# create directed state-state-year nodelist
-create_dyadyears(system = "cow", mry = FALSE) %>%
-  add_capital_distance %>%
-  add_contiguity() %>%
-  add_minimum_distance() %>%
-  add_atop_alliance() %>%
-  filter(year %in% time_frame) -> dyads
+# create tradematrix
+cepii_trade <- list()
 
 
 # load CEPII TRADEHIST data
@@ -42,11 +27,22 @@ TRADHIST_BITRADE_BITARIFF_1 <- read_excel("data/raw/CEPII TRADEHIST/TRADHIST_BIT
 TRADHIST_BITRADE_BITARIFF_2 <- read_excel("data/raw/CEPII TRADEHIST/TRADHIST_BITRADE_BITARIFF_2.xlsx")
 TRADHIST_BITRADE_BITARIFF_3 <- read_excel("data/raw/CEPII TRADEHIST/TRADHIST_BITRADE_BITARIFF_3.xlsx")
 
+tradehist <- rbindlist(list(
+  TRADHIST_BITRADE_BITARIFF_1,
+  TRADHIST_BITRADE_BITARIFF_2,
+  TRADHIST_BITRADE_BITARIFF_3
+), fill = TRUE)
+
+rm(
+  TRADHIST_BITRADE_BITARIFF_1,
+  TRADHIST_BITRADE_BITARIFF_2,
+  TRADHIST_BITRADE_BITARIFF_3
+)
+
 
 # currency is British Pound Sterling. 
-# nominal trade flows, rebase to constant 2011$ USD.
-exchange_usd_gbp <- read.csv(file = "data/raw/EXCHANGEGLOBAL_1945-2020.csv", 
-                             header = FALSE) %>%
+# nominal trade flows, rebase to constant 2005$ USD.
+exchange_usd_gbp <- read.csv(file = "data/raw/EXCHANGEGLOBAL_1945-2020.csv", header = FALSE) %>%
   rename(year = V1, GBP_USD = V2) %>%
   mutate(GBP_USD = as.numeric(gsub(" British Pound", "", GBP_USD)))
 
@@ -59,93 +55,71 @@ cpi_us <- read.csv(file = "data/raw/united-states.index.cpi-u (statbureau.org).c
                names_to = "month", values_to = "cpi") %>% 
   group_by(year) %>%
   summarize(cpi = mean(cpi)) %>%
-  mutate(cpi_factor = cpi / as.numeric(filter(., year == 2011)[,2]))
+  mutate(cpi_factor = cpi / as.numeric(filter(., year == 2005)[,2]))
 
 
 # merge data, filter for out time-frame. 
 # do conversions and replace flow_0 values. 
-TRADHIST_BITRADE_BITARIFF_1 %>%
-  bind_rows(TRADHIST_BITRADE_BITARIFF_2) %>%
-  bind_rows(TRADHIST_BITRADE_BITARIFF_3) %>%
-  filter(year %in% time_frame) %>%
+tradehist %>%
+  filter(year %in% 1950:2018) %>%
   mutate(FLOW = replace(FLOW, FLOW_0 == 0, 0)) %>%
   left_join(exchange_usd_gbp, by = c("year" = "year"), na_matches = "never") %>%
   left_join(cpi_us, by = c("year" = "year"), na_matches = "never") %>%
   mutate(FLOW = (FLOW / GBP_USD) / cpi_factor) %>% 
-  select(iso_o, iso_d, year, FLOW) -> bilateral_trade
+  select(iso_o, iso_d, year, FLOW) -> tradehist
 
 
-# include COW codes using countrycode 
-dict <- c(
-  "ABW" = NA, 
-  "ANT" = NA, 
-  "BMU" = NA, 
-  "CUW" = NA,
-  "CZSK" = 315, 
-  "EDEU" = 265, 
-  "FLK" = NA, 
-  "FRO" = NA, 
-  "GIB" = NA, 
-  "GLP" = NA, 
-  "GRL" = NA, 
-  "GUF" = NA, 
-  "HKG" = NA, 
-  "MAC" = NA,
-  "MTQ" = NA, 
-  "NCL" = NA, 
-  "PYF" = NA,
-  "REU" = NA,
-  "ROM" = 360, 
-  "SHN" = NA,
-  "SPM" = NA,
-  "USSR" = 365, 
-  "WDEU" = 260, 
-  "YAR" = NA,
-  "YMD" = NA, 
-  "YUG"= 345
-)
-
-bilateral_trade %>%
-  mutate(ccode1 = countrycode(iso_o, "iso3c", "cown", custom_match = dict)) %>%
-  mutate(ccode2 = countrycode(iso_d, "iso3c", "cown", custom_match = dict)) -> bilateral_trade
+# Match the country names with the ids in country_list
+tradehist$from_id = match(tradehist$iso_o, country_list$cepii)
+tradehist$to_id = match(tradehist$iso_d, country_list$cepii)
 
 
-# merge to other covariates
-dyads %>% left_join(
-    bilateral_trade,
-    by = c("ccode1" = "ccode1", "ccode2" = "ccode2", "year" = "year"),
-    na_matches = "never"
-  ) -> dyads
+# check not matched countries
+unique(tradehist$iso_o[is.na(tradehist$from_id)])
+unique(tradehist$iso_d[is.na(tradehist$to_id)])
+
+    # some are micro states and will be dropped in the analysis
+    # how to handle East / West Germany, Russia - has to be adapted
+    # check these again!
+
+tradehist$from_id[tradehist$iso_o == "USSR"] <- 154
+tradehist$to_id[tradehist$iso_d == "USSR"] <- 154
+
+tradehist$from_id[tradehist$iso_o == "EDEU"] <- 71
+tradehist$to_id[tradehist$iso_d == "EDEU"] <- 71
+
+tradehist$from_id[tradehist$iso_o == "WDEU"] <- 72
+tradehist$to_id[tradehist$iso_d == "WDEU"] <- 72
+
+tradehist$from_id[tradehist$iso_o == "CZSK"] <- 52
+tradehist$to_id[tradehist$iso_d == "CZSK"] <- 52
+
+tradehist$from_id[tradehist$iso_o == "ROM"] <- 153
+tradehist$to_id[tradehist$iso_d == "ROM"] <- 153
 
 
-# what is the distribution of bilateral trade flows normed by country GDP? Thurner 2019?
-# select appropiate cut-off to binarize the network
-
-## to do ##
+# exclude countries which are not part of the analysis
+tradehist <- tradehist[!(is.na(tradehist$from_id) | is.na(tradehist$to_id)),]
 
 
-# create network object
-network_trade <- vector("list", length(time_frame))
-network_trade_binary <- vector("list", length(time_frame))
+# create a list of 69 adjacency matrices, one for each year from 1950:2018
+for (i in 1:69){
+  cepii_trade[[i]]<- matrix(NA,257,257)
+  colnames(cepii_trade[[i]])<-country_list$V1
+  rownames(cepii_trade[[i]])<-country_list$V1
+}
 
-for (num in 1:length(time_frame)) {
-  
-  filter(dyads, year == time_frame[num])[, c("ccode1", "ccode2", "FLOW")] %>%
-    pivot_wider(names_from = ccode2, names_sort = TRUE, values_from = FLOW) %>%
-    column_to_rownames(var = "ccode1") %>%
-    as.matrix() %>%
-    as.network() -> network_trade[[num]]
-  
+for (i in 1950:2018){
+  tmp_tradehist = tradehist[tradehist$year == i, ]
+  cepii_trade[[i - 1949]][cbind(tmp_tradehist$from_id, tmp_tradehist$to_id)] <- tmp_tradehist$FLOW
 }
 
 
-# create dynamic network object
-# issue of states entering and leaving the network
+# what is the distribution of bilateral trade flows normed by country GDP? 
+# select appropriate cut-off to binarize the network - Thurner 2019?
 
 ## to do ##
 
-# trade_dynamic_network <- networkDynamic(network.list=network_trade)
-
 
 # save network list 
-saveRDS(network_trade, "data/out/network_trade.rds")
+save(cepii_trade, file = "data/out/cepii_trade.RData")
