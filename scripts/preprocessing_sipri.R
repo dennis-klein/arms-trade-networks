@@ -1,5 +1,7 @@
-# clean the SIPRI data from Cornelius Fritz
-# code is partly taken from Cornelius Fritz
+# Preprocessing of the SIPRI data
+
+# Large Parts from the following code are taken from the 
+# replication files of Fritz, C et al. 2021
 
 # run to create usable dataset on ARMS DEALS and TOTAL ARMS TRADE PER YEAR
 # data/processed/sipri_arms_deals_1950_2019.rds
@@ -7,13 +9,15 @@
 
 
 library(readr)
+library(data.table)
 library(dplyr)
 library(tidyr)
-library(purr)
-library(stringr)
 
 
-paths <- c(
+# load countrylist
+load("data/out/country_list.RData")
+
+paths <- list(
   "data/raw/SIPRI/1950_1970.txt",
   "data/raw/SIPRI/1971_1980.txt",
   "data/raw/SIPRI/1981_1990.txt",
@@ -21,98 +25,98 @@ paths <- c(
   "data/raw/SIPRI/2001_2019.txt"
 )
 
-# read in raw SIPRI data
-deals_raw <- read_delim(paths, delim = ";", skip = 5)
-deals <- deals_raw
-names(deals) <- str_replace_all(names(deals), " ", ".") 
-
-# converting variables to correct type
-deals <- deals %>%
-  mutate(
-    `Deal.ID` = as.integer(`Deal.ID`),
-    Seller = factor(Seller),
-    Buyer = factor(Buyer),
-    `Armament.category` = factor(`Armament.category`),
-    Designation = factor(Designation),
-    `Order.date` = as.integer(`Order.date`),
-    `Order.date.is.estimate` = if_else(`Order.date.is.estimate`=="Yes", 1, 0) %>% 
-      as.integer(),
-    `Numbers.delivered` = as.integer(`Numbers.delivered`),
-    `Numbers.delivered is estimate` = if_else(`Numbers.delivered.is.estimate`=="Yes", 1, 0) %>% 
-      as.integer(),
-    Status = factor(Status),
-    `Local.production` = if_else(`Local.production`=="Yes", 1, 0) %>% 
-      as.integer()
-  ) %>% 
-  rename(Order.year = Order.date)
-
-# NOTE: warning message, but data seems fine
-
-# save cleaned deal data
-saveRDS(deals, "data/out/sipri_arms_deals_1950_2019.rds")
-
-### build panel (seller, buyer, year)
-
-# restrict to year 1990 to 2019
-deals <- deals %>% 
-  filter(between(`Order.year`, 1990, 2019))
-
-# group to panel (seller, buyer, year)
-# total trade, number of orders
-arms <- deals %>% 
-  group_by(Seller, Buyer, `Order.year`) %>% 
-  summarise(
-    TIV.total.delivered = sum(`TIV.delivery.values`),
-    num.orders = n()
-  ) %>% 
-  arrange(desc(TIV.total.delivered)) %>% 
-  ungroup()
-
-# save data
-saveRDS(arms, "data/out/sipri_arms_trade_1990_2019.rds")
 
 
-### create networks matrices for MCW trades
-country.list <- union(arms$Seller, arms$Buyer) %>% sort()
+dfl = lapply(paths, read.csv, sep = ";", skip = 4) # Read the files into a list
+dfl = rbindlist(dfl) # Make one data.table out of the read files
+changeCols<- names(dfl)
+# Make factors to characters
+dfl[, (changeCols) := lapply(.SD, as.character), .SDcols = changeCols]
+# Unkown countries are deleted 
+dfl = dfl[dfl$Seller != ""]
+# There seems to be Problem with deals whose description includes in the raw data a ; in the Description 
+missing_tmp = which(suppressWarnings(is.na(as.numeric(as.character(dfl$Delivery.year)))))
+dfl[missing_tmp,6:16] = dfl[missing_tmp,7:17]
 
-net.frame <- arms %>%
-  select(Seller, Buyer, Order.year, TIV.total.delivered) %>% 
-  mutate(
-    period = Order.year - min(Order.year) + 1,
-    seller.id = match(arms$Seller, country.list),
-    buyer.id = match(arms$Buyer, country.list)
-  )
+dfl$Delivery.year = suppressWarnings(as.numeric(as.character(dfl$Delivery.year)))
+dfl$Order.date = suppressWarnings(as.numeric(as.character(dfl$Order.date)))
 
-years <- unique(arms$Order.year) %>% sort()
-T <- length(years)
-N <- length(country.list)
+dfl$Seller[dfl$Seller == "Cote d'Ivoire"] = "Cote dIvoire"
+# Czechia = Czech Republic
+dfl$Seller[dfl$Seller == "Czechia"] = "Czech Republic"
+# Macedonia = Macedonia (FYROM)
+dfl$Seller[dfl$Seller == "Macedonia"] = "Macedonia (FYROM)"
+# East Germany (GDR) = German Democratic Republic
+dfl$Seller[dfl$Seller == "East Germany (GDR)"] = "German Democratic Republic"
+# Bosnia-Herzegovina = Bosnia and Herzegovina
+dfl$Seller[dfl$Seller == "Bosnia-Herzegovina"] = "Bosnia and Herzegovina"
+# Cote d'Ivoire = Cote dIvoire
 
-# create continuous networks
-net.MCW.cont <- array(rep(0.0, T*N*N), dim = c(T, N, N))
-for (t in 1:T) {
-  # frame for year t
-  net.frame.t <- net.frame %>% 
-    filter(period == t)
-  # fill in year t values
-  net.MCW.cont[t, net.frame.t$seller.id, net.frame.t$buyer.id] <- net.frame.t$TIV.total.delivered
+dfl$Buyer[dfl$Buyer == "Cote d'Ivoire"] = "Cote dIvoire"
+# Czechia = Czech Republic
+dfl$Buyer[dfl$Buyer == "Czechia"] = "Czech Republic"
+# Macedonia = Macedonia (FYROM)
+dfl$Buyer[dfl$Buyer == "Macedonia"] = "Macedonia (FYROM)"
+# East Germany (GDR) = German Democratic Republic
+dfl$Buyer[dfl$Buyer == "East Germany (GDR)"] = "German Democratic Republic"
+# Bosnia-Herzegovina = Bosnia and Herzegovina
+dfl$Buyer[dfl$Buyer == "Bosnia-Herzegovina"] = "Bosnia and Herzegovina"
+
+dfl$Seller[dfl$Seller == "Soviet Union"] = "Russia" # Change all transactions with the Soviet Union to Russia 
+dfl$Buyer[dfl$Buyer == "Soviet Union"] = "Russia" 
+
+dfl$SIPRI.estimate = as.numeric(dfl$SIPRI.estimate)
+dfl$TIV.deal.unit = as.numeric(dfl$TIV.deal.unit)
+dfl$TIV.delivery.values = as.numeric(dfl$TIV.delivery.values)
+
+
+# should we select for different arms categories?
+tiv_dfl = dfl
+
+tiv_dfl = aggregate(tiv_dfl$TIV.delivery.values, 
+                    by = list(paste(tiv_dfl$Seller,tiv_dfl$Buyer, tiv_dfl$Delivery.year,sep = "_")), 
+                    sum) # Aggregate all TIV values by country combination and year 
+
+tmp = unlist(strsplit(tiv_dfl$Group.1,split = "_")) # 1,4,7 ... are sender 2,5,8 ... are recevier 3,6,9 ... is the year  
+
+tiv_dfl$from = tmp[seq(1,to = length(tmp),by = 3)]
+tiv_dfl$to = tmp[seq(2,to = length(tmp),by = 3)]
+tiv_dfl$year = as.numeric(tmp[seq(3,to = length(tmp),by = 3)])
+tiv_dfl$from_id = match(tiv_dfl$from,country_list$SIPRI) # Match the country names with the ids in country_list
+tiv_dfl$to_id = match(tiv_dfl$to,country_list$SIPRI)
+
+
+# Try matching the unmatched names with the alternative name also given in country_list
+tiv_dfl$from_id[is.na(tiv_dfl$from_id)] = match(tiv_dfl$from[is.na(tiv_dfl$from_id)],country_list$V1)
+tiv_dfl$to_id[is.na(tiv_dfl$to_id)] = match(tiv_dfl$to[is.na(tiv_dfl$to_id)],country_list$V1)
+
+unique(tiv_dfl$to[is.na(tiv_dfl$to_id)]) # Rest of the unmatched countries are not independent states and thus not part of the analysis 
+unique(tiv_dfl$from[is.na(tiv_dfl$from_id)]) # Rest of the unmatched countries are not independent states and thus not part of the analysis 
+
+
+# Delete all observations where the id is not known 
+tiv_dfl = tiv_dfl[!(is.na(tiv_dfl$from_id) | is.na(tiv_dfl$to_id)),]
+
+sipri_tiv<- list()
+
+# create a list of 69 adjacency matrices, one for each year from 1950:2017. 
+
+for (i in 1:69){
+  sipri_tiv[[i]]<- matrix(0,257,257)
+  colnames(sipri_tiv[[i]])<-country_list$V1
+  rownames(sipri_tiv[[i]])<-country_list$V1
 }
 
-# create discrete networks
-net.MCW.discr <- ifelse(net.MCW.cont > 0, 1, 0) %>% as.integer()
 
+# Fill the matrix per year 
+for(i in 1950:2018){
+  tmp <- tiv_dfl[tiv_dfl$year == i,]
+  sipri_tiv[[i- 1949]][cbind(tmp$from_id, tmp$to_id)] = tmp$x
+}
 
-# set attributes
-attr(net.MCW.cont, "years") <- years
-attr(net.MCW.discr, "years") <- years
-attr(net.MCW.cont, "country.list") <- country.list
-attr(net.MCW.discr, "country.list") <- country.list
+# Note: different thresholds for binary coercion can be choosen later 
+# or automatically in network object
 
-# save networks
-saveRDS(net.MCW.cont, "data/out/MCW_trade_net_cont.rds")
-saveRDS(net.MCW.discr, "data/out/MCW_trade_net_discr.rds")
+# Save
+save(sipri_tiv,file = "data/out/sipri_tiv.RData")
 
-
-
-# BACKUP
-# expand panel
-# index <- arms %>% expand(Seller, Buyer, `Order date`)
