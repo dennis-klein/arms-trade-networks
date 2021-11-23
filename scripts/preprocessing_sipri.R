@@ -30,10 +30,13 @@ paths <- list(
 dfl = lapply(paths, read.csv, sep = ";", skip = 4) # Read the files into a list
 dfl = rbindlist(dfl) # Make one data.table out of the read files
 changeCols<- names(dfl)
+
 # Make factors to characters
 dfl[, (changeCols) := lapply(.SD, as.character), .SDcols = changeCols]
+
 # Unkown countries are deleted 
 dfl = dfl[dfl$Seller != ""]
+
 # There seems to be Problem with deals whose description includes in the raw data a ; in the Description 
 missing_tmp = which(suppressWarnings(is.na(as.numeric(as.character(dfl$Delivery.year)))))
 dfl[missing_tmp,6:16] = dfl[missing_tmp,7:17]
@@ -42,27 +45,19 @@ dfl$Delivery.year = suppressWarnings(as.numeric(as.character(dfl$Delivery.year))
 dfl$Order.date = suppressWarnings(as.numeric(as.character(dfl$Order.date)))
 
 dfl$Seller[dfl$Seller == "Cote d'Ivoire"] = "Cote dIvoire"
-# Czechia = Czech Republic
 dfl$Seller[dfl$Seller == "Czechia"] = "Czech Republic"
-# Macedonia = Macedonia (FYROM)
 dfl$Seller[dfl$Seller == "Macedonia"] = "Macedonia (FYROM)"
-# East Germany (GDR) = German Democratic Republic
 dfl$Seller[dfl$Seller == "East Germany (GDR)"] = "German Democratic Republic"
-# Bosnia-Herzegovina = Bosnia and Herzegovina
 dfl$Seller[dfl$Seller == "Bosnia-Herzegovina"] = "Bosnia and Herzegovina"
-# Cote d'Ivoire = Cote dIvoire
 
 dfl$Buyer[dfl$Buyer == "Cote d'Ivoire"] = "Cote dIvoire"
-# Czechia = Czech Republic
 dfl$Buyer[dfl$Buyer == "Czechia"] = "Czech Republic"
-# Macedonia = Macedonia (FYROM)
 dfl$Buyer[dfl$Buyer == "Macedonia"] = "Macedonia (FYROM)"
-# East Germany (GDR) = German Democratic Republic
 dfl$Buyer[dfl$Buyer == "East Germany (GDR)"] = "German Democratic Republic"
-# Bosnia-Herzegovina = Bosnia and Herzegovina
 dfl$Buyer[dfl$Buyer == "Bosnia-Herzegovina"] = "Bosnia and Herzegovina"
 
-dfl$Seller[dfl$Seller == "Soviet Union"] = "Russia" # Change all transactions with the Soviet Union to Russia 
+# Change all transactions with the Soviet Union to Russia 
+dfl$Seller[dfl$Seller == "Soviet Union"] = "Russia" 
 dfl$Buyer[dfl$Buyer == "Soviet Union"] = "Russia" 
 
 dfl$SIPRI.estimate = as.numeric(dfl$SIPRI.estimate)
@@ -71,19 +66,20 @@ dfl$TIV.delivery.values = as.numeric(dfl$TIV.delivery.values)
 
 
 # should we select for different arms categories?
+unique(dfl$Armament.category)
 tiv_dfl = dfl
 
 tiv_dfl = aggregate(tiv_dfl$TIV.delivery.values, 
-                    by = list(paste(tiv_dfl$Seller,tiv_dfl$Buyer, tiv_dfl$Delivery.year,sep = "_")), 
-                    sum) # Aggregate all TIV values by country combination and year 
+                    by = list(paste(tiv_dfl$Seller, tiv_dfl$Buyer, tiv_dfl$Order.date, sep = "_")), 
+                    sum) # Aggregate all TIV values by country combination and order year 
 
 tmp = unlist(strsplit(tiv_dfl$Group.1,split = "_")) # 1,4,7 ... are sender 2,5,8 ... are recevier 3,6,9 ... is the year  
 
-tiv_dfl$from = tmp[seq(1,to = length(tmp),by = 3)]
-tiv_dfl$to = tmp[seq(2,to = length(tmp),by = 3)]
-tiv_dfl$year = as.numeric(tmp[seq(3,to = length(tmp),by = 3)])
-tiv_dfl$from_id = match(tiv_dfl$from,country_list$SIPRI) # Match the country names with the ids in country_list
-tiv_dfl$to_id = match(tiv_dfl$to,country_list$SIPRI)
+tiv_dfl$from = tmp[seq(1, to = length(tmp), by = 3)]
+tiv_dfl$to = tmp[seq(2, to = length(tmp), by = 3)]
+tiv_dfl$year = as.numeric(tmp[seq(3, to = length(tmp), by = 3)])
+tiv_dfl$from_id = match(tiv_dfl$from, country_list$SIPRI) # Match the country names with the ids in country_list
+tiv_dfl$to_id = match(tiv_dfl$to ,country_list$SIPRI)
 
 
 # Try matching the unmatched names with the alternative name also given in country_list
@@ -96,11 +92,10 @@ unique(tiv_dfl$from[is.na(tiv_dfl$from_id)]) # Rest of the unmatched countries a
 
 # Delete all observations where the id is not known 
 tiv_dfl = tiv_dfl[!(is.na(tiv_dfl$from_id) | is.na(tiv_dfl$to_id)),]
-
 sipri_tiv<- list()
 
-# create a list of 69 adjacency matrices, one for each year from 1950:2017. 
 
+# create a list of 69 adjacency matrices, one for each year from 1950:2017. 
 for (i in 1:69){
   sipri_tiv[[i]]<- matrix(0,257,257)
   colnames(sipri_tiv[[i]])<-country_list$V1
@@ -108,15 +103,13 @@ for (i in 1:69){
 }
 
 
-# Fill the matrix per year 
+# fill the matrix per year 
 for(i in 1950:2018){
   tmp <- tiv_dfl[tiv_dfl$year == i,]
   sipri_tiv[[i- 1949]][cbind(tmp$from_id, tmp$to_id)] = tmp$x
 }
 
-# Note: different thresholds for binary coercion can be choosen later 
-# or automatically in network object
 
-# Save
-save(sipri_tiv,file = "data/out/sipri_tiv.RData")
+# save
+saveRDS(sipri_tiv, file = "data/out/sipri_tiv.rds")
 
