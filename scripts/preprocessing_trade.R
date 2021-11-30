@@ -18,6 +18,7 @@ load("data/out/country_list.RData")
 
 codes = fread("data/raw/CEPII BACI/country_codes_V202102.csv")
 file_lst = paste0("data/raw/CEPII BACI/BACI_HS92_V202102/", list.files(path = "data/raw/CEPII BACI/BACI_HS92_V202102/")) 
+file_lst = file_lst[-26]
 baci = data.table()
 
 for (string in file_lst){
@@ -54,7 +55,8 @@ cpi_us = cpi_us[year %in% c(1919:2020)]
 months <- c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
 cpi_us = melt(cpi_us, c("year"), measure.vars = months, variable.name = "month", value.name = "cpi")
 cpi_us = cpi_us[, .(cpi = mean(cpi)), by = .(year)]
-cpi_us[, cpi_rebased := cpi / as.numeric(filter(cpi_us, year == 2005)[,2])]
+fctr = as.numeric(cpi_us[year == 2005, 2])
+cpi_us[, cpi_rebased := cpi / fctr]
 
 baci = merge(baci, cpi_us, by.x = "t", by.y = "year", all.x = TRUE)
 baci = baci[, v := v / cpi_rebased][, .(t, i, j, v)]
@@ -134,7 +136,7 @@ exchange_usd_gbp <- fread("data/raw/EXCHANGEGLOBAL_1945-2020.csv")
 setnames(exchange_usd_gbp, c("V1", "V2"), c("year", "GBP_USD"))
 exchange_usd_gbp[, GBP_USD := as.numeric(gsub(" British Pound", "", GBP_USD))]
 
-cpi_us[, cpi_rebased := cpi / as.numeric(filter(cpi_us, year == 2005)[,2])]
+cpi_us[, cpi_rebased := cpi / fctr]
 
 
 # merge data, filter for out time-frame. 
