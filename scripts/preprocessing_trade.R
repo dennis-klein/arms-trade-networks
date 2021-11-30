@@ -27,6 +27,22 @@ for (string in file_lst){
   baci = rbind(baci, tmp)
 }
 
+
+# rebase to 2005 values
+cpi_us = fread("data/raw/united-states.index.cpi-u (statbureau.org).csv")
+setnames(cpi_us, "Year", "year")
+cpi_us = cpi_us[year %in% c(1919:2020)]
+
+months = c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
+cpi_us = melt(cpi_us, c("year"), measure.vars = months, variable.name = "month", value.name = "cpi")
+cpi_us = cpi_us[, .(cpi = mean(cpi)), by = .(year)]
+fctr = as.numeric(cpi_us[year == 2005, 2])
+cpi_us[, cpi_rebased := cpi / fctr]
+
+baci = merge(baci, cpi_us, by.x = "t", by.y = "year", all.x = TRUE)
+baci = baci[, v := v / cpi_rebased][, .(t, i, j, v)]
+
+
 baci = merge(baci, codes[, .(country_code, iso_3digit_alpha)], by.x = "i", by.y = "country_code", all.x = TRUE)
 setnames(baci, "iso_3digit_alpha", "i_iso3")
 baci = merge(baci, codes[, c("country_code", "iso_3digit_alpha")], by.x = "j", by.y = "country_code", all.x = TRUE)
@@ -45,31 +61,18 @@ unique(baci$i_iso3[is.na(baci$from_id)])
 unique(baci$j_iso3[is.na(baci$to_id)]) 
 
 baci = baci[!(is.na(baci$from_id) | is.na(baci$to_id))] # Delete all observations where the id is not known 
-
-
-# rebase to 2005 values
-cpi_us <- fread("data/raw/united-states.index.cpi-u (statbureau.org).csv")
-setnames(cpi_us, "Year", "year")
-cpi_us = cpi_us[year %in% c(1919:2020)]
-
-months <- c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
-cpi_us = melt(cpi_us, c("year"), measure.vars = months, variable.name = "month", value.name = "cpi")
-cpi_us = cpi_us[, .(cpi = mean(cpi)), by = .(year)]
-fctr = as.numeric(cpi_us[year == 2005, 2])
-cpi_us[, cpi_rebased := cpi / fctr]
-
-baci = merge(baci, cpi_us, by.x = "t", by.y = "year", all.x = TRUE)
-baci = baci[, v := v / cpi_rebased][, .(t, i, j, v)]
 tmp = list(); 
 
-yr = 1995
+
 for (i in 1:25){
   tmp[[i]] = matrix(0, 257, 257)
   colnames(tmp[[i]]) = country_list$V1
   rownames(tmp[[i]]) = country_list$V1
   
-  tmp_dfl = baci[t == yr]; yr = yr + 1 # don't ask me why
-  tmp[[i]][cbind(tmp_dfl$from_id, tmp_dfl$to_id)] = tmp_dfl$v
+  yr = i + 1994
+  tmp_dfl = baci[t == yr]; 
+  if (yr != unique(tmp_dfl$t)) {print("Error")}
+  tmp[[i]][cbind(tmp_dfl$from_id, tmp_dfl$to_id)] <- tmp_dfl$v
 }
 
 saveRDS(tmp, file = "data/out/baci_aggregated.rds")
