@@ -108,26 +108,26 @@ par(mfrow = c(3, 2))
 #plot(tEdgeFormation(networks_dynamic_arms, start = 1995, end = 2018), ylab = "Series 1", main="Edge formation counts")
 #lines(tEdgeFormation(networks_dynamic_trade, start = 1995, end = 2018))
 
-plot(tErgmStats(networks_dynamic_arms, '~edges', start = 1995, end = 2018), main = "Arms Transfers: Edge Count")
-plot(1995:2018, unlist(lapply(networks_yearly_cepii, FUN = function(x){network.edgecount(x)})), type = "l", xlab = "Time", ylab = "Series 1", main = "Conventional Trade: Edge Count")
+plot(tErgmStats(networks_dynamic_arms, '~edges', start = 1995, end = 2018), main = "SIPRI: Edge Count")
+plot(1995:2018, unlist(lapply(networks_yearly_cepii, FUN = function(x){network.edgecount(x)})), type = "l", xlab = "Time", ylab = "Series 1", main = "CEPII BACI: Edge Count")
 
-plot(tSnaStats(networks_dynamic_arms, 'gden', start = 1995, end = 2018), main = "Arms Transfers: Network Density")
-plot(1995:2018, unlist(lapply(networks_yearly_cepii, FUN = function(x){network.density(x)})), type = "l", xlab = "Time", ylab = "Series 1", main = "Conventional Trade: Network Density")
+plot(tSnaStats(networks_dynamic_arms, 'gden', start = 1995, end = 2018), main = "SIPRI: Network Density")
+plot(1995:2018, unlist(lapply(networks_yearly_cepii, FUN = function(x){network.density(x)})), type = "l", xlab = "Time", ylab = "Series 1", main = "CEPII BACI: Network Density")
 
-plot(tSnaStats(networks_dynamic_arms, 'grecip', measure = "dyadic.nonnull", start = 1995, end = 2018), main = "Arms Transfers: Network Reciprocity")
-plot(1995:2018, unlist(lapply(networks_yearly_cepii, FUN = function(x){grecip(x, measure = "dyadic.nonnull")})), type = "l", xlab = "Time", ylab = "Series 1", main = "Conventional Trade: Network Reciprocity")
+plot(tSnaStats(networks_dynamic_arms, 'grecip', measure = "dyadic.nonnull", start = 1995, end = 2018), main = "SIPRI: Network Reciprocity")
+plot(1995:2018, unlist(lapply(networks_yearly_cepii, FUN = function(x){grecip(x, measure = "dyadic.nonnull")})), type = "l", xlab = "Time", ylab = "Series 1", main = "CEPII BACI: Network Reciprocity")
 
-plot(tSnaStats(networks_dynamic_arms, 'gtrans', start = 1995, end = 2018), main = "Arms Transfers: Network Transitivity")
-plot(1995:2018, unlist(lapply(networks_yearly_cepii, FUN = function(x){gtrans(x)})), type = "l", xlab = "Time", ylab = "Series 1", main = "Conventional Trade: Network Transitivity")
+plot(tSnaStats(networks_dynamic_arms, 'gtrans', start = 1995, end = 2018), main = "SIPRI: Network Transitivity")
+plot(1995:2018, unlist(lapply(networks_yearly_cepii, FUN = function(x){gtrans(x)})), type = "l", xlab = "Time", ylab = "Series 1", main = "CEPII BACI: Network Transitivity")
 
-plot(tSnaStats(networks_dynamic_arms, "centralization", FUN = "betweenness", start = 1995, end = 2018), main = "Arms Transfers: Betweenness-centrality")
-plot(1995:2018, unlist(lapply(networks_yearly_cepii, FUN = function(x){centralization(x, FUN = "betweenness")})), type = "l", xlab = "Time", ylab = "Series 1", main = "Conventional Trade: Betweenness-centrality")
+plot(tSnaStats(networks_dynamic_arms, "centralization", FUN = "betweenness", start = 1995, end = 2018), main = "SIPRI: Betweenness-centrality")
+plot(1995:2018, unlist(lapply(networks_yearly_cepii, FUN = function(x){centralization(x, FUN = "betweenness")})), type = "l", xlab = "Time", ylab = "Series 1", main = "CEPII BACI: Betweenness-centrality")
 
-plot(tSnaStats(networks_dynamic_arms, "centralization", FUN = "degree", cmode = "indegree", start = 1995, end = 2018), main = "Arms Transfers: In-centrality")
-plot(1995:2018, unlist(lapply(networks_yearly_cepii, FUN = function(x){centralization(x, FUN = "degree", cmode = "indegree")})), type = "l", xlab = "Time", ylab = "Series 1", main = "Conventional Trade: In-centrality")
+plot(tSnaStats(networks_dynamic_arms, "centralization", FUN = "degree", cmode = "indegree", start = 1995, end = 2018), main = "SIPRI: In-centrality")
+plot(1995:2018, unlist(lapply(networks_yearly_cepii, FUN = function(x){centralization(x, FUN = "degree", cmode = "indegree")})), type = "l", xlab = "Time", ylab = "Series 1", main = "CEPII BACI: In-centrality")
 
-plot(tSnaStats(networks_dynamic_arms, "centralization", FUN = "degree", cmode = "outdegree", start = 1995, end = 2018), main = "Arms Transfers: Out-centrality")
-plot(1995:2018, unlist(lapply(networks_yearly_cepii, FUN = function(x){centralization(x, FUN = "degree", cmode = "outdegree")})), type = "l", xlab = "Time", ylab = "Series 1", main = "Conventional Trade: Out-centrality")
+plot(tSnaStats(networks_dynamic_arms, "centralization", FUN = "degree", cmode = "outdegree", start = 1995, end = 2018), main = "SIPRI: Out-centrality")
+plot(1995:2018, unlist(lapply(networks_yearly_cepii, FUN = function(x){centralization(x, FUN = "degree", cmode = "outdegree")})), type = "l", xlab = "Time", ylab = "Series 1", main = "CEPII BACI: Out-centrality")
 
 plot(tErgmStats(networks_dynamic_arms, '~idegree(d=1)', start = 1995, end = 2018), main = "Single Supplier")
 plot(1995:2018, unlist(lapply(networks_yearly_sipri, FUN = function(x){network.size(x)})),  type = "l", xlab = "Time", ylab = "Series 1", main="Network Size")

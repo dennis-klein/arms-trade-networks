@@ -33,7 +33,7 @@ net = graph_from_adjacency_matrix(mat, mode = "directed", diag = FALSE)
 net = set_vertex_attr(net, "lvl", index = V(net), c(rep(1, n), rep(2, n)))
 vertex_attr_names(net)
 
-
+dev.new()
 pdf(file = "figures/plot_multilevel_2001.pdf", paper = "a4r")
 xy <- layout_as_multilevel(net, type = "fix1", FUN1 = layout_with_stress, alpha = 25, beta = 45)
 ggraph(net, "manual", x = xy[, 1], y = xy[, 2]) +
