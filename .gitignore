@@ -41,6 +41,7 @@ vignettes/*.pdf
 # ----- own entries -----
 
 # ignore data files in data folder
+/scripts/ERGM/output/*
 /data/**/*.csv
 /data/**/*.dta
 /data/**/*.xlsx
