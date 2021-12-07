@@ -4,14 +4,20 @@ library(readxl)
 library(imputeTS)
 
 
-
 rm(list = ls(all.names = TRUE))
-load("data/out/country_list.RData")
-load("data/out/EX.RData")
+
+source("utils/utils.R")
+path = data_path.get()
+
+
+# load data
+load(file.path(path, "out/EX.RData"))
+load(file.path(path, "out/colony.RData"))
+load(file.path(path, "out/country_list.RData"))
 
 
 # https://correlatesofwar.org/data-sets/national-material-capabilities  
-nmc = fread("data/raw/NMC-60-abridged.csv")
+nmc = fread(file.path(path, "raw/NMC-60-abridged.csv"))
 
 nmc = nmc[year %in% 1950:2018]
 nmc[stateabb == "GFR", ccode := 255]
@@ -22,12 +28,12 @@ rownames(tmp) = country_list$V1
 colnames(tmp) = 1950:2018
 
 tmp[cbind(nmc$id, nmc$year-1949)] = nmc$cinc
-saveRDS(tmp, file = "data/out/nmc_cinc.rds")
+saveRDS(tmp, file = file.path(path, "out/nmc_cinc.rds"))
 
 
 
 # http://www.systemicpeace.org/inscrdata.html
-polity = as.data.table(read_xls("data/raw/p5v2018.xls"))
+polity = as.data.table(read_xls(file.path(path, "raw/p5v2018.xls")))
 polity = polity[year>1949 & year<2019]
 
 polity[, id := match(ccode, country_list$COW)]; ind_na = is.na(polity$id)
@@ -66,12 +72,12 @@ tmp[country_list$V1 == "Somalia", 62] = 3
 tmp[country_list$V1 == "Syria", 9:11] = 5
 tmp[country_list$V1 == "Uganda", 30] = 0
 
-saveRDS(tmp, file = "data/out/polity.rds")
+saveRDS(tmp, file = file.path(path, "out/polity.rds"))
 
 
 
 # https://correlatesofwar.org/data-sets/COW-war/intra-state-wars-v5-1.zip/view
-intrastate = fread("data/raw/INTRA-STATE_State_participants v5.1 CSV.csv")
+intrastate = fread(file.path(path, "raw/INTRA-STATE_State_participants v5.1 CSV.csv"))
 intrastate[EndYr1 == -7, EndYr1 := 2014]
 
 preserve <- intrastate
@@ -93,12 +99,12 @@ rownames(tmp) = country_list$V1
 colnames(tmp) = 1950:2018
 
 tmp[cbind(intrastate$id, intrastate$year-1949)] = intrastate$conflict 
-saveRDS(tmp, file = "data/out/conflict_intrastate.rds")
+saveRDS(tmp, file = file.path(path, "out/conflict_intrastate.rds"))
 
 
 
 # https://data.worldbank.org/indicator/NY.GDP.MKTP.KD (GDP constant 2015USD)
-gdp = fread("data/raw/API_NY.GDP.MKTP.KD_DS2_en_csv_v2_3358328/API_NY.GDP.MKTP.KD_DS2_en_csv_v2_3358328.csv", header = TRUE)
+gdp = fread(file.path(path, "raw/API_NY.GDP.MKTP.KD_DS2_en_csv_v2_3358328/API_NY.GDP.MKTP.KD_DS2_en_csv_v2_3358328.csv"), header = TRUE)
 gdp$'Country Name'[gdp$'Country Name'== "Congo, Dem. Rep."] = "DR Congo"
 
 gdp$id = match(gdp$'Country Code', country_list$iso3)
@@ -125,7 +131,7 @@ tmp[as.numeric(rownames(gdp_mat)), 11:69] = gdp_mat
 
 
 # https://www.rug.nl/ggdc/historicaldevelopment/maddison/releases/maddison-project-database-2020
-maddison = as.data.table(read_xlsx("data/raw/mpd2020.xlsx", sheet = "Full data"))
+maddison = as.data.table(read_xlsx(file.path(path, "raw/mpd2020.xlsx"), sheet = "Full data"))
 maddison = maddison[year > 1949 & year < 2019]  
 maddison[, gdp := gdppc * pop] 
 
@@ -134,6 +140,7 @@ unique(maddison$country[is.na(maddison$id)])
 
 maddison[country == "Former USSR", id := 154]
 maddison[country == "Czechoslovakia", id := 52]
+maddison[country == "Yemen", id := 219] # our north yemen
 maddison = maddison[!is.na(id)]
 
 tmp2 = matrix(NA, 257, 69)
@@ -152,12 +159,19 @@ existing = which(matrix((rowSums(EX) != 0)*1, 257, 69) == 1 , arr.ind = T)
 to_impute = rbind(gdp_na, existing)[duplicated(rbind(gdp_na, existing)), ]
 
 
-# only impute if at least 40% of the time series is observed
+# impute if at least 40% of the time series is observed
 for (i in unique(to_impute[, 1])){
-  if(sum(is.na(tmp[i, ])) <  sum(EX[i,])*0.4){
+  if(sum(is.na(tmp[i, ])) <  sum(EX[i,])*0.3){
     # plotNA.distribution(tmp[i,])
     tmp[i,] = na_interpolation(tmp[i,])
   }
 }
 
-saveRDS(tmp, file = "data/out/gdp.rds")
+tmp[country_list$V1 == "Somalia", ] = na_interpolation(tmp[country_list$V1 == "Somalia",])
+tmp[country_list$V1 == "Eritrea", 59:61] = c(1857000000, 1590000000, 2065000000)
+tmp[country_list$V1 == "Eritrea", ] = na_interpolation(tmp[country_list$V1 == "Eritrea",])
+
+saveRDS(tmp, file = file.path(path, "out/gdp.rds"))
+
+
+

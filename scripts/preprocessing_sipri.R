@@ -14,15 +14,20 @@ library(dplyr)
 library(tidyr)
 
 
+rm(list = ls(all.names = TRUE))
+
+source("utils/utils.R")
+path = data_path.get()
+
 # load countrylist
-load("data/out/country_list.RData")
+load(file.path(path, "out/country_list.RData"))
 
 paths <- list(
-  "data/raw/SIPRI/1950_1970.txt",
-  "data/raw/SIPRI/1971_1980.txt",
-  "data/raw/SIPRI/1981_1990.txt",
-  "data/raw/SIPRI/1991_2000.txt",
-  "data/raw/SIPRI/2001_2019.txt"
+  file.path(path, "raw/SIPRI/1950_1970.txt"),
+  file.path(path, "raw/SIPRI/1971_1980.txt"),
+  file.path(path, "raw/SIPRI/1981_1990.txt"),
+  file.path(path, "raw/SIPRI/1991_2000.txt"),
+  file.path(path, "raw/SIPRI/2001_2019.txt")
 )
 
 
@@ -111,5 +116,5 @@ for(i in 1950:2018){
 
 
 # save
-saveRDS(sipri_tiv, file = "data/out/sipri_tiv.rds")
+saveRDS(sipri_tiv, file = file.path(path, "out/sipri_tiv.rds"))
 

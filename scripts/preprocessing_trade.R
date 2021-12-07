@@ -5,8 +5,12 @@ library(readxl)
 
 rm(list = ls(all.names = TRUE))
 
+source("utils/utils.R")
+path = data_path.get()
 
-load("data/out/country_list.RData")
+
+# load data
+load(file.path(path, "out/country_list.RData"))
 
 
 # http://www.cepii.fr/cepii/en/bdd_modele/download.asp?id=37
@@ -16,8 +20,8 @@ load("data/out/country_list.RData")
 #  i	Exporter (ISO 3-digit country code) j	Importer (ISO 3-digit country code)
 #  v	Value of the trade flow (in thousands current USD) q	Quantity (in metric tons)
 
-codes = fread("data/raw/CEPII BACI/country_codes_V202102.csv")
-file_lst = paste0("data/raw/CEPII BACI/BACI_HS92_V202102/", list.files(path = "data/raw/CEPII BACI/BACI_HS92_V202102/")) 
+codes = fread(file.path(path,"raw/CEPII BACI/country_codes_V202102.csv"))
+file_lst = paste0(file.path(path,"raw/CEPII BACI/BACI_HS92_V202102/"), list.files(file.path(path, "raw/CEPII BACI/BACI_HS92_V202102/"))) 
 file_lst = file_lst[-26]
 baci = data.table()
 
@@ -29,7 +33,7 @@ for (string in file_lst){
 
 
 # rebase to 2005 values
-cpi_us = fread("data/raw/united-states.index.cpi-u (statbureau.org).csv")
+cpi_us = fread(file.path(path, "raw/united-states.index.cpi-u (statbureau.org).csv"))
 setnames(cpi_us, "Year", "year")
 cpi_us = cpi_us[year %in% c(1919:2020)]
 
@@ -75,7 +79,7 @@ for (i in 1:25){
   tmp[[i]][cbind(tmp_dfl$from_id, tmp_dfl$to_id)] <- tmp_dfl$v
 }
 
-saveRDS(tmp, file = "data/out/baci_aggregated.rds")
+saveRDS(tmp, file = file.path(path, "out/baci_aggregated.rds"))
 rm(tmp, tmp_dfl, baci, codes)
 
 
@@ -87,7 +91,9 @@ rm(tmp, tmp_dfl, baci, codes)
 # 120 in manufacturing, and 17 in services.
 # https://www.usitc.gov/data/gravity/itpde_guide/industries_list/
 
-itpd = fread("data/raw/itpd_e_r01/ITPD_E_R01.csv")
+itpd = fread(file.path(path, "raw/itpd_e_r01/ITPD_E_R01.csv"))
+itpd[, broad_sector := as.factor(broad_sector)]; levels(itpd$broad_sector)
+itpd = itpd[broad_sector == "Mining_Energy"]
 itpd = itpd[, .(trade = sum(trade)), by = .(exporter_iso3, importer_iso3, year)]
 
 itpd[, from_id:=match(exporter_iso3, country_list$iso3)]
@@ -108,7 +114,7 @@ for (i in 2000:2016){
   tmp[[i- 1999]][cbind(tmp_dfl$from_id, tmp_dfl$to_id)] = tmp_dfl$trade
 }
 
-saveRDS(tmp, file = "data/out/itpd_aggregated.rds")
+saveRDS(tmp, file = file.path(path, "out/itpd_mining-energy.rds"))
 rm(tmp, tmp_dfl, itpd)
 
 
@@ -119,9 +125,9 @@ rm(tmp, tmp_dfl, itpd)
 # Exchange Rates <https://www.measuringworth.com/datasets/exchangeglobal/>
 #   CPI US <https://www.statbureau.org/en/united-states/cpi-u>
 
-TRADHIST_BITRADE_BITARIFF_1 <- read_excel("data/raw/CEPII TRADEHIST/TRADHIST_BITRADE_BITARIFF_1.xlsx")
-TRADHIST_BITRADE_BITARIFF_2 <- read_excel("data/raw/CEPII TRADEHIST/TRADHIST_BITRADE_BITARIFF_2.xlsx")
-TRADHIST_BITRADE_BITARIFF_3 <- read_excel("data/raw/CEPII TRADEHIST/TRADHIST_BITRADE_BITARIFF_3.xlsx")
+TRADHIST_BITRADE_BITARIFF_1 = read_excel(file.path(path, "raw/CEPII TRADEHIST/TRADHIST_BITRADE_BITARIFF_1.xlsx"))
+TRADHIST_BITRADE_BITARIFF_2 = read_excel(file.path(path, "raw/CEPII TRADEHIST/TRADHIST_BITRADE_BITARIFF_2.xlsx"))
+TRADHIST_BITRADE_BITARIFF_3 = read_excel(file.path(path, "raw/CEPII TRADEHIST/TRADHIST_BITRADE_BITARIFF_3.xlsx"))
 
 tradehist <- rbindlist(list(
   TRADHIST_BITRADE_BITARIFF_1,
@@ -135,7 +141,7 @@ rm(TRADHIST_BITRADE_BITARIFF_1,TRADHIST_BITRADE_BITARIFF_2,TRADHIST_BITRADE_BITA
 # currency is British Pound Sterling. 
 # nominal trade flows, rebase to constant 2005$ USD.
 
-exchange_usd_gbp <- fread("data/raw/EXCHANGEGLOBAL_1945-2020.csv") 
+exchange_usd_gbp = fread(file.path(path, "raw/EXCHANGEGLOBAL_1945-2020.csv"))
 setnames(exchange_usd_gbp, c("V1", "V2"), c("year", "GBP_USD"))
 exchange_usd_gbp[, GBP_USD := as.numeric(gsub(" British Pound", "", GBP_USD))]
 
@@ -197,7 +203,7 @@ for (i in 1950:2018) {
 }
 
 # save network list 
-saveRDS(tmp, file = "data/out/cepii_trade.rds")
+saveRDS(tmp, file = file.path(path, "out/cepii_trade.rds"))
 rm(tmp, tmp_dfl, tradehist)
 
 
