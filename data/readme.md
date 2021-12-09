@@ -41,36 +41,49 @@ GBP / USD Exchange Rate
 ## Folder: data/out/
 Note: different time-frames apply!
 
-atop_alliance.RData: List of yearly (69) matrices (257 x 257) indicating if in year t, country i had an alliance with country j. (Check: defense alliance?)  
+atop_alliance.RData: List of yearly (69) matrices (257 x 257) indicating if in 
+year t, country i had an alliance with country j. (Check: defense alliance?)  
 
-baci_aggregated.rds: List of yearly (25, 1995 to 2018) matrices (257 x 257); numerical, aggregated export flows. Source: cepii baci. 
+baci_aggregated.rds: List of yearly (25, 1995 to 2018) matrices (257 x 257); 
+numerical, aggregated export flows. Source: cepii baci. Rebased to constant 2010 USD.
 
-cdist.RData: Matrix with dimensions 257 x 257, numerical for capital distance between country i and j.
-
-cepii_trade.rds: List of yearly (69, 1950 to 2018) matrices (257 x 257); numerical, aggregated export flows. Source: cepii tradhist.
+cdist.RData: Matrix with dimensions 257 x 257, numerical for capital distance 
+between country i and j.
 
 colony.RData: Matrix of dimensions 257 x 257, dummy 1 for colonial dependency
 
-conflict_intrastate.rds: Matrix of dimensions 257 x 69, dummy 1 if intrastate conflict present in country i and year j.
+conflict_intrastate.rds: Matrix of dimensions 257 x 69, dummy 1 if intrastate 
+conflict present in country i and year j.
 
-country_list.RData: data.frame with 257 observations: countries with respective identification.
+country_list.RData: data.frame with 257 observations: countries with respective 
+identification.
 
 EX.RData: Matrix of dimensions 257 x 69 with dummys 1 if country i existed in year j
 
-gdp.rds: Matrix of dimensions 257 x 69 with numerical constant USD GDP from the World Bank, Augumented with data from Maddison (check correct denomination!).
+gdp.rds: Matrix of dimensions 257 x 69 with numerical constant USD GDP from the 
+World Bank, Augumented with data from Maddison (check correct denomination!).
 
-itpd_mining-energy.rds: List of yearly (17, 2000 to 2016) matrices (257 x 257); numerical, aggregated export flows in category mining/energy.
+itpd_mining-energy.rds: List of yearly (17, 2000 to 2016) matrices (257 x 257); 
+numerical, aggregated export flows in category mining/energy. 
+Not rebased because we don't need it any more.
+
+itpd_aggregated.rds: List of yearly (17, 2000 to 2016) matrices (257 x 257); 
+numerical, aggregated export flows. Rebased to constant 2010 USD.
 
 milit_exp.RData: Matrix of dimensions 257 x 69, numerical for military expenditure. Source: NMC
 
 nmc_cinc.rds: Matrix of dimensions 257 x 69, numerical for nmc index (percentage), imputed with 0.
 
-polity.RData: Matrix with dimensions 257 x 69, integer from -10 to 10 indicating country system, time series harmonized. Plausible imputed values.
+polity.RData: Matrix with dimensions 257 x 69, integer from -10 to 10 indicating 
+country system, time series harmonized. Plausible imputed values.
 
 pop.RData: Matrix with dimensions 257 x 69, numerical for total population. Source: ?
 
-sipri_tiv.rds: List of yearly (69, 1950 to 2018) matrices (257 x 257); numerical, aggregated TIV Values for Order Dates (!) indicating the ordered transfer in year t, from country i to j.
+sipri_tiv.rds: List of yearly (69, 1950 to 2018) matrices (257 x 257); numerical, 
+aggregated TIV Values for Order Dates (!) indicating the ordered transfer in year t, from country i to j.
 
+tradhist_aggregated.rds.rds: List of yearly (69, 1950 to 2018) matrices (257 x 257); 
+numerical, aggregated export flows. Source: CEPII TRADHIST. Constant 2010 USD
 
 RData files taken from the replication files of https://www.cambridge.org/core/journals/network-science/article/separable-and-semiparametric-networkbased-counting-processes-applied-to-the-international-combat-aircraft-trades/0D57EC7B7E1775B0BEF72BDE101E507F
 
