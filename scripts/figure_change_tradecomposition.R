@@ -59,10 +59,10 @@ itpd = dcast(itpd, year~broad_sector)
 data = as.matrix(itpd)
 
 
-pdf("figures/change_in_tradecomposition.pdf", family = "ArialMT",
-    height = 17.35 / 2.54, width = 23.35 / 2.54, pointsize = 18)
+png("figures/change_in_tradecomposition.png", res = 600, 
+    height = 17.35 / 2.54, width = 23.35 / 2.54, units = "in", pointsize = 12)
 
-areaplot(data[, 1], data[, 2:5], main = "ITPD: Changes in Trade Composition of Broad Sectors", 
+areaplot(data[, 1], data[, 2:5], main = "ITPD: Changes in Trade Composition of Broad Sectors \n in Billion constant 2010 USD", 
          legend = TRUE, args.legend = list(x = "topleft", cex = 0.75),
          col = hcl.colors(4, palette = "viridis", alpha = 0.8),
          xlab = "Year", ylab = "")
