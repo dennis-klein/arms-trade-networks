@@ -1,3 +1,22 @@
+# Estimation Strategy: Multilayer ERGMs
+
+## Descriptions
+
+check.R helper script which checks for NA's in later used data 
+setup, not required to run
+
+
+estimation hyper.R script to determine hyper parameters in the 
+decay values of gwesp. grid search of dependence model in the year 2008 (network rise in densities, hence median of time period) estimated by mple (because feasible)
+
+
+estimation model 2002.R
+
+
+evaluation.R
+
+
+
 ## To Do's for the ERGM model
 
 - fix NA's in polity and ia nmc i.e. transparent implementation
