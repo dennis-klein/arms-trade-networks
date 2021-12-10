@@ -11,6 +11,7 @@ path = data_path.get()
 
 # load data
 load(file.path(path, "out/country_list.RData"))
+load(file.path(path, "out/EX.RData"))
 
 
 # prepare cpi usd series
@@ -35,7 +36,7 @@ cpi_us[, cpi_rebased := cpi / fctr]
 #  v	Value of the trade flow (in thousands current USD) q	Quantity (in metric tons)
 
 codes = fread(file.path(path,"raw/CEPII BACI/country_codes_V202102.csv"))
-file_lst = paste0(file.path(path,"raw/CEPII BACI/BACI_HS92_V202102/"), list.files(file.path(path, "raw/CEPII BACI/BACI_HS92_V202102/"))) 
+file_lst = paste0(file.path(path,"raw/CEPII BACI/BACI_HS92_V202102/"), "/", list.files(file.path(path, "raw/CEPII BACI/BACI_HS92_V202102/"))) 
 file_lst = file_lst[-26]
 baci = data.table()
 
@@ -47,13 +48,23 @@ for (string in file_lst){
 
 
 # rebase to 2010 values
-baci = merge(baci, cpi_us, by.x = "t", by.y = "year", all.x = TRUE)
-baci = baci[, v := v / cpi_rebased][, .(t, i, j, v)]
+baci = merge(baci, cpi_us, by.x = "t", by.y = "year", all.x = T)
+baci = baci[, v := v * 1000 / cpi_rebased][, .(t, i, j, v)]
 
 
-baci = merge(baci, codes[, .(country_code, iso_3digit_alpha)], by.x = "i", by.y = "country_code", all.x = TRUE)
+# apply relevant exporter / importer thresholds
+exp = baci[, .(total = sum(v), count = .N), by = .(t, i)]
+imp = baci[, .(total = sum(v), count = .N), by = .(t, j)]
+thrshld = 0.01
+
+baci = merge(baci, exp, by.x = c("t", "i"), by.y = c("t", "i"), all.x = T)
+baci[, dependency := v / total]
+baci[, v := ifelse(dependency > thrshld, v, 0)]
+
+
+baci = merge(baci, codes[, .(country_code, iso_3digit_alpha)], by.x = "i", by.y = "country_code", all.x = T)
 setnames(baci, "iso_3digit_alpha", "i_iso3")
-baci = merge(baci, codes[, c("country_code", "iso_3digit_alpha")], by.x = "j", by.y = "country_code", all.x = TRUE)
+baci = merge(baci, codes[, c("country_code", "iso_3digit_alpha")], by.x = "j", by.y = "country_code", all.x = T)
 setnames(baci, "iso_3digit_alpha", "j_iso3")
 
 baci[, i_iso3 := as.factor(i_iso3)]
@@ -98,7 +109,7 @@ rm(tmp, tmp_dfl, baci, codes)
 
 itpd = fread(file.path(path, "raw/itpd_e_r01/ITPD_E_R01.csv"))
 itpd[, broad_sector := as.factor(broad_sector)]; levels(itpd$broad_sector)
-#itpd = itpd[broad_sector == "Mining_Energy"]
+
 itpd = itpd[, .(trade = sum(trade)), by = .(exporter_iso3, importer_iso3, year)]
 itpd[, trade := trade * 1000000]
 
@@ -106,22 +117,32 @@ itpd = merge(itpd, cpi_us, by.x = "year", by.y = "year", all.x = TRUE)
 itpd = itpd[, trade := trade / cpi_rebased][, .(exporter_iso3, importer_iso3, year, trade)]
 
 
+# apply relevant exporter / importer thresholds
+exp = itpd[, .(total = sum(trade), count = .N), by = .(year, exporter_iso3)]
+imp = itpd[, .(total = sum(trade), count = .N), by = .(year, importer_iso3)]
+thrshld = 0.01
+
+itpd = merge(itpd, exp, by.x = c("year", "exporter_iso3"), by.y = c("year", "exporter_iso3"), all.x = T)
+itpd[, dependency := trade / total]
+itpd[, trade := ifelse(dependency > thrshld, trade, 0)]
+
+
 # impute values if at least five are given
-itpd = dcast(itpd, exporter_iso3 + importer_iso3 ~ year, value.var = c("trade"))
-tmp = as.matrix(itpd[, -c(1,2)])
+#itpd = dcast(itpd, exporter_iso3 + importer_iso3 ~ year, value.var = c("trade"))
+#tmp = as.matrix(itpd[, -c(1,2)])
 
-for(i in 1:nrow(tmp)){
-  if(sum(is.na(tmp[i, ])) <  17-5){
-    tmp[i, ] = na_interpolation(tmp[i, ])
-  }
-}
+#for(i in 1:nrow(tmp)){
+#  if(sum(is.na(tmp[i, ])) <  17-5){
+#    tmp[i, ] = na_interpolation(tmp[i, ])
+#  }
+#}
 
-tmp = as.data.frame(tmp)
-tmp$exporter_iso3 = itpd$exporter_iso3; tmp$importer_iso3 = itpd$importer_iso3
-setDT(tmp)
+#tmp = as.data.frame(tmp)
+#tmp$exporter_iso3 = itpd$exporter_iso3; tmp$importer_iso3 = itpd$importer_iso3
+#setDT(tmp)
 
-itpd = melt(tmp, id.vars = c("exporter_iso3", "importer_iso3"), measure.vars = 1:17, variable.name = "year", value.name = "trade")
-sum(is.na(itpd$trade))
+#itpd = melt(tmp, id.vars = c("exporter_iso3", "importer_iso3"), measure.vars = 1:17, variable.name = "year", value.name = "trade")
+#sum(is.na(itpd$trade))
 
 itpd[, from_id:=match(exporter_iso3, country_list$iso3)]
 itpd[, to_id:=match(importer_iso3, country_list$iso3)]
