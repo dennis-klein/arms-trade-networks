@@ -142,7 +142,7 @@ gof2 = gof(fit2,  control = control.gof.ergm(nsim = 200, seed = 1234), verbose =
 
 # Saving outputs
 save(fit1, fit2, gof1, gof2, file = paste0(path, "/models/ERGM/estimation_", year,".RData"))
-
+load(file = paste0(path, "/models/ERGM/estimation_", year,".RData"))
 
 
 # Save Summary 
@@ -173,6 +173,7 @@ stargazer(fit1, fit2,
           model.numbers = FALSE,
           single.row = TRUE,
           no.space = TRUE,
+          digits = 2,
           label = "table:results2003",
           keep.stat=c("n"),
           notes = "Estimated with Contrastive Divergence.",  
@@ -185,7 +186,7 @@ sink()
 dyadfit_observed = summary(net ~ duplexdyad(type = c("e", "f", "g", "h"), layers = list(1, 2)))
 
 dyadfit_reduced = simulate(fit1, nsim = 500, 
-                           monitor = ~duplexdyad(type = c("e", "f", "h"), layers = list(1, 2)),
+                           monitor = ~duplexdyad(type = c("e", "f", "g", "h"), layers = list(1, 2)),
                            output = "stats", seed = 1234)[, 11:13]
 
 dyadfit_full = simulate(fit2, nsim = 500, output = "stats", seed = 1234)[, 11:13]
@@ -196,7 +197,8 @@ ans = cbind(dyadfit_observed,
       colMeans(dyadfit_reduced), apply(dyadfit_reduced, 2, sd),
       colMeans(dyadfit_full), apply(dyadfit_full, 2, sd)
 )
-colnames(ans) = c("dyadfit_observed", 
+
+colnames(ans) = c("observed", 
                   "reduced mean", "reduced sd", 
                   "full mean", "full sd")
 
