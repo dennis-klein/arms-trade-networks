@@ -39,7 +39,7 @@ A = matrix(c(1,0,0,0), nrow = 2)
 B = matrix(c(0,0,0,1), nrow = 2)
 
 
-for (vs in c(1, 2)){
+for (vs in c(2)){
   
   # measure computing time 
   start_time = Sys.time()

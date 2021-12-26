@@ -11,7 +11,7 @@ path = data_path.get()
 
 
 # load model
-vs = "E"
+vs = "G"
 load(file = file.path(path, paste0("models/ERGM/model_estimated_", vs, ".RData")))
 
 
@@ -34,8 +34,8 @@ names = unique(confidence$name)
 
 
 # plot estimates
-pdf(paste0("figures/btergm_estimates_model_", vs, ".pdf"), paper = "a4", height = 10.5)
-par(mfrow = c(4, 2))
+pdf(paste0("figures/2 estimates model ", vs, ".pdf"), paper = "a4", height = 10.5)
+par(mfrow = c(5, 3))
 
 for (object in names){
   tmp = confidence[confidence$name == object, ]
@@ -48,10 +48,6 @@ for (object in names){
 dev.off()
 
 
-
-# test output latex table
-# add bootstrapping sample size as note
-print(xtable(confint(fit), auto = TRUE, type = "latex"), file = "output_latex.txt")
 
 
 

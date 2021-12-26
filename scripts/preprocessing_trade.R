@@ -55,7 +55,7 @@ baci = baci[, v := v * 1000 / cpi_rebased][, .(t, i, j, v)]
 # apply relevant exporter / importer thresholds
 exp = baci[, .(total = sum(v), count = .N), by = .(t, i)]
 imp = baci[, .(total = sum(v), count = .N), by = .(t, j)]
-thrshld = 0.01
+thrshld = 0.005
 
 baci = merge(baci, exp, by.x = c("t", "i"), by.y = c("t", "i"), all.x = T)
 baci[, dependency := v / total]
@@ -120,7 +120,7 @@ itpd = itpd[, trade := trade / cpi_rebased][, .(exporter_iso3, importer_iso3, ye
 # apply relevant exporter / importer thresholds
 exp = itpd[, .(total = sum(trade), count = .N), by = .(year, exporter_iso3)]
 imp = itpd[, .(total = sum(trade), count = .N), by = .(year, importer_iso3)]
-thrshld = 0.01
+thrshld = 0.005
 
 itpd = merge(itpd, exp, by.x = c("year", "exporter_iso3"), by.y = c("year", "exporter_iso3"), all.x = T)
 itpd[, dependency := trade / total]

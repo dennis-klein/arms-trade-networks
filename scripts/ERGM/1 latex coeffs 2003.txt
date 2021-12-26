@@ -1,0 +1,49 @@
+
+% Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
+% Date and time: Sun, Dec 26, 2021 - 21:29:33
+% Requires LaTeX packages: dcolumn 
+\begin{table}[!htbp] \centering 
+  \caption{Multilayer ERGM - Results for the Year 2003} 
+  \label{table:results2003} 
+\begin{tabular}{@{\extracolsep{5pt}}lD{.}{.}{-3} D{.}{.}{-3} } 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{2}{c}{\textit{Dependent variable:}} \\ 
+\cline{2-3} 
+\\[-1.8ex] & \multicolumn{2}{c}{net} \\ 
+ & \multicolumn{1}{c}{Independence} & \multicolumn{1}{c}{Dependence} \\ 
+\hline \\[-1.8ex] 
+ mutual.same.layer.mem.1 & 1.396 & 2.374 \\ 
+  mutual.same.layer.mem.2 & 0.809 & 0.749 \\ 
+  edges\_layer.1 & -26.495 & -23.422 \\ 
+  edges\_layer.2 & -7.641 & -7.794 \\ 
+  gwesp.layer.1.fixed.1.5 & 0.418 & 0.472 \\ 
+  gwesp.layer.2.fixed.1.5 & 0.490 & 0.529 \\ 
+  gwdsp.layer.1.fixed.1.5 & -0.089 & -0.078 \\ 
+  gwdsp.layer.2.fixed.1.5 & -0.039 & -0.040 \\ 
+  edgecov.layer.1.pol\_absdiff & -0.020 & -0.020 \\ 
+  edgecov.layer.2.pol\_absdiff & 0.028 & 0.021 \\ 
+  edgecov.layer.1.alliance & 0.110 & 0.033 \\ 
+  edgecov.layer.2.alliance & 0.536 & 0.506 \\ 
+  edgecov.layer.1.nmc\_ocov & 0.003 & -0.024 \\ 
+  edgecov.layer.2.nmc\_ocov & -0.009 & -0.009 \\ 
+  edgecov.layer.1.log\_cdist & -0.574 & -0.504 \\ 
+  edgecov.layer.2.log\_cdist & -0.278 & -0.300 \\ 
+  edgecov.layer.1.gdp\_icov & 0.113 & 0.074 \\ 
+  edgecov.layer.2.gdp\_icov & 0.230 & 0.231 \\ 
+  edgecov.layer.1.gdp\_ocov & 0.758 & 0.664 \\ 
+  edgecov.layer.2.gdp\_ocov & -0.121 & -0.118 \\ 
+  edgecov.layer.1.pathdep\_arms & 3.173 & 3.323 \\ 
+  edgecov.layer.2.pathdep\_arms & 0.047 & 0.415 \\ 
+  edgecov.layer.1.pathdep\_trade & 0.550 & 0.790 \\ 
+  edgecov.layer.2.pathdep\_trade & 4.786 & 4.813 \\ 
+  duplexdyad.e &  & -0.394 \\ 
+  duplexdyad.f &  & 0.612 \\ 
+  duplexdyad.g &  & -0.729 \\ 
+  duplexdyad.h &  & 0.090 \\ 
+ \hline \\[-1.8ex] 
+\hline 
+\hline \\[-1.8ex] 
+\textit{Note:}  & \multicolumn{2}{r}{Estimated with Contrastive Divergence.} \\ 
+\end{tabular} 
+\end{table} 

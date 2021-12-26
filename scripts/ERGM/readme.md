@@ -10,7 +10,7 @@ estimation hyper.R script to determine hyper parameters in the
 decay values of gwesp. grid search of dependence model in the year 2008 (network rise in densities, hence median of time period) estimated by mple (because feasible)
 
 
-estimation model 2002.R
+estimation model 2003.R
 
 
 evaluation.R
@@ -24,5 +24,9 @@ evaluation.R
 - list of coefficients for binomial model as cornelius proposed
 - glm mgcv binomial yearly interaction model 
 - iptd data adapt by sector - test energy network density
-- grid approach to hyper parameter
-- copy descriptives code from interwar repo 
+
+
+- plot overview over categories of trend
+- easy statistics for development of trade i..e mining vs. services etc. 
+- 
+- 
