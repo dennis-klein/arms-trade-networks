@@ -1,54 +1,42 @@
-
-% Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
-% Date and time: Sat, Jan 01, 2022 - 11:05:36
-% Requires LaTeX packages: dcolumn 
-\begin{table}[!htbp] \centering 
-  \caption{Multilayer ERGM - Results for the Year 2003} 
-  \label{table:results2003} 
-\begin{tabular}{@{\extracolsep{5pt}}lD{.}{.}{-2} D{.}{.}{-2} } 
-\\[-1.8ex]\hline 
-\hline \\[-1.8ex] 
- & \multicolumn{2}{c}{\textit{Dependent variable:}} \\ 
-\cline{2-3} 
-\\[-1.8ex] & \multicolumn{2}{c}{net} \\ 
- & \multicolumn{1}{c}{Layer 
- Independence} & \multicolumn{1}{c}{Layer 
- Dependence} \\ 
-\hline \\[-1.8ex] 
- mutual.same.layer.mem.1 & 0.49$ $(0.50) & 0.56 \\ 
-  mutual.same.layer.mem.2 & 0.57$ $(0.16) & 0.57$ $(0.15) \\ 
-  edges\_layer.1 & -9.47$ $(2.31) & -3.69 \\ 
-  edges\_layer.2 & -14.29$ $(1.19) & -14.30$ $(1.20) \\ 
-  gwesp.layer.1.fixed.1.5 & 0.09$ $(0.09) & -0.14 \\ 
-  gwesp.layer.2.fixed.1.5 & 0.40$ $(0.04) & 0.40$ $(0.04) \\ 
-  gwideg1.layer.mem1 & -1.74$ $(0.64) & -226.80 \\ 
-  gwideg1.layer.mem2 & 3.72$ $(0.77) & 3.73$ $(0.75) \\ 
-  gwodeg1.layer.mem1 & -4.84$ $(0.54) & -12.75 \\ 
-  gwodeg1.layer.mem2 & -6.84$ $(1.93) & -6.58$ $(1.72) \\ 
-  edgecov.layer.1.pol\_absdiff & -0.004$ $(0.01) & -0.01 \\ 
-  edgecov.layer.2.pol\_absdiff & -0.003$ $(0.01) & -0.003$ $(0.01) \\ 
-  edgecov.layer.1.alliance & 0.19$ $(0.23) & 0.12 \\ 
-  edgecov.layer.2.alliance & 0.42$ $(0.13) & 0.42$ $(0.13) \\ 
-  edgecov.layer.1.nmc\_ocov & 0.01$ $(0.02) & 0.02 \\ 
-  edgecov.layer.2.nmc\_ocov & -0.03$ $(0.03) & -0.03$ $(0.03) \\ 
-  edgecov.layer.1.log\_cdist & -0.08$ $(0.15) & -0.07 \\ 
-  edgecov.layer.2.log\_cdist & -0.64$ $(0.10) & -0.64$ $(0.09) \\ 
-  edgecov.layer.1.lgdp\_icov & 0.03$ $(0.06) & -0.01 \\ 
-  edgecov.layer.2.lgdp\_icov & 0.52$ $(0.04) & 0.52$ $(0.04) \\ 
-  edgecov.layer.1.lgdp\_ocov & 0.23$ $(0.07) & 0.12 \\ 
-  edgecov.layer.2.lgdp\_ocov & -0.13$ $(0.03) & -0.13$ $(0.03) \\ 
-  edgecov.layer.1.pathdep\_arms & 2.23$ $(0.20) & 1.92 \\ 
-  edgecov.layer.2.pathdep\_arms & 0.21$ $(0.36) & 0.22$ $(0.38) \\ 
-  edgecov.layer.1.pathdep\_trade & 0.50$ $(0.25) & 0.35 \\ 
-  edgecov.layer.2.pathdep\_trade & 4.65$ $(0.09) & 4.65$ $(0.09) \\ 
-  duplexdyad.e &  & -0.46 \\ 
-  duplexdyad.h &  & 0.49 \\ 
- \hline \\[-1.8ex] 
-Akaike Inf. Crit. & \multicolumn{1}{c}{5,441.13} & \multicolumn{1}{c}{41,972.13} \\ 
-Bayesian Inf. Crit. & \multicolumn{1}{c}{5,662.80} & \multicolumn{1}{c}{42,210.85} \\ 
-\hline 
-\hline \\[-1.8ex] 
-\textit{Note:}  & \multicolumn{2}{r}{NA} \\ 
- & \multicolumn{2}{r}{Estimated with MCMC MLE.} \\ 
-\end{tabular} 
-\end{table} 
+% latex table generated in R 4.1.2 by xtable 1.8-4 package
+% Sat Jan 01 22:14:50 2022
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrrr}
+  \toprule
+Effect & Layer Indep. & LCI & UCI & Layer Dep. & LCI & UCI \\ 
+  \midrule
+mutual.same.layer.mem.1 & 0.49 & -0.49 & 1.47 & 0.56 &  &  \\ 
+  mutual.same.layer.mem.2 & 0.57 & 0.26 & 0.88 & 0.57 & 0.27 & 0.87 \\ 
+  edges\_layer.1 & -9.47 & -14.00 & -4.94 & -3.69 &  &  \\ 
+  edges\_layer.2 & -14.29 & -16.62 & -11.96 & -14.30 & -16.66 & -11.94 \\ 
+  gwesp.layer.1.fixed.1.5 & 0.09 & -0.09 & 0.26 & -0.14 &  &  \\ 
+  gwesp.layer.2.fixed.1.5 & 0.40 & 0.32 & 0.48 & 0.40 & 0.32 & 0.48 \\ 
+  gwideg1.layer.mem1 & -1.74 & -3.01 & -0.48 & -226.80 &  &  \\ 
+  gwideg1.layer.mem2 & 3.72 & 2.20 & 5.23 & 3.73 & 2.25 & 5.21 \\ 
+  gwodeg1.layer.mem1 & -4.84 & -5.89 & -3.79 & -12.75 &  &  \\ 
+  gwodeg1.layer.mem2 & -6.84 & -10.63 & -3.05 & -6.58 & -9.95 & -3.20 \\ 
+   &  &  &  &  &  &  \\ 
+  edgecov.layer.1.pol\_absdiff & -0.00 & -0.03 & 0.02 & -0.01 &  &  \\ 
+  edgecov.layer.2.pol\_absdiff & -0.00 & -0.02 & 0.01 & -0.00 & -0.02 & 0.01 \\ 
+  edgecov.layer.1.alliance & 0.19 & -0.26 & 0.64 & 0.12 &  &  \\ 
+  edgecov.layer.2.alliance & 0.42 & 0.17 & 0.67 & 0.42 & 0.17 & 0.68 \\ 
+  edgecov.layer.1.nmc\_ocov & 0.01 & -0.03 & 0.05 & 0.02 &  &  \\ 
+  edgecov.layer.2.nmc\_ocov & -0.03 & -0.08 & 0.02 & -0.03 & -0.08 & 0.02 \\ 
+  edgecov.layer.1.log\_cdist & -0.08 & -0.38 & 0.21 & -0.07 &  &  \\ 
+  edgecov.layer.2.log\_cdist & -0.64 & -0.83 & -0.45 & -0.64 & -0.83 & -0.46 \\ 
+  edgecov.layer.1.lgdp\_icov & 0.03 & -0.09 & 0.15 & -0.01 &  &  \\ 
+  edgecov.layer.2.lgdp\_icov & 0.52 & 0.44 & 0.60 & 0.52 & 0.44 & 0.60 \\ 
+  edgecov.layer.1.lgdp\_ocov & 0.23 & 0.10 & 0.36 & 0.12 &  &  \\ 
+  edgecov.layer.2.lgdp\_ocov & -0.13 & -0.19 & -0.07 & -0.13 & -0.18 & -0.07 \\ 
+  edgecov.layer.1.pathdep\_arms & 2.23 & 1.83 & 2.63 & 1.92 &  &  \\ 
+  edgecov.layer.2.pathdep\_arms & 0.21 & -0.50 & 0.91 & 0.22 & -0.52 & 0.96 \\ 
+  edgecov.layer.1.pathdep\_trade & 0.50 & 0.02 & 0.98 & 0.35 &  &  \\ 
+  edgecov.layer.2.pathdep\_trade & 4.65 & 4.47 & 4.82 & 4.65 & 4.48 & 4.82 \\ 
+   &  &  &  &  &  &  \\ 
+  duplexdyad.e &  &  &  & -0.46 &  &  \\ 
+  duplexdyad.h &  &  &  & 0.49 &  &  \\ 
+   \bottomrule
+\end{tabular}
+\caption{Multilayer ERGM - Results for the Year 2003. Estimated with MCMC MLE.} 
+\end{table}

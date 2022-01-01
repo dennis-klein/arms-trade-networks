@@ -3,7 +3,7 @@ library(sna)
 library(data.table)
 library(ergm)
 library(multilayer.ergm)
-library(stargazer)
+library(xtable)
 
 
 # help 
@@ -38,7 +38,7 @@ load(file.path(path, "out/atop_alliance.RData"))
 start = 1995
 end = 2017
 year = 2003
-nsim = 200
+n_sim = 200
 
 thrshld1 = 0
 thrshld2 = 0 
@@ -82,6 +82,7 @@ pathdep_trade = (trade[[i2-1]][included, included] > thrshld2) * 1
 # measure time
 start_time = Sys.time()
 
+
 # contrastive divergence estimation
 # layer independence model
 fit1 <- ergm(net ~ mutual(same = "layer.mem", diff = TRUE) +
@@ -92,20 +93,20 @@ fit1 <- ergm(net ~ mutual(same = "layer.mem", diff = TRUE) +
                gwidegree(decay = 1, fixed = TRUE, attr = "layer.mem") +
                gwodegree(decay = 1, fixed = TRUE, attr = "layer.mem") +
                edgecov_layer(pol_absdiff, layer = 1) +
-               edgecov_layer(pol_absdiff, layer = 2) +
                edgecov_layer(alliance, layer = 1) +
-               edgecov_layer(alliance, layer = 2) +
                edgecov_layer(nmc_ocov, layer = 1) +
-               edgecov_layer(nmc_ocov, layer = 2) +
                edgecov_layer(log_cdist, layer = 1) +
-               edgecov_layer(log_cdist, layer = 2) +
                edgecov_layer(lgdp_icov, layer = 1) +
-               edgecov_layer(lgdp_icov, layer = 2) +
                edgecov_layer(lgdp_ocov, layer = 1) +
-               edgecov_layer(lgdp_ocov, layer = 2) +
                edgecov_layer(pathdep_arms, layer = 1) +
-               edgecov_layer(pathdep_arms, layer = 2) +
                edgecov_layer(pathdep_trade, layer = 1) +
+               edgecov_layer(pol_absdiff, layer = 2) +
+               edgecov_layer(alliance, layer = 2) +
+               edgecov_layer(nmc_ocov, layer = 2) +
+               edgecov_layer(log_cdist, layer = 2) +
+               edgecov_layer(lgdp_icov, layer = 2) +
+               edgecov_layer(lgdp_ocov, layer = 2) +
+               edgecov_layer(pathdep_arms, layer = 2) +
                edgecov_layer(pathdep_trade, layer = 2),
              eval.loglik = TRUE, 
              check.degeneracy = TRUE,
@@ -125,20 +126,20 @@ fit2 <- ergm(net ~ mutual(same = "layer.mem", diff = TRUE) +
                gwidegree(decay = 1, fixed = TRUE, attr = "layer.mem") +
                gwodegree(decay = 1, fixed = TRUE, attr = "layer.mem") +
                edgecov_layer(pol_absdiff, layer = 1) +
-               edgecov_layer(pol_absdiff, layer = 2) +
                edgecov_layer(alliance, layer = 1) +
-               edgecov_layer(alliance, layer = 2) +
                edgecov_layer(nmc_ocov, layer = 1) +
-               edgecov_layer(nmc_ocov, layer = 2) +
                edgecov_layer(log_cdist, layer = 1) +
-               edgecov_layer(log_cdist, layer = 2) +
                edgecov_layer(lgdp_icov, layer = 1) +
-               edgecov_layer(lgdp_icov, layer = 2) +
                edgecov_layer(lgdp_ocov, layer = 1) +
-               edgecov_layer(lgdp_ocov, layer = 2) +
                edgecov_layer(pathdep_arms, layer = 1) +
-               edgecov_layer(pathdep_arms, layer = 2) +
                edgecov_layer(pathdep_trade, layer = 1) +
+               edgecov_layer(pol_absdiff, layer = 2) +
+               edgecov_layer(alliance, layer = 2) +
+               edgecov_layer(nmc_ocov, layer = 2) +
+               edgecov_layer(log_cdist, layer = 2) +
+               edgecov_layer(lgdp_icov, layer = 2) +
+               edgecov_layer(lgdp_ocov, layer = 2) +
+               edgecov_layer(pathdep_arms, layer = 2) +
                edgecov_layer(pathdep_trade, layer = 2) +
                duplexdyad(c("e", "h"), layers = list(1, 2)),
              eval.loglik = TRUE, 
@@ -150,7 +151,7 @@ fit2 <- ergm(net ~ mutual(same = "layer.mem", diff = TRUE) +
 )
 
 
-end_time <- Sys.time()
+end_time = Sys.time()
 duration = end_time-start_time
 
 
@@ -160,13 +161,13 @@ duration = end_time-start_time
 
 
 # Goodness of fit simulations
-gof1 = gof(fit1,  control = control.gof.ergm(nsim = nsim, seed = 1234), verbose = T)
-gof2 = gof(fit2,  control = control.gof.ergm(nsim = nsim, seed = 1234), verbose = T)
+gof1 = gof(fit1,  control = control.gof.ergm(nsim = n_sim, seed = 1234), verbose = T)
+gof2 = gof(fit2,  control = control.gof.ergm(nsim = n_sim, seed = 1234), verbose = T)
 
 
 # Saving outputs
 save(fit1, fit2, gof1, gof2, duration, file = paste0(path, "/models/ERGM/estimation_mle_", year,".RData"))
-#load(file = paste0(path, "/models/ERGM/estimation_", year,".RData"))
+#load(file = paste0(path, "/models/ERGM/estimation_mle_", year,".RData"))
 
 
 # Save Summary 
@@ -181,7 +182,7 @@ sink()
 sink(file = paste0("scripts/ERGM/1 gof statistics mle ", year, ".txt"))
 options(width = 160)
 print(gof1)
-cat("\n \n Model Layer Independence: \n \n")
+cat("\n \n Model Layer Dependence: \n \n")
 print(gof2)
 sink()
 
@@ -204,21 +205,28 @@ mcmc.diagnostics(fit2, which = "plots")
 dev.off()
 
 
-# Save Coefficients Table for Latex
-sink(file = paste0("scripts/ERGM/1 latex coeffs mle ", year, ".txt"))
-stargazer(fit1, fit2, 
-          title="Multilayer ERGM - Results for the Year 2003", 
-          align = TRUE, 
-          column.labels = c("Layer \n Independence", "Layer \n Dependence"),
-          star.cutoffs = c(NA, NA, NA), 
-          model.numbers = FALSE,
-          single.row = TRUE,
-          no.space = TRUE,
-          digits = 2,
-          label = "table:results2003",
-          notes = "Estimated with MCMC MLE.",  
-          notes.append = TRUE
-          )
-sink()
+# Save Latex Coefficients Table
+out = matrix(NA, 28, 7)
+out = data.frame(out)
+
+out[, 1] = names(coefficients(fit2))
+out[1:26, 2] = coefficients(fit1)
+out[1:26, 3:4] = confint(fit1)
+out[, 5]= c(coefficients(fit2))
+out[, 6:7] = confint(fit2)
+
+out = rbind(out[1:10, ], rep(NA, 7), out[11:26, ], rep(NA, 7), out[27:28,])
+out.table = xtable(out, auto = TRUE, digits=2, 
+                    caption = "Multilayer ERGM - Results for the Year 2003. Estimated with MCMC MLE.")
+names(out.table) = c("Effect", "Layer Indep.", "LCI", "UCI", "Layer Dep.", "LCI", "UCI")
+align(out.table) = "llrrrrrr"
+
+print(out.table,
+      booktabs = TRUE,
+      include.rownames = FALSE,
+      file = paste0("scripts/ERGM/1 latex coeffs mle ", year, ".txt")
+)
+
+
 
 

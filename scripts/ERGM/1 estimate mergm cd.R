@@ -40,7 +40,7 @@ load(file.path(path, "out/atop_alliance.RData"))
 start = 1995
 end = 2017
 year = 2003
-nsim = 200
+n_sim = 200
 n_bootstrap = 100
 
 thrshld1 = 0
@@ -94,21 +94,21 @@ fit1 <- ergm(net ~ mutual(same = "layer.mem", diff = TRUE) +
                gwidegree(decay = 1, fixed = TRUE, attr = "layer.mem") +
                gwodegree(decay = 1, fixed = TRUE, attr = "layer.mem") +
                edgecov_layer(pol_absdiff, layer = 1) +
-               edgecov_layer(pol_absdiff, layer = 2) +
                edgecov_layer(alliance, layer = 1) +
-               edgecov_layer(alliance, layer = 2) +
                edgecov_layer(nmc_ocov, layer = 1) +
-               edgecov_layer(nmc_ocov, layer = 2) +
                edgecov_layer(log_cdist, layer = 1) +
-               edgecov_layer(log_cdist, layer = 2) +
                edgecov_layer(lgdp_icov, layer = 1) +
-               edgecov_layer(lgdp_icov, layer = 2) +
                edgecov_layer(lgdp_ocov, layer = 1) +
-               edgecov_layer(lgdp_ocov, layer = 2) +
                edgecov_layer(pathdep_arms, layer = 1) +
-               edgecov_layer(pathdep_arms, layer = 2) +
                edgecov_layer(pathdep_trade, layer = 1) +
-               edgecov_layer(pathdep_trade, layer = 2),
+               edgecov_layer(pol_absdiff, layer = 2) +
+               edgecov_layer(alliance, layer = 2) +
+               edgecov_layer(nmc_ocov, layer = 2) +
+               edgecov_layer(log_cdist, layer = 2) +
+               edgecov_layer(lgdp_icov, layer = 2) +
+               edgecov_layer(lgdp_ocov, layer = 2) +
+               edgecov_layer(pathdep_arms, layer = 2) +
+               edgecov_layer(pathdep_trade, layer = 2) +,
              check.degeneracy = TRUE,
              verbose = FALSE, 
              estimate = c("CD"),
@@ -129,20 +129,20 @@ fit2 <- ergm(net ~ mutual(same = "layer.mem", diff = TRUE) +
                gwidegree(decay = 1, fixed = TRUE, attr = "layer.mem") +
                gwodegree(decay = 1, fixed = TRUE, attr = "layer.mem") +
                edgecov_layer(pol_absdiff, layer = 1) +
-               edgecov_layer(pol_absdiff, layer = 2) +
                edgecov_layer(alliance, layer = 1) +
-               edgecov_layer(alliance, layer = 2) +
                edgecov_layer(nmc_ocov, layer = 1) +
-               edgecov_layer(nmc_ocov, layer = 2) +
                edgecov_layer(log_cdist, layer = 1) +
-               edgecov_layer(log_cdist, layer = 2) +
                edgecov_layer(lgdp_icov, layer = 1) +
-               edgecov_layer(lgdp_icov, layer = 2) +
                edgecov_layer(lgdp_ocov, layer = 1) +
-               edgecov_layer(lgdp_ocov, layer = 2) +
                edgecov_layer(pathdep_arms, layer = 1) +
-               edgecov_layer(pathdep_arms, layer = 2) +
                edgecov_layer(pathdep_trade, layer = 1) +
+               edgecov_layer(pol_absdiff, layer = 2) +
+               edgecov_layer(alliance, layer = 2) +
+               edgecov_layer(nmc_ocov, layer = 2) +
+               edgecov_layer(log_cdist, layer = 2) +
+               edgecov_layer(lgdp_icov, layer = 2) +
+               edgecov_layer(lgdp_ocov, layer = 2) +
+               edgecov_layer(pathdep_arms, layer = 2) +
                edgecov_layer(pathdep_trade, layer = 2) +
                duplexdyad(c("e", "h"), layers = list(1, 2)),
              check.degeneracy = TRUE,
@@ -162,8 +162,8 @@ fit2 <-logLik(fit2, add=TRUE)
 
 
 # Goodness of fit simulations
-gof1 = gof(fit1,  control = control.gof.ergm(nsim = nsim, seed = 1234), verbose = T)
-gof2 = gof(fit2,  control = control.gof.ergm(nsim = nsim, seed = 1234), verbose = T)
+gof1 = gof(fit1,  control = control.gof.ergm(nsim = n_sim, seed = 1234), verbose = T)
+gof2 = gof(fit2,  control = control.gof.ergm(nsim = n_sim, seed = 1234), verbose = T)
 
 
 # Save Summary 
@@ -308,8 +308,6 @@ bootstrap <- foreach(
 
 fit2_bconf = bootstrap[,  .(q5 = quantile(V2, probs = q[1]), q95 = quantile(V2, probs = q[2])), by = .(V1)]
 
-save(bootstrap, file = "bootstrap.rds")
-
 
 # Saving outputs
 save(fit1, fit2, fit1_bconf, fit2_bconf, file = paste0(path, "/models/ERGM/estimation_cd_boot_", year,".RData"))
@@ -317,20 +315,21 @@ save(fit1, fit2, fit1_bconf, fit2_bconf, file = paste0(path, "/models/ERGM/estim
 
 
 # Save Latex Coefficients Table
-out <- matrix(NA, 28, 7)
-colnames(out) <- c("Effect", "Layer Indep.", "LCL", "UCL", "Layer Dep.", "LCL", "UCL")
-out <- data.frame(out)
-out[, 1] <- names(coefficients(fit2))
-out[1:26, 2] <- coefficients(fit1)
-out[1:26, 3] <- fit1_bconf$q5
-out[1:26, 4] <- fit1_bconf$q95
-out[, 5]<- c(coefficients(fit2))
-out[, 6] <- fit2_bconf$q5
-out[, 7] <- fit2_bconf$q95
+out = matrix(NA, 28, 7)
+out = data.frame(out)
+
+out[, 1] = names(coefficients(fit2))
+out[1:26, 2] = coefficients(fit1)
+out[1:26, 3] = fit1_bconf$q5
+out[1:26, 4] = fit1_bconf$q95
+out[, 5]= c(coefficients(fit2))
+out[, 6] = fit2_bconf$q5
+out[, 7] = fit2_bconf$q95
 
 out = rbind(out[1:10, ], rep(NA, 7), out[11:26, ], rep(NA, 7), out[27:28,])
-out.table <- xtable(out, auto = TRUE, digits=2, caption = "Estimated with Contrastive Divergence. Confidence intervals calculated based on 100 bootstrap iterations. 95pct Confidence Intervals provided.")
-align(out.table) <- "llrrrrrr"
+out.table = xtable(out, auto = TRUE, digits=2, caption = "Estimated with Contrastive Divergence. Confidence intervals calculated based on 100 bootstrap iterations. 95pct Confidence Intervals provided.")
+names(out.table) = c("Effect", "Layer Indep.", "LCI", "UCI", "Layer Dep.", "LCI", "UCI")
+align(out.table) = "llrrrrrr"
 
 print(out.table,
   booktabs = TRUE,
