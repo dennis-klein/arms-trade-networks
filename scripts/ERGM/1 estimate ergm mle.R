@@ -153,6 +153,7 @@ fit2 <- ergm(net ~ mutual(same = "layer.mem", diff = TRUE) +
 end_time <- Sys.time()
 duration = end_time-start_time
 
+
 # add aic and bic if method cd
 #fit1 <-logLik(fit1, add=TRUE)
 #fit2 <-logLik(fit2, add=TRUE)
@@ -166,6 +167,7 @@ gof2 = gof(fit2,  control = control.gof.ergm(nsim = nsim, seed = 1234), verbose 
 # Saving outputs
 save(fit1, fit2, gof1, gof2, duration, file = paste0(path, "/models/ERGM/estimation_mle_", year,".RData"))
 #load(file = paste0(path, "/models/ERGM/estimation_", year,".RData"))
+
 
 # Save Summary 
 sink(file = paste0("scripts/ERGM/1 summary mle ", year, ".txt"))
@@ -218,3 +220,5 @@ stargazer(fit1, fit2,
           notes.append = TRUE
           )
 sink()
+
+
