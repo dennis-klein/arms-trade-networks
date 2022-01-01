@@ -1,0 +1,42 @@
+% latex table generated in R 4.1.2 by xtable 1.8-4 package
+% Sat Jan 01 20:50:53 2022
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrrr}
+  \toprule
+Effect & Layer.Indep. & LCL & UCL & Layer.Dep. & LCL.1 & UCL.1 \\ 
+  \midrule
+mutual.same.layer.mem.1 & 1.00 & 0.29 & 1.56 & 0.72 & -0.40 & 1.34 \\ 
+  mutual.same.layer.mem.2 & 0.54 & 0.20 & 0.85 & 0.76 & 0.38 & 1.17 \\ 
+  edges\_layer.1 & -10.94 & -15.21 & -4.80 & -10.88 & -16.16 & -4.66 \\ 
+  edges\_layer.2 & -10.49 & -12.97 & -8.30 & -10.72 & -13.82 & -6.59 \\ 
+  gwesp.layer.1.fixed.1.5 & 0.11 & -0.11 & 0.24 & 0.10 & -0.05 & 0.27 \\ 
+  gwesp.layer.2.fixed.1.5 & 0.49 & 0.40 & 0.53 & 0.53 & 0.43 & 0.59 \\ 
+  gwideg1.layer.mem1 & -2.76 & -3.68 & -1.59 & -2.80 & -3.53 & -1.18 \\ 
+  gwideg1.layer.mem2 & 1.46 & -0.48 & 2.69 & 1.47 & -0.02 & 2.46 \\ 
+  gwodeg1.layer.mem1 & -4.44 & -5.41 & -3.08 & -5.11 & -6.05 & -3.65 \\ 
+  gwodeg1.layer.mem2 & -16.68 & -24.60 & 17.05 & -28.48 & -41.46 & 11.19 \\ 
+   &  &  &  &  &  &  \\ 
+  edgecov.layer.1.pol\_absdiff & -0.01 & -0.04 & 0.01 & -0.03 & -0.07 & -0.01 \\ 
+  edgecov.layer.2.pol\_absdiff & 0.03 & 0.00 & 0.04 & 0.03 & 0.01 & 0.04 \\ 
+  edgecov.layer.1.alliance & 0.02 & -0.46 & 0.35 & -0.08 & -0.41 & 0.17 \\ 
+  edgecov.layer.2.alliance & 0.62 & 0.44 & 0.91 & 0.68 & 0.40 & 0.98 \\ 
+  edgecov.layer.1.nmc\_ocov & 0.02 & -0.03 & 0.06 & -0.00 & -0.03 & 0.06 \\ 
+  edgecov.layer.2.nmc\_ocov & -0.04 & -0.13 & -0.00 & -0.03 & -0.08 & 0.02 \\ 
+  edgecov.layer.1.log\_cdist & -0.66 & -0.95 & -0.31 & -0.45 & -0.63 & -0.23 \\ 
+  edgecov.layer.2.log\_cdist & -0.53 & -0.70 & -0.34 & -0.48 & -0.89 & -0.27 \\ 
+  edgecov.layer.1.lgdp\_icov & -0.06 & -0.21 & -0.01 & -0.04 & -0.11 & 0.06 \\ 
+  edgecov.layer.2.lgdp\_icov & 0.44 & 0.36 & 0.52 & 0.46 & 0.37 & 0.57 \\ 
+  edgecov.layer.1.lgdp\_ocov & 0.41 & 0.28 & 0.55 & 0.39 & 0.16 & 0.53 \\ 
+  edgecov.layer.2.lgdp\_ocov & -0.23 & -0.29 & -0.16 & -0.26 & -0.34 & -0.17 \\ 
+  edgecov.layer.1.pathdep\_arms & 2.08 & 1.47 & 2.64 & 2.12 & 1.49 & 2.27 \\ 
+  edgecov.layer.2.pathdep\_arms & 0.27 & -0.81 & 1.06 & 0.22 & -0.59 & 0.73 \\ 
+  edgecov.layer.1.pathdep\_trade & 0.80 & 0.66 & 1.45 & 0.91 & 0.42 & 1.68 \\ 
+  edgecov.layer.2.pathdep\_trade & 4.56 & 4.45 & 4.79 & 4.78 & 4.52 & 4.88 \\ 
+   &  &  &  &  &  &  \\ 
+  duplexdyad.e &  &  &  & -0.60 & -1.57 & 0.11 \\ 
+  duplexdyad.h &  &  &  & 0.72 & 0.07 & 1.12 \\ 
+   \bottomrule
+\end{tabular}
+\caption{Estimated with Contrastive Divergence. Confidence intervals calculated based on 100 bootstrap iterations. 95pct Confidence Intervals provided.} 
+\end{table}
