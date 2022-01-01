@@ -79,6 +79,9 @@ pathdep_arms = (sipri_tiv[[i1-1]][included, included] > thrshld1) * 1
 pathdep_trade = (trade[[i2-1]][included, included] > thrshld2) * 1
 
 
+# measure time
+start_time = Sys.time()
+
 # contrastive divergence estimation
 # layer independence model
 fit1 <- ergm(net ~ mutual(same = "layer.mem", diff = TRUE) +
@@ -107,11 +110,8 @@ fit1 <- ergm(net ~ mutual(same = "layer.mem", diff = TRUE) +
              eval.loglik = TRUE, 
              check.degeneracy = TRUE,
              verbose = TRUE, 
-             estimate = c("CD"),
-             control = control.ergm(
-               CD.nsteps = 16,
-               CD.multiplicity = 5
-             ),
+             estimate = c("MLE"),
+             control = control.ergm(parallel = 4),
              constraints = ~ fixallbut(free)
 )
 
@@ -140,20 +140,20 @@ fit2 <- ergm(net ~ mutual(same = "layer.mem", diff = TRUE) +
                edgecov_layer(pathdep_arms, layer = 2) +
                edgecov_layer(pathdep_trade, layer = 1) +
                edgecov_layer(pathdep_trade, layer = 2) +
-               duplexdyad(c("e", "f", "h"), layers = list(1, 2)),
+               duplexdyad(c("e", "h"), layers = list(1, 2)),
              eval.loglik = TRUE, 
              check.degeneracy = TRUE,
              verbose = TRUE, 
-             estimate = c("CD"),
-             control = control.ergm(
-               CD.nsteps = 16,
-               CD.multiplicity = 5
-             ),
+             estimate = c("MLE"),
+             control = control.ergm(parallel = 4),
              constraints = ~ fixallbut(free)
 )
 
 
-# add aic and bic 
+end_time <- Sys.time()
+duration = end_time-start_time
+
+# add aic and bic if method cd
 #fit1 <-logLik(fit1, add=TRUE)
 #fit2 <-logLik(fit2, add=TRUE)
 
@@ -164,12 +164,11 @@ gof2 = gof(fit2,  control = control.gof.ergm(nsim = nsim, seed = 1234), verbose 
 
 
 # Saving outputs
-save(fit1, fit2, gof1, gof2, file = paste0(path, "/models/ERGM/estimation_", year,".RData"))
+save(fit1, fit2, gof1, gof2, duration, file = paste0(path, "/models/ERGM/estimation_mle_", year,".RData"))
 #load(file = paste0(path, "/models/ERGM/estimation_", year,".RData"))
 
-
 # Save Summary 
-sink(file = paste0("scripts/ERGM/1 summary ", year, ".txt"))
+sink(file = paste0("scripts/ERGM/1 summary mle ", year, ".txt"))
 summary(fit1)
 cat("\n \n \n")
 summary(fit2)
@@ -177,7 +176,7 @@ sink()
 
 
 # Summary Statistics
-sink(file = paste0("scripts/ERGM/1 gof statistics ", year, ".txt"))
+sink(file = paste0("scripts/ERGM/1 gof statistics mle ", year, ".txt"))
 options(width = 160)
 print(gof1)
 cat("\n \n Model Layer Independence: \n \n")
@@ -186,7 +185,7 @@ sink()
 
 
 # Save GOF Plots
-pdf(paste0("scripts/ERGM/1 gof statistics ", year, ".pdf"), paper = "a4r", width=11, height=8)
+pdf(paste0("scripts/ERGM/1 gof statistics mle ", year, ".pdf"), paper = "a4r", width=11, height=8)
 par(mfrow = c(2,3))
 plot(gof1, main = paste0("Goodness-of-fit diagnostics: Independence Model ", year))
 plot.new()
@@ -195,8 +194,16 @@ plot.new()
 dev.off()
 
 
+# Save MCMC Diagnostics
+pdf(paste0("scripts/ERGM/1 mcmc statistics mle ", year, ".pdf"), paper = "a4r", width=11, height=8)
+par(mfrow = c(3,4))
+mcmc.diagnostics(fit1, which = "plots")
+mcmc.diagnostics(fit2, which = "plots")
+dev.off()
+
+
 # Save Coefficients Table for Latex
-sink(file = paste0("scripts/ERGM/1 latex coeffs ", year, ".txt"))
+sink(file = paste0("scripts/ERGM/1 latex coeffs mle ", year, ".txt"))
 stargazer(fit1, fit2, 
           title="Multilayer ERGM - Results for the Year 2003", 
           align = TRUE, 
@@ -207,56 +214,7 @@ stargazer(fit1, fit2,
           no.space = TRUE,
           digits = 2,
           label = "table:results2003",
-          keep.stat=NULL,
-          notes = "Estimated with Contrastive Divergence. Confidence intervals calculated based on 1000 bootstrap iterations.",  
-          notes.append = FALSE
+          notes = "Estimated with MCMC MLE.",  
+          notes.append = TRUE
           )
 sink()
-
-
-# Assessing fit of cross-layer terms
-dyadfit_observed = summary(net ~ duplexdyad(type = c("e", "f", "g", "h"), layers = list(1, 2)))
-dyadfit_full = simulate(fit2, nsim = 500, output = "stats", seed = 1234)[, 11:13]
-dyadfit_reduced = simulate(fit1, nsim = 500, 
-                           monitor = ~duplexdyad(type = c("e", "f", "g", "h"), layers = list(1, 2)),
-                           output = "stats", seed = 1234)[, 11:13]
-
-
-# Output Table 2
-ans = cbind(dyadfit_observed,
-      colMeans(dyadfit_reduced), apply(dyadfit_reduced, 2, sd),
-      colMeans(dyadfit_full), apply(dyadfit_full, 2, sd)
-)
-
-colnames(ans) = c("observed", 
-                  "reduced mean", "reduced sd", 
-                  "full mean", "full sd")
-
-sink(file = "scripts/ERGM/1 table crosslayer stats.txt")
-ans
-sink()
-
-
-# bootstrap ci's if estimated with contrastive divergence
-fit1_sim = simulate(fit1, constraints = ~ fixallbut(free), nsim = 1000, seed = 1234, verbose = T)
-fit2_sim = simulate(fit2, constraints = ~ fixallbut(free), nsim = 1000, seed = 1234, verbose = T)
-
-rhs_formula = substring(paste(formula(fit1)), 3)
-bootstrap = list()
-i = 0
-
-for (gen in list){
-  i = i + 1
-  
-  tmp <- ergm(
-    paste(gen, model)
-    
-  )
-  
-  bootstrap[[i]] = 
-}
-
-bootstrap = rbindlist(bootstrap)
-quantile
-
-

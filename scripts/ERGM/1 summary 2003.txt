@@ -2,75 +2,49 @@ Call:
 ergm(formula = net ~ mutual(same = "layer.mem", diff = TRUE) + 
     edges_layer(layer = 1) + edges_layer(layer = 2) + gwesp_layer(decay = 1.5, 
     fixed = TRUE, layer = 1) + gwesp_layer(decay = 1.5, fixed = TRUE, 
-    layer = 2) + gwdsp_layer(decay = 1.5, fixed = TRUE, layer = 1) + 
-    gwdsp_layer(decay = 1.5, fixed = TRUE, layer = 2) + edgecov_layer(pol_absdiff, 
-    layer = 1) + edgecov_layer(pol_absdiff, layer = 2) + edgecov_layer(alliance, 
-    layer = 1) + edgecov_layer(alliance, layer = 2) + edgecov_layer(nmc_ocov, 
-    layer = 1) + edgecov_layer(nmc_ocov, layer = 2) + edgecov_layer(log_cdist, 
-    layer = 1) + edgecov_layer(log_cdist, layer = 2) + edgecov_layer(gdp_icov, 
-    layer = 1) + edgecov_layer(gdp_icov, layer = 2) + edgecov_layer(gdp_ocov, 
-    layer = 1) + edgecov_layer(gdp_ocov, layer = 2) + edgecov_layer(pathdep_arms, 
-    layer = 1) + edgecov_layer(pathdep_arms, layer = 2) + edgecov_layer(pathdep_trade, 
-    layer = 1) + edgecov_layer(pathdep_trade, layer = 2), constraints = ~fixallbut(free), 
-    eval.loglik = TRUE, estimate = c("CD"), verbose = TRUE, check.degeneracy = TRUE)
+    layer = 2) + gwidegree(decay = 1, fixed = TRUE, attr = "layer.mem") + 
+    gwodegree(decay = 1, fixed = TRUE, attr = "layer.mem") + 
+    edgecov_layer(pol_absdiff, layer = 1) + edgecov_layer(pol_absdiff, 
+    layer = 2) + edgecov_layer(alliance, layer = 1) + edgecov_layer(alliance, 
+    layer = 2) + edgecov_layer(nmc_ocov, layer = 1) + edgecov_layer(nmc_ocov, 
+    layer = 2) + edgecov_layer(log_cdist, layer = 1) + edgecov_layer(log_cdist, 
+    layer = 2) + edgecov_layer(gdp_icov, layer = 1) + edgecov_layer(gdp_icov, 
+    layer = 2) + edgecov_layer(gdp_ocov, layer = 1) + edgecov_layer(gdp_ocov, 
+    layer = 2) + edgecov_layer(pathdep_arms, layer = 1) + edgecov_layer(pathdep_arms, 
+    layer = 2) + edgecov_layer(pathdep_trade, layer = 1) + edgecov_layer(pathdep_trade, 
+    layer = 2), constraints = ~fixallbut(free), eval.loglik = TRUE, 
+    estimate = c("CD"), verbose = TRUE, check.degeneracy = TRUE)
 
 Contrastive Divergence Results:
 
-                                Estimate Std. Error MCMC %
-mutual.same.layer.mem.1         1.395762         NA     NA
-mutual.same.layer.mem.2         0.808891         NA     NA
-edges_layer.1                 -26.494562         NA     NA
-edges_layer.2                  -7.640709         NA     NA
-gwesp.layer.1.fixed.1.5         0.417648         NA     NA
-gwesp.layer.2.fixed.1.5         0.489735         NA     NA
-gwdsp.layer.1.fixed.1.5        -0.088619         NA     NA
-gwdsp.layer.2.fixed.1.5        -0.039205         NA     NA
-edgecov.layer.1.pol_absdiff    -0.020497         NA     NA
-edgecov.layer.2.pol_absdiff     0.027632         NA     NA
-edgecov.layer.1.alliance        0.110405         NA     NA
-edgecov.layer.2.alliance        0.536289         NA     NA
-edgecov.layer.1.nmc_ocov        0.003014         NA     NA
-edgecov.layer.2.nmc_ocov       -0.009495         NA     NA
-edgecov.layer.1.log_cdist      -0.573504         NA     NA
-edgecov.layer.2.log_cdist      -0.278381         NA     NA
-edgecov.layer.1.gdp_icov        0.113105         NA     NA
-edgecov.layer.2.gdp_icov        0.229889         NA     NA
-edgecov.layer.1.gdp_ocov        0.758378         NA     NA
-edgecov.layer.2.gdp_ocov       -0.121292         NA     NA
-edgecov.layer.1.pathdep_arms    3.173116         NA     NA
-edgecov.layer.2.pathdep_arms    0.047356         NA     NA
-edgecov.layer.1.pathdep_trade   0.550179         NA     NA
-edgecov.layer.2.pathdep_trade   4.785763         NA     NA
-                              z value Pr(>|z|)
-mutual.same.layer.mem.1            NA       NA
-mutual.same.layer.mem.2            NA       NA
-edges_layer.1                      NA       NA
-edges_layer.2                      NA       NA
-gwesp.layer.1.fixed.1.5            NA       NA
-gwesp.layer.2.fixed.1.5            NA       NA
-gwdsp.layer.1.fixed.1.5            NA       NA
-gwdsp.layer.2.fixed.1.5            NA       NA
-edgecov.layer.1.pol_absdiff        NA       NA
-edgecov.layer.2.pol_absdiff        NA       NA
-edgecov.layer.1.alliance           NA       NA
-edgecov.layer.2.alliance           NA       NA
-edgecov.layer.1.nmc_ocov           NA       NA
-edgecov.layer.2.nmc_ocov           NA       NA
-edgecov.layer.1.log_cdist          NA       NA
-edgecov.layer.2.log_cdist          NA       NA
-edgecov.layer.1.gdp_icov           NA       NA
-edgecov.layer.2.gdp_icov           NA       NA
-edgecov.layer.1.gdp_ocov           NA       NA
-edgecov.layer.2.gdp_ocov           NA       NA
-edgecov.layer.1.pathdep_arms       NA       NA
-edgecov.layer.2.pathdep_arms       NA       NA
-edgecov.layer.1.pathdep_trade      NA       NA
-edgecov.layer.2.pathdep_trade      NA       NA
+                                Estimate Std. Error MCMC % z value Pr(>|z|)
+mutual.same.layer.mem.1         0.814913         NA     NA      NA       NA
+mutual.same.layer.mem.2         0.388591         NA     NA      NA       NA
+edges_layer.1                 -10.103155         NA     NA      NA       NA
+edges_layer.2                  -8.625063         NA     NA      NA       NA
+gwesp.layer.1.fixed.1.5         0.144411         NA     NA      NA       NA
+gwesp.layer.2.fixed.1.5         0.508366         NA     NA      NA       NA
+gwideg1.layer.mem1             -2.090634         NA     NA      NA       NA
+gwideg1.layer.mem2              1.085172         NA     NA      NA       NA
+gwodeg1.layer.mem1             -4.910967         NA     NA      NA       NA
+gwodeg1.layer.mem2            -17.766516         NA     NA      NA       NA
+edgecov.layer.1.pol_absdiff    -0.024420         NA     NA      NA       NA
+edgecov.layer.2.pol_absdiff     0.024905         NA     NA      NA       NA
+edgecov.layer.1.alliance        0.243218         NA     NA      NA       NA
+edgecov.layer.2.alliance        0.606355         NA     NA      NA       NA
+edgecov.layer.1.nmc_ocov       -0.005245         NA     NA      NA       NA
+edgecov.layer.2.nmc_ocov       -0.084967         NA     NA      NA       NA
+edgecov.layer.1.log_cdist      -0.292797         NA     NA      NA       NA
+edgecov.layer.2.log_cdist      -0.275231         NA     NA      NA       NA
+edgecov.layer.1.gdp_icov       -0.017120         NA     NA      NA       NA
+edgecov.layer.2.gdp_icov        0.369870         NA     NA      NA       NA
+edgecov.layer.1.gdp_ocov        0.315099         NA     NA      NA       NA
+edgecov.layer.2.gdp_ocov       -0.246843         NA     NA      NA       NA
+edgecov.layer.1.pathdep_arms    2.728569         NA     NA      NA       NA
+edgecov.layer.2.pathdep_arms    0.007988         NA     NA      NA       NA
+edgecov.layer.1.pathdep_trade   0.543319         NA     NA      NA       NA
+edgecov.layer.2.pathdep_trade   4.774345         NA     NA      NA       NA
 
-     Null Deviance: 51659  on 37264  degrees of freedom
- Residual Deviance:  5550  on 37240  degrees of freedom
- 
-AIC: 5598  BIC: 5802  (Smaller is better. MC Std. Err. = 4.488)
 
  
  
@@ -78,81 +52,51 @@ Call:
 ergm(formula = net ~ mutual(same = "layer.mem", diff = TRUE) + 
     edges_layer(layer = 1) + edges_layer(layer = 2) + gwesp_layer(decay = 1.5, 
     fixed = TRUE, layer = 1) + gwesp_layer(decay = 1.5, fixed = TRUE, 
-    layer = 2) + gwdsp_layer(decay = 1.5, fixed = TRUE, layer = 1) + 
-    gwdsp_layer(decay = 1.5, fixed = TRUE, layer = 2) + edgecov_layer(pol_absdiff, 
-    layer = 1) + edgecov_layer(pol_absdiff, layer = 2) + edgecov_layer(alliance, 
-    layer = 1) + edgecov_layer(alliance, layer = 2) + edgecov_layer(nmc_ocov, 
-    layer = 1) + edgecov_layer(nmc_ocov, layer = 2) + edgecov_layer(log_cdist, 
-    layer = 1) + edgecov_layer(log_cdist, layer = 2) + edgecov_layer(gdp_icov, 
-    layer = 1) + edgecov_layer(gdp_icov, layer = 2) + edgecov_layer(gdp_ocov, 
-    layer = 1) + edgecov_layer(gdp_ocov, layer = 2) + edgecov_layer(pathdep_arms, 
-    layer = 1) + edgecov_layer(pathdep_arms, layer = 2) + edgecov_layer(pathdep_trade, 
-    layer = 1) + edgecov_layer(pathdep_trade, layer = 2) + duplexdyad(c("e", 
-    "f", "g", "h"), layers = list(1, 2)), constraints = ~fixallbut(free), 
-    eval.loglik = TRUE, estimate = c("CD"), verbose = TRUE, check.degeneracy = TRUE)
+    layer = 2) + gwidegree(decay = 1, fixed = TRUE, attr = "layer.mem") + 
+    gwodegree(decay = 1, fixed = TRUE, attr = "layer.mem") + 
+    edgecov_layer(pol_absdiff, layer = 1) + edgecov_layer(pol_absdiff, 
+    layer = 2) + edgecov_layer(alliance, layer = 1) + edgecov_layer(alliance, 
+    layer = 2) + edgecov_layer(nmc_ocov, layer = 1) + edgecov_layer(nmc_ocov, 
+    layer = 2) + edgecov_layer(log_cdist, layer = 1) + edgecov_layer(log_cdist, 
+    layer = 2) + edgecov_layer(lgdp_icov, layer = 1) + edgecov_layer(lgdp_icov, 
+    layer = 2) + edgecov_layer(lgdp_ocov, layer = 1) + edgecov_layer(lgdp_ocov, 
+    layer = 2) + edgecov_layer(pathdep_arms, layer = 1) + edgecov_layer(pathdep_arms, 
+    layer = 2) + edgecov_layer(pathdep_trade, layer = 1) + edgecov_layer(pathdep_trade, 
+    layer = 2) + duplexdyad(c("e", "f", "h"), layers = list(1, 
+    2)), constraints = ~fixallbut(free), eval.loglik = TRUE, 
+    estimate = c("CD"), control = control.ergm(CD.nsteps = 16, 
+        CD.multiplicity = 5), verbose = TRUE, check.degeneracy = TRUE)
 
 Contrastive Divergence Results:
 
-                                Estimate Std. Error MCMC %
-mutual.same.layer.mem.1         2.374451         NA     NA
-mutual.same.layer.mem.2         0.748574         NA     NA
-edges_layer.1                 -23.421568         NA     NA
-edges_layer.2                  -7.794347         NA     NA
-gwesp.layer.1.fixed.1.5         0.472091         NA     NA
-gwesp.layer.2.fixed.1.5         0.528662         NA     NA
-gwdsp.layer.1.fixed.1.5        -0.077684         NA     NA
-gwdsp.layer.2.fixed.1.5        -0.039802         NA     NA
-edgecov.layer.1.pol_absdiff    -0.020434         NA     NA
-edgecov.layer.2.pol_absdiff     0.021311         NA     NA
-edgecov.layer.1.alliance        0.032697         NA     NA
-edgecov.layer.2.alliance        0.506213         NA     NA
-edgecov.layer.1.nmc_ocov       -0.024010         NA     NA
-edgecov.layer.2.nmc_ocov       -0.009056         NA     NA
-edgecov.layer.1.log_cdist      -0.504001         NA     NA
-edgecov.layer.2.log_cdist      -0.299884         NA     NA
-edgecov.layer.1.gdp_icov        0.074393         NA     NA
-edgecov.layer.2.gdp_icov        0.231046         NA     NA
-edgecov.layer.1.gdp_ocov        0.664138         NA     NA
-edgecov.layer.2.gdp_ocov       -0.117950         NA     NA
-edgecov.layer.1.pathdep_arms    3.323348         NA     NA
-edgecov.layer.2.pathdep_arms    0.415411         NA     NA
-edgecov.layer.1.pathdep_trade   0.789886         NA     NA
-edgecov.layer.2.pathdep_trade   4.813334         NA     NA
-duplexdyad.e                   -0.393823         NA     NA
-duplexdyad.f                    0.612176         NA     NA
-duplexdyad.g                   -0.729296         NA     NA
-duplexdyad.h                    0.090084         NA     NA
-                              z value Pr(>|z|)
-mutual.same.layer.mem.1            NA       NA
-mutual.same.layer.mem.2            NA       NA
-edges_layer.1                      NA       NA
-edges_layer.2                      NA       NA
-gwesp.layer.1.fixed.1.5            NA       NA
-gwesp.layer.2.fixed.1.5            NA       NA
-gwdsp.layer.1.fixed.1.5            NA       NA
-gwdsp.layer.2.fixed.1.5            NA       NA
-edgecov.layer.1.pol_absdiff        NA       NA
-edgecov.layer.2.pol_absdiff        NA       NA
-edgecov.layer.1.alliance           NA       NA
-edgecov.layer.2.alliance           NA       NA
-edgecov.layer.1.nmc_ocov           NA       NA
-edgecov.layer.2.nmc_ocov           NA       NA
-edgecov.layer.1.log_cdist          NA       NA
-edgecov.layer.2.log_cdist          NA       NA
-edgecov.layer.1.gdp_icov           NA       NA
-edgecov.layer.2.gdp_icov           NA       NA
-edgecov.layer.1.gdp_ocov           NA       NA
-edgecov.layer.2.gdp_ocov           NA       NA
-edgecov.layer.1.pathdep_arms       NA       NA
-edgecov.layer.2.pathdep_arms       NA       NA
-edgecov.layer.1.pathdep_trade      NA       NA
-edgecov.layer.2.pathdep_trade      NA       NA
-duplexdyad.e                       NA       NA
-duplexdyad.f                       NA       NA
-duplexdyad.g                       NA       NA
-duplexdyad.h                       NA       NA
+                                Estimate Std. Error MCMC % z value Pr(>|z|)
+mutual.same.layer.mem.1         2.399249         NA     NA      NA       NA
+mutual.same.layer.mem.2         1.180944         NA     NA      NA       NA
+edges_layer.1                 -18.501801         NA     NA      NA       NA
+edges_layer.2                 -15.571277         NA     NA      NA       NA
+gwesp.layer.1.fixed.1.5        -0.325133         NA     NA      NA       NA
+gwesp.layer.2.fixed.1.5         0.517269         NA     NA      NA       NA
+gwideg1.layer.mem1             -5.007309         NA     NA      NA       NA
+gwideg1.layer.mem2              0.583415         NA     NA      NA       NA
+gwodeg1.layer.mem1             -2.849255         NA     NA      NA       NA
+gwodeg1.layer.mem2            -25.171702         NA     NA      NA       NA
+edgecov.layer.1.pol_absdiff    -0.047812         NA     NA      NA       NA
+edgecov.layer.2.pol_absdiff     0.033749         NA     NA      NA       NA
+edgecov.layer.1.alliance       -0.468387         NA     NA      NA       NA
+edgecov.layer.2.alliance        0.718938         NA     NA      NA       NA
+edgecov.layer.1.nmc_ocov       -0.006905         NA     NA      NA       NA
+edgecov.layer.2.nmc_ocov       -0.123883         NA     NA      NA       NA
+edgecov.layer.1.log_cdist      -0.915035         NA     NA      NA       NA
+edgecov.layer.2.log_cdist      -0.504437         NA     NA      NA       NA
+edgecov.layer.1.lgdp_icov       0.122711         NA     NA      NA       NA
+edgecov.layer.2.lgdp_icov       0.595491         NA     NA      NA       NA
+edgecov.layer.1.lgdp_ocov       0.580149         NA     NA      NA       NA
+edgecov.layer.2.lgdp_ocov      -0.197085         NA     NA      NA       NA
+edgecov.layer.1.pathdep_arms    1.765372         NA     NA      NA       NA
+edgecov.layer.2.pathdep_arms    3.607549         NA     NA      NA       NA
+edgecov.layer.1.pathdep_trade   0.162576         NA     NA      NA       NA
+edgecov.layer.2.pathdep_trade   4.380609         NA     NA      NA       NA
+duplexdyad.e                    0.246123         NA     NA      NA       NA
+duplexdyad.f                    1.070808         NA     NA      NA       NA
+duplexdyad.h                   -1.176945         NA     NA      NA       NA
 
-     Null Deviance: 51659  on 37264  degrees of freedom
- Residual Deviance:  5571  on 37236  degrees of freedom
- 
-AIC: 5627  BIC: 5866  (Smaller is better. MC Std. Err. = 4.016)
