@@ -112,7 +112,7 @@ fit1 <- ergm(net ~ mutual(same = "layer.mem", diff = TRUE) +
              check.degeneracy = TRUE,
              verbose = TRUE, 
              estimate = c("MLE"),
-             control = control.ergm(parallel = 4),
+             control = control.ergm(parallel = 4, seed = 1234),
              constraints = ~ fixallbut(free)
 )
 
@@ -146,18 +146,13 @@ fit2 <- ergm(net ~ mutual(same = "layer.mem", diff = TRUE) +
              check.degeneracy = TRUE,
              verbose = TRUE, 
              estimate = c("MLE"),
-             control = control.ergm(parallel = 4),
+             control = control.ergm(parallel = 4, seed = 1234),
              constraints = ~ fixallbut(free)
 )
 
 
 end_time = Sys.time()
 duration = end_time-start_time
-
-
-# add aic and bic if method cd
-#fit1 <-logLik(fit1, add=TRUE)
-#fit2 <-logLik(fit2, add=TRUE)
 
 
 # Goodness of fit simulations
@@ -216,8 +211,8 @@ out[, 5]= c(coefficients(fit2))
 out[, 6:7] = confint(fit2)
 
 out = rbind(out[1:10, ], rep(NA, 7), out[11:26, ], rep(NA, 7), out[27:28,])
-out.table = xtable(out, auto = TRUE, digits=2, 
-                    caption = "Multilayer ERGM - Results for the Year 2003. Estimated with MCMC MLE.")
+out.table = xtable(out, auto = TRUE, digits = 2, 
+                    caption = "Results for the Year 2003. Multilayer ERGM estimated with MCMC MLE.")
 names(out.table) = c("Effect", "Layer Indep.", "LCI", "UCI", "Layer Dep.", "LCI", "UCI")
 align(out.table) = "llrrrrrr"
 
