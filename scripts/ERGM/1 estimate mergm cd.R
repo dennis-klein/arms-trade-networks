@@ -6,6 +6,7 @@ library(multilayer.ergm)
 library(stargazer)
 library(foreach)
 library(parallel)
+library(xtable)
 
 
 # help 
@@ -108,7 +109,7 @@ fit1 <- ergm(net ~ mutual(same = "layer.mem", diff = TRUE) +
                edgecov_layer(lgdp_icov, layer = 2) +
                edgecov_layer(lgdp_ocov, layer = 2) +
                edgecov_layer(pathdep_arms, layer = 2) +
-               edgecov_layer(pathdep_trade, layer = 2) +,
+               edgecov_layer(pathdep_trade, layer = 2),
              check.degeneracy = TRUE,
              verbose = FALSE, 
              estimate = c("CD"),
@@ -327,7 +328,7 @@ out[, 6] = fit2_bconf$q5
 out[, 7] = fit2_bconf$q95
 
 out = rbind(out[1:10, ], rep(NA, 7), out[11:26, ], rep(NA, 7), out[27:28,])
-out.table = xtable(out, auto = TRUE, digits=2, caption = "Estimated with Contrastive Divergence. Confidence intervals calculated based on 100 bootstrap iterations. 95pct Confidence Intervals provided.")
+out.table = xtable(out, auto = TRUE, digits=2, label = "tab:mergm_cd_2003", caption = "Estimated with Contrastive Divergence. Confidence intervals calculated based on 100 bootstrap iterations. 95pct Confidence Intervals provided.")
 names(out.table) = c("Effect", "Layer Indep.", "LCI", "UCI", "Layer Dep.", "LCI", "UCI")
 align(out.table) = "llrrrrrr"
 
