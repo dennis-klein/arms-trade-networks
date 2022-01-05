@@ -18,6 +18,7 @@ library(xtable)
 rm(list = ls(all.names = TRUE))
 set.seed(1234)
 source("utils/utils.R")
+source("utils/construct_header.R")
 path = data_path.get()
 
 
@@ -320,21 +321,35 @@ out = matrix(NA, 28, 7)
 out = data.frame(out)
 
 out[, 1] = names(coefficients(fit2))
-out[1:26, 2] = coefficients(fit1)
-out[1:26, 3] = fit1_bconf$q5
-out[1:26, 4] = fit1_bconf$q95
-out[, 5]= c(coefficients(fit2))
-out[, 6] = fit2_bconf$q5
-out[, 7] = fit2_bconf$q95
+out[1:26, 2] = round(coefficients(fit1), 2)
+out[1:26, 3] = round(fit1_bconf$q5, 2)
+out[1:26, 4] = round(fit1_bconf$q95, 2)
+out[, 5]= round(c(coefficients(fit2)), 2)
+out[, 6] = round(fit2_bconf$q5, 2)
+out[, 7] = round(fit2_bconf$q95, 2)
 
 out = rbind(out[1:10, ], rep(NA, 7), out[11:26, ], rep(NA, 7), out[27:28,])
-out.table = xtable(out, auto = TRUE, digits=2, label = "tab:mergm_cd_2003", caption = "Estimated with Contrastive Divergence. Confidence intervals calculated based on 100 bootstrap iterations. 95pct Confidence Intervals provided.")
-names(out.table) = c("Effect", "Layer Indep.", "LCI", "UCI", "Layer Dep.", "LCI", "UCI")
+out.table = xtable(out, auto = TRUE, label = "tab:mergm_cd_2003", caption = "Results for the year 2003. Multilayer exponential random graph model estimated with contrastive divergence. Confidence intervals based on 100 bootstrap iterations, 95pct confidence intervals provided.")
+names(out.table) = c("variable", "estimate", "lower ci", "upper ci", "estimate", "lower ci", "upper ci")
 align(out.table) = "llrrrrrr"
+
+a_header <- construct_header(
+  # the data.frame or matrix that should be plotted  
+  out,
+  # the labels of the groups that we want to insert
+  grp_names = c("", "layer independence", "layer dependence"), 
+  # the number of columns each group spans
+  span = c(1, 3, 3), 
+  # the alignment of each group, can be a single character (lcr) or a vector
+  align = "c"
+)
 
 print(out.table,
   booktabs = TRUE,
   include.rownames = FALSE,
-  file = "scripts/ERGM/1 latex coeffs cd 2003.txt"
+  add.to.row = a_header,
+  hline.after = F,
+  table.placement = "!h",
+  file = paste0("scripts/ERGM/1 latex coeffs cd ", year, ".txt")
 )
 

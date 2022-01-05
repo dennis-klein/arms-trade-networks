@@ -15,6 +15,7 @@ library(xtable)
 rm(list = ls(all.names = TRUE))
 set.seed(1234)
 source("utils/utils.R")
+source("utils/construct_header.R")
 path = data_path.get()
 
 
@@ -183,20 +184,20 @@ sink()
 
 
 # Save GOF Plots
-pdf(paste0("scripts/ERGM/1 gof statistics mle ", year, ".pdf"), paper = "a4r", width=11, height=8)
-par(mfrow = c(2,3))
-plot(gof1, main = paste0("Goodness-of-fit diagnostics: Independence Model ", year))
-plot.new()
-plot(gof2, main = paste0("Goodness-of-fit diagnostics: Dependence Model ", year))
-plot.new()
+pdf(paste0("scripts/ERGM/1 gof statistics mle indep ", year, ".pdf"), width=5, height=7)
+par(mfrow = c(3,2))
+plot(gof1, main = "")
+dev.off()
+pdf(paste0("scripts/ERGM/1 gof statistics mle dep ", year, ".pdf"), width=5, height=7)
+par(mfrow = c(3,2))
+plot(gof2, main = "")
 dev.off()
 
 
 # Save MCMC Diagnostics
-pdf(paste0("scripts/ERGM/1 mcmc statistics mle ", year, ".pdf"), paper = "a4r", width=11, height=8)
-par(mfrow = c(3,4))
-mcmc.diagnostics(fit1, which = "plots")
-mcmc.diagnostics(fit2, which = "plots")
+pdf(paste0("scripts/ERGM/1 mcmc statistics mle ", year, ".pdf"), paper = "a4", width=8, height=11)
+#mcmc.diagnostics(fit1, which = "plots")
+mcmc.diagnostics(fit2, which = "plots", vars.per.page = 9)
 dev.off()
 
 
@@ -205,20 +206,33 @@ out = matrix(NA, 28, 7)
 out = data.frame(out)
 
 out[, 1] = names(coefficients(fit2))
-out[1:26, 2] = coefficients(fit1)
-out[1:26, 3:4] = confint(fit1)
-out[, 5]= c(coefficients(fit2))
-out[, 6:7] = confint(fit2)
+out[1:26, 2] = round(coefficients(fit1), 2)
+out[1:26, 3:4] = round(confint(fit1), 2)
+out[, 5]= round(c(coefficients(fit2)), 2)
+out[, 6:7] = round(confint(fit2), 2)
 
 out = rbind(out[1:10, ], rep(NA, 7), out[11:26, ], rep(NA, 7), out[27:28,])
-out.table = xtable(out, auto = TRUE, digits = 2, 
-                    caption = "Results for the Year 2003. Multilayer ERGM estimated with MCMC MLE.")
-names(out.table) = c("Effect", "Layer Indep.", "LCI", "UCI", "Layer Dep.", "LCI", "UCI")
+out.table = xtable(out, auto = TRUE, label = "tab:mergm_mle_2003", caption = "Results for the year 2003. Multilayer exponential random graph model estimated with mcmc mle.")
+names(out.table) = c("variable", "estimate", "lower ci", "upper ci", "estimate", "lower ci", "upper ci")
 align(out.table) = "llrrrrrr"
+
+a_header <- construct_header(
+  # the data.frame or matrix that should be plotted  
+  out,
+  # the labels of the groups that we want to insert
+  grp_names = c("", "layer independence", "layer dependence"), 
+  # the number of columns each group spans
+  span = c(1, 3, 3), 
+  # the alignment of each group, can be a single character (lcr) or a vector
+  align = "c"
+)
 
 print(out.table,
       booktabs = TRUE,
       include.rownames = FALSE,
+      add.to.row = a_header,
+      hline.after = F,
+      table.placement = "htp",
       file = paste0("scripts/ERGM/1 latex coeffs mle ", year, ".txt")
 )
 
