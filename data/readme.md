@@ -44,9 +44,8 @@ Note: different time-frames apply!
 atop_alliance.RData: List of yearly (69) matrices (257 x 257) indicating if in 
 year t, country i had an alliance with country j. (Check: defense alliance?)  
 
-baci_aggregated.rds: List of yearly (25, 1995 to 2018) matrices (257 x 257); 
+baci_aggregated.rds: List of yearly (25, 1995 to 2019) matrices (257 x 257); 
 numerical, aggregated export flows. Source: cepii baci. Rebased to constant 2010 USD. 
-Flow is only considered if more than 1pct of exporters' trade else 0.
 
 cdist.RData: Matrix with dimensions 257 x 257, numerical for capital distance 
 between country i and j.
@@ -65,12 +64,10 @@ gdp.rds: Matrix of dimensions 257 x 69 with numerical constant USD GDP from the
 World Bank, Augumented with data from Maddison (check correct denomination!).
 
 itpd_mining-energy.rds: List of yearly (17, 2000 to 2016) matrices (257 x 257); 
-numerical, aggregated export flows in category mining/energy. 
-Not rebased because we don't need it any more.
+numerical, aggregated export flows in category mining/energy. Not rebased.
 
 itpd_aggregated.rds: List of yearly (17, 2000 to 2016) matrices (257 x 257); 
 numerical, aggregated export flows. Rebased to constant 2010 USD.
-Flow is only considered if more than 1pct of exporters' trade else 0.
 
 milit_exp.RData: Matrix of dimensions 257 x 69, numerical for military expenditure. Source: NMC
 

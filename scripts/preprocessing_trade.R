@@ -14,7 +14,7 @@ load(file.path(path, "out/country_list.RData"))
 load(file.path(path, "out/EX.RData"))
 
 
-# prepare cpi usd series
+# rebase time series with cpi us 2010
 cpi_us = fread(file.path(path, "raw/united-states.index.cpi-u (statbureau.org).csv"))
 setnames(cpi_us, "Year", "year")
 cpi_us = cpi_us[year %in% c(1919:2020)]
@@ -46,22 +46,14 @@ for (string in file_lst){
   baci = rbind(baci, tmp)
 }
 
+baci[v == 0] 
 
 # rebase to 2010 values
 baci = merge(baci, cpi_us, by.x = "t", by.y = "year", all.x = T)
 baci = baci[, v := v * 1000 / cpi_rebased][, .(t, i, j, v)]
 
 
-# apply relevant exporter / importer thresholds
-exp = baci[, .(total = sum(v), count = .N), by = .(t, i)]
-imp = baci[, .(total = sum(v), count = .N), by = .(t, j)]
-thrshld = 0.005
-
-baci = merge(baci, exp, by.x = c("t", "i"), by.y = c("t", "i"), all.x = T)
-baci[, dependency := v / total]
-baci[, v := ifelse(dependency > thrshld, v, 0)]
-
-
+# add identifiers
 baci = merge(baci, codes[, .(country_code, iso_3digit_alpha)], by.x = "i", by.y = "country_code", all.x = T)
 setnames(baci, "iso_3digit_alpha", "i_iso3")
 baci = merge(baci, codes[, c("country_code", "iso_3digit_alpha")], by.x = "j", by.y = "country_code", all.x = T)
@@ -70,20 +62,23 @@ setnames(baci, "iso_3digit_alpha", "j_iso3")
 baci[, i_iso3 := as.factor(i_iso3)]
 baci[, j_iso3 := as.factor(j_iso3)]
 
+any(is.na(baci$i_iso3))
+any(is.na(baci$j_iso3))
+
 baci[, from_id:=match(i_iso3, country_list$iso3)]
 baci[, to_id:=match(j_iso3, country_list$iso3)]
 
-#baci$from_id[is.na(baci$from_id)] = match(baci$from[is.na(baci$from_id)],country_list$iso3)
-#baci$to_id[is.na(baci$to_id)] = match(baci$to[is.na(baci$to_id)],country_list$iso3)
 
-unique(baci$i_iso3[is.na(baci$from_id)]) 
-unique(baci$j_iso3[is.na(baci$to_id)]) 
+# countries which were not matched to our dataset
+# almost all are microstates and therefore not included in the analysis
+# Except Serbia and Montenegro but there are separate inclusions for each country
+ans = unique(c(baci$i_iso3[is.na(baci$from_id)], baci$j_iso3[is.na(baci$to_id)]))
+sort(unique(codes$country_name_full[codes$iso_3digit_alpha %in% ans]))
 
 baci = baci[!(is.na(baci$from_id) | is.na(baci$to_id))] # Delete all observations where the id is not known 
 tmp = list(); 
 
-
-for (i in 1:25){
+for (i in 1:length(1995:2019)){
   tmp[[i]] = matrix(0, 257, 257)
   colnames(tmp[[i]]) = country_list$V1
   rownames(tmp[[i]]) = country_list$V1
@@ -111,44 +106,15 @@ itpd = fread(file.path(path, "raw/itpd_e_r01/ITPD_E_R01.csv"))
 itpd[, broad_sector := as.factor(broad_sector)]; levels(itpd$broad_sector)
 
 itpd = itpd[, .(trade = sum(trade)), by = .(exporter_iso3, importer_iso3, year)]
-itpd[, trade := trade * 1000000]
-
 itpd = merge(itpd, cpi_us, by.x = "year", by.y = "year", all.x = TRUE)
-itpd = itpd[, trade := trade / cpi_rebased][, .(exporter_iso3, importer_iso3, year, trade)]
-
-
-# apply relevant exporter / importer thresholds
-exp = itpd[, .(total = sum(trade), count = .N), by = .(year, exporter_iso3)]
-imp = itpd[, .(total = sum(trade), count = .N), by = .(year, importer_iso3)]
-thrshld = 0.005
-
-itpd = merge(itpd, exp, by.x = c("year", "exporter_iso3"), by.y = c("year", "exporter_iso3"), all.x = T)
-itpd[, dependency := trade / total]
-itpd[, trade := ifelse(dependency > thrshld, trade, 0)]
-
-
-# impute values if at least five are given
-#itpd = dcast(itpd, exporter_iso3 + importer_iso3 ~ year, value.var = c("trade"))
-#tmp = as.matrix(itpd[, -c(1,2)])
-
-#for(i in 1:nrow(tmp)){
-#  if(sum(is.na(tmp[i, ])) <  17-5){
-#    tmp[i, ] = na_interpolation(tmp[i, ])
-#  }
-#}
-
-#tmp = as.data.frame(tmp)
-#tmp$exporter_iso3 = itpd$exporter_iso3; tmp$importer_iso3 = itpd$importer_iso3
-#setDT(tmp)
-
-#itpd = melt(tmp, id.vars = c("exporter_iso3", "importer_iso3"), measure.vars = 1:17, variable.name = "year", value.name = "trade")
-#sum(is.na(itpd$trade))
+itpd = itpd[, trade := trade * 1000000 / cpi_rebased][, .(exporter_iso3, importer_iso3, year, trade)]
 
 itpd[, from_id:=match(exporter_iso3, country_list$iso3)]
 itpd[, to_id:=match(importer_iso3, country_list$iso3)]
 
-unique(itpd$importer_iso3[is.na(itpd$to_id)]) 
-unique(itpd$exporter_iso3[is.na(itpd$from_id)]) 
+# we exclude non-matched micro polities
+ans = unique(c(itpd$importer_iso3[is.na(itpd$to_id)], itpd$exporter_iso3[is.na(itpd$from_id)])) 
+countrycode(ans, origin = "iso3c", "country.name")
 
 itpd = itpd[!(is.na(itpd$from_id) | is.na(itpd$to_id))] # Delete all observations where the id is not known 
 tmp = list()
@@ -208,24 +174,6 @@ tradhist = merge(tradhist, cpi_us, by = c("year"), all.x = TRUE)
 tradhist = tradhist[, FLOW := (FLOW / GBP_USD) / cpi_rebased][, .(iso_o, iso_d, year, FLOW)]
 
 
-# impute values if at least five are given
-tradhist = dcast(tradhist, iso_o + iso_d ~ year, value.var = c("FLOW"))
-tmp = as.matrix(tradhist[, -c(1,2)])
-
-for(i in 1:nrow(tmp)){
-  if(sum(is.na(tmp[i, ])) <  65-22){
-    tmp[i, ] = na_interpolation(tmp[i, ])
-  }
-}
-
-tmp = as.data.frame(tmp)
-tmp$iso_o = tradhist$iso_o; tmp$iso_d = tradhist$iso_d
-setDT(tmp)
-
-tradhist = melt(tmp, id.vars = c("iso_o", "iso_d"), measure.vars = 1:65, variable.name = "year", value.name = "FLOW")
-sum(is.na(tradhist$FLOW))
-
-
 # Match the country names with the ids in country_list
 tradhist[, from_id := match(iso_o, country_list$cepii)]
 tradhist[, to_id := match(iso_d, country_list$cepii)]
@@ -235,9 +183,10 @@ tradhist[, to_id := match(iso_d, country_list$cepii)]
 unique(tradhist$iso_o[is.na(tradhist$from_id)])
 unique(tradhist$iso_d[is.na(tradhist$to_id)])
 
+countrycode(unique(tradhist$iso_o[is.na(tradhist$from_id)]), "iso3c", "country.name")
+
   # some are micro states and will be dropped in the analysis
   # how to handle East / West Germany, Russia - has to be adapted
-  # check these again!
 
 tradhist$from_id[tradhist$iso_o == "USSR"] <- 154
 tradhist$to_id[tradhist$iso_d == "USSR"] <- 154
