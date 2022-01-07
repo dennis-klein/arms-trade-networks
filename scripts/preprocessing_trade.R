@@ -90,8 +90,27 @@ for (i in 1:length(1995:2019)){
 }
 
 saveRDS(tmp, file = file.path(path, "out/baci_aggregated.rds"))
-rm(tmp, tmp_dfl, baci, codes)
 
+
+# remove countries where imports or exports total 0 in a given year of 1995:2018
+# select existing countries (one way), include all which exist continuously 
+ind <- rowSums(EX[, (1995:2018)-1949]) == length(1995:2018)
+
+ans1 = apply(tmp[[1]], 2, FUN = sum, na.rm = T)
+ans2 = apply(tmp[[1]], 1, FUN = sum, na.rm = T)
+
+for (i in 2:length(tmp)) {
+  ans1 = cbind(ans1, apply(tmp[[i]], 2, FUN = sum, na.rm = T))
+  ans2 = cbind(ans2, apply(tmp[[i]], 1, FUN = sum, na.rm = T))
+}
+
+excl = rowSums(ans1==0) > 0
+EX[excl, ] <- 0
+excl = rowSums(ans2==0) > 0
+EX[excl, ] <- 0
+
+rm(tmp, tmp_dfl, baci, codes)
+save(EX, file = file.path(path, "out/EX.RData"))
 
 
 

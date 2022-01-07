@@ -2,31 +2,21 @@ Albania
  
 Algeria
  
-Angola
- 
 Argentina
- 
-Armenia
  
 Australia
  
 Austria
  
-Azerbaijan
- 
 Bahrain
  
 Bangladesh
- 
-Belarus
  
 Belgium
  
 Benin
  
 Bolivia
- 
-Botswana
  
 Brazil
  
@@ -58,8 +48,6 @@ Congo
  
 Cote dIvoire
  
-Croatia
- 
 Cuba
  
 Cyprus
@@ -74,8 +62,6 @@ Egypt
  
 El Salvador
  
-Estonia
- 
 Ethiopia
  
 Fiji
@@ -87,8 +73,6 @@ France
 Gabon
  
 Gambia
- 
-Georgia
  
 Germany
  
@@ -120,11 +104,7 @@ Italy
  
 Jamaica
  
-Japan
- 
 Jordan
- 
-Kazakhstan
  
 Kenya
  
@@ -132,23 +112,11 @@ South Korea
  
 Kuwait
  
-Kyrgyzstan
- 
 Laos
- 
-Latvia
- 
-Lesotho
  
 Liberia
  
 Libya
- 
-Lithuania
- 
-Luxembourg
- 
-Macedonia (FYROM)
  
 Madagascar
  
@@ -164,8 +132,6 @@ Mauritius
  
 Mexico
  
-Moldova
- 
 Mongolia
  
 Morocco
@@ -173,8 +139,6 @@ Morocco
 Mozambique
  
 Myanmar
- 
-Namibia
  
 Nepal
  
@@ -218,15 +182,9 @@ Saudi Arabia
  
 Senegal
  
-Serbia
- 
 Sierra Leone
  
 Singapore
- 
-Slovakia
- 
-Slovenia
  
 South Africa
  
@@ -235,8 +193,6 @@ Spain
 Sri Lanka
  
 Sudan
- 
-Swaziland
  
 Sweden
  
@@ -255,8 +211,6 @@ Tunisia
 Turkey
  
 Uganda
- 
-Ukraine
  
 United Arab Emirates
  

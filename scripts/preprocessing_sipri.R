@@ -3,10 +3,6 @@
 # Large Parts from the following code are taken from the 
 # replication files of Fritz, C et al. 2021
 
-# run to create usable dataset on ARMS DEALS and TOTAL ARMS TRADE PER YEAR
-# data/processed/sipri_arms_deals_1950_2019.rds
-# data/processed/sipri_arms_trade_1990_2019.rds
-
 
 library(readr)
 library(data.table)
@@ -20,6 +16,7 @@ source("utils/utils.R")
 path = data_path.get()
 
 # load countrylist
+load(file.path(path, "out/EX.RData"))
 load(file.path(path, "out/country_list.RData"))
 
 paths <- list(
@@ -31,16 +28,18 @@ paths <- list(
 )
 
 
-
 dfl = lapply(paths, read.csv, sep = ";", skip = 4) # Read the files into a list
 dfl = rbindlist(dfl) # Make one data.table out of the read files
 changeCols<- names(dfl)
 
+
 # Make factors to characters
 dfl[, (changeCols) := lapply(.SD, as.character), .SDcols = changeCols]
 
+
 # Unkown countries are deleted 
 dfl = dfl[dfl$Seller != ""]
+
 
 # There seems to be Problem with deals whose description includes in the raw data a ; in the Description 
 missing_tmp = which(suppressWarnings(is.na(as.numeric(as.character(dfl$Delivery.year)))))
@@ -60,6 +59,7 @@ dfl$Buyer[dfl$Buyer == "Czechia"] = "Czech Republic"
 dfl$Buyer[dfl$Buyer == "Macedonia"] = "Macedonia (FYROM)"
 dfl$Buyer[dfl$Buyer == "East Germany (GDR)"] = "German Democratic Republic"
 dfl$Buyer[dfl$Buyer == "Bosnia-Herzegovina"] = "Bosnia and Herzegovina"
+
 
 # Change all transactions with the Soviet Union to Russia 
 dfl$Seller[dfl$Seller == "Soviet Union"] = "Russia" 
@@ -88,8 +88,8 @@ tiv_dfl$to_id = match(tiv_dfl$to ,country_list$SIPRI)
 
 
 # Try matching the unmatched names with the alternative name also given in country_list
-tiv_dfl$from_id[is.na(tiv_dfl$from_id)] = match(tiv_dfl$from[is.na(tiv_dfl$from_id)],country_list$V1)
-tiv_dfl$to_id[is.na(tiv_dfl$to_id)] = match(tiv_dfl$to[is.na(tiv_dfl$to_id)],country_list$V1)
+tiv_dfl$from_id[is.na(tiv_dfl$from_id)] = match(tiv_dfl$from[is.na(tiv_dfl$from_id)], country_list$V1)
+tiv_dfl$to_id[is.na(tiv_dfl$to_id)] = match(tiv_dfl$to[is.na(tiv_dfl$to_id)], country_list$V1)
 
 unique(tiv_dfl$to[is.na(tiv_dfl$to_id)]) # Rest of the unmatched countries are not independent states and thus not part of the analysis 
 unique(tiv_dfl$from[is.na(tiv_dfl$from_id)]) # Rest of the unmatched countries are not independent states and thus not part of the analysis 
@@ -110,7 +110,7 @@ for (i in 1:69){
 
 # fill the matrix per year 
 for(i in 1950:2018){
-  tmp <- tiv_dfl[tiv_dfl$year == i,]
+  tmp <- tiv_dfl[tiv_dfl$year == i, ]
   sipri_tiv[[i- 1949]][cbind(tmp$from_id, tmp$to_id)] = tmp$x
 }
 

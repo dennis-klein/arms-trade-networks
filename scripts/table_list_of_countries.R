@@ -10,7 +10,7 @@ load(file.path(path, "out/EX.RData"))
 
 
 # select countries included in analysis
-include = rowSums(EX[, (2000:2016)-1949]) == 17
+include = rowSums(EX[, (1995:2018)-1949]) == length(1995:2018)
 country_list = country_list[include, ]
 sum(include)
 
