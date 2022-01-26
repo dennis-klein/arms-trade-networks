@@ -3,10 +3,10 @@ library(sna)
 library(data.table)
 library(ergm)
 library(multilayer.ergm)
-library(stargazer)
 library(foreach)
 library(parallel)
 library(xtable)
+library(texreg)
 
 
 # help 
@@ -19,6 +19,7 @@ rm(list = ls(all.names = TRUE))
 set.seed(1234)
 source("utils/utils.R")
 source("utils/construct_header.R")
+source("utils/custom_trade_to_binary.R")
 path = data_path.get()
 
 
@@ -28,40 +29,39 @@ load(file.path(path, "out/colony.RData"))
 load(file.path(path, "out/country_list.RData"))
 load(file.path(path, "out/cdist.RData"))
 
-conflict = readRDS(file.path(path, "out/conflict_intrastate.rds"))
-nmc_cinc = readRDS(file.path(path, "out/nmc_cinc.rds")) * 100
+nmc_cinc = readRDS(file.path(path, "out/nmc_cinc.rds"))
 polity = readRDS(file.path(path, "out/polity.rds"))
 gdp = readRDS(file.path(path, "out/gdp.rds"))
+gdppc = readRDS(file.path(path, "out/gdppc.rds"))
 sipri_tiv = readRDS(file.path(path, "out/sipri_tiv.rds"))
 trade = readRDS(file.path(path, "out/baci_aggregated.rds"))
 load(file.path(path, "out/atop_alliance.RData"))
 
 
-# set parameters of analysis
-# trade data starting 1995, sipri ends 2017
+# set parameters of analyses
+# trade data starting 1995
 start = 1995
-end = 2017
+end = 2018
 year = 2003
-n_sim = 200
+
+n_sim = 100
 n_bootstrap = 100
 
-thrshld1 = 0
-thrshld2 = 0 
 
+# set correct indices depending on data source
 i1 = year - 1949 # Cornelius Replication Data
 i2 = year - 1994 # CEPII BACI
-i3 = year - 1999
 
 
-# countries included in analysis
+# selection of countries included
 included = rowSums(EX[, (start:end)-1949]) == length(start:end)
 n = sum(included) 
 
 
-# construct dependent multilayer network
+# construct dependent multi-layer net
 # layer 1: arms, layer 2: trade + apply thresholds
-tmp1 = (sipri_tiv[[i1]][included, included] > thrshld1) * 1
-tmp2 = (trade[[i2]][included, included] > thrshld2) * 1
+tmp1 = (sipri_tiv[[i1]][included, included] > 0) * 1
+tmp2 = custom_trade_to_binary(trade[[i2]][included, included], type = "C", threshold = 0.01)
 net = to.multiplex(tmp1, tmp2, output = "network")
 check.multilayer(net)
 
@@ -72,51 +72,47 @@ diag(free) = 0
 free = network(free, directed = T)
 
 
-# nodal attributes, lagged by t = 1
+# nodal and dyadic attributes, lagged by t = 1
 log_cdist = log(cdist[included, included] + 1)
+log_gdp_out = matrix(log(gdp[included, i1-1]), n, n, byrow = FALSE)
+log_gdppc_in = matrix(log(gdppc[included, i1-1]), n, n, byrow = TRUE)
+absdiff_polity = abs(outer(polity[included, i1-1], polity[included, i1-1],'-'))
+cinc100_out = matrix(100 * nmc_cinc[included, i1-1], n, n, byrow = F)
 alliance = atop_alliance[[i1 - 1]][included, included]
-nmc_icov = matrix(nmc_cinc[included, i1-1], length(nmc_cinc[included, i1-1]), n, byrow = TRUE)
-nmc_ocov = matrix(nmc_cinc[included, i1-1], length(nmc_cinc[included, i1-1]), n, byrow = FALSE)
-lgdp_icov = matrix(log(gdp[included, i1-1]), length(gdp[included, i1-1]), n, byrow = TRUE)
-lgdp_ocov = matrix(log(gdp[included, i1-1]), length(gdp[included, i1-1]), n, byrow = FALSE)
-conflict_icov = matrix(conflict[included, i1-1], length(conflict[included, i1-1]), n, byrow = TRUE)
-conflict_ocov = matrix(conflict[included, i1-1], length(conflict[included, i1-1]), n, byrow = FALSE)
-pol_absdiff = abs(outer(polity[included, i1-1], polity[included, i1-1],'-'))
-pathdep_arms = (sipri_tiv[[i1-1]][included, included] > thrshld1) * 1
-pathdep_trade = (trade[[i2-1]][included, included] > thrshld2) * 1
+
+pathdep_arms = (sipri_tiv[[i1-1]][included, included] > 0) * 1
+pathdep_trade = custom_trade_to_binary(trade[[i2-1]][included, included], type = "C", threshold = 0.01)
 
 
 # contrastive divergence estimation
 # layer independence model
 fit1 <- ergm(net ~ mutual(same = "layer.mem", diff = TRUE) +
-               edges_layer(layer = 1) +
-               edges_layer(layer = 2) +
-               gwesp_layer(decay = 1.5, fixed = TRUE, layer = 1) +
-               gwesp_layer(decay = 1.5, fixed = TRUE, layer = 2) +
                gwidegree(decay = 1, fixed = TRUE, attr = "layer.mem") +
                gwodegree(decay = 1, fixed = TRUE, attr = "layer.mem") +
-               edgecov_layer(pol_absdiff, layer = 1) +
-               edgecov_layer(alliance, layer = 1) +
-               edgecov_layer(nmc_ocov, layer = 1) +
+               edges_layer(layer = 1) +
+               gwesp_layer(decay = 1.5, fixed = TRUE, layer = 1) +
                edgecov_layer(log_cdist, layer = 1) +
-               edgecov_layer(lgdp_icov, layer = 1) +
-               edgecov_layer(lgdp_ocov, layer = 1) +
-               edgecov_layer(pathdep_arms, layer = 1) +
-               edgecov_layer(pathdep_trade, layer = 1) +
-               edgecov_layer(pol_absdiff, layer = 2) +
-               edgecov_layer(alliance, layer = 2) +
-               edgecov_layer(nmc_ocov, layer = 2) +
+               edgecov_layer(log_gdppc_in, layer = 1) +
+               edgecov_layer(log_gdp_out, layer = 1) +
+               edgecov_layer(cinc100_out, layer = 1) +
+               edgecov_layer(alliance, layer = 1) + 
+               edgecov_layer(absdiff_polity, layer = 1) +
+               
+               edges_layer(layer = 2) +
+               gwesp_layer(decay = 1.5, fixed = TRUE, layer = 2) +
                edgecov_layer(log_cdist, layer = 2) +
-               edgecov_layer(lgdp_icov, layer = 2) +
-               edgecov_layer(lgdp_ocov, layer = 2) +
-               edgecov_layer(pathdep_arms, layer = 2) +
-               edgecov_layer(pathdep_trade, layer = 2),
+               edgecov_layer(log_gdppc_in, layer = 2) +
+               edgecov_layer(log_gdp_out, layer = 2) +
+               edgecov_layer(cinc100_out, layer = 2) +
+               edgecov_layer(alliance, layer = 2) +
+               edgecov_layer(absdiff_polity, layer = 2),
              check.degeneracy = TRUE,
-             verbose = FALSE, 
+             verbose = F, 
              estimate = c("CD"),
              control = control.ergm(
-               CD.nsteps = 16,
-               CD.multiplicity = 2
+               parallel = 4,
+               CD.nsteps = 4096,
+               CD.multiplicity = 1
              ),
              constraints = ~ fixallbut(free)
 )
@@ -124,65 +120,96 @@ fit1 <- ergm(net ~ mutual(same = "layer.mem", diff = TRUE) +
 
 # layer dependence model
 fit2 <- ergm(net ~ mutual(same = "layer.mem", diff = TRUE) +
-               edges_layer(layer = 1) +
-               edges_layer(layer = 2) +
-               gwesp_layer(decay = 1.5, fixed = TRUE, layer = 1) +
-               gwesp_layer(decay = 1.5, fixed = TRUE, layer = 2) +
                gwidegree(decay = 1, fixed = TRUE, attr = "layer.mem") +
                gwodegree(decay = 1, fixed = TRUE, attr = "layer.mem") +
-               edgecov_layer(pol_absdiff, layer = 1) +
-               edgecov_layer(alliance, layer = 1) +
-               edgecov_layer(nmc_ocov, layer = 1) +
+               edges_layer(layer = 1) +
+               gwesp_layer(decay = 1.5, fixed = TRUE, layer = 1) +
                edgecov_layer(log_cdist, layer = 1) +
-               edgecov_layer(lgdp_icov, layer = 1) +
-               edgecov_layer(lgdp_ocov, layer = 1) +
-               edgecov_layer(pathdep_arms, layer = 1) +
-               edgecov_layer(pathdep_trade, layer = 1) +
-               edgecov_layer(pol_absdiff, layer = 2) +
-               edgecov_layer(alliance, layer = 2) +
-               edgecov_layer(nmc_ocov, layer = 2) +
+               edgecov_layer(log_gdppc_in, layer = 1) +
+               edgecov_layer(log_gdp_out, layer = 1) +
+               edgecov_layer(cinc100_out, layer = 1) +
+               edgecov_layer(alliance, layer = 1) + 
+               edgecov_layer(absdiff_polity, layer = 1) +
+               
+               edges_layer(layer = 2) +
+               gwesp_layer(decay = 1.5, fixed = TRUE, layer = 2) +
                edgecov_layer(log_cdist, layer = 2) +
-               edgecov_layer(lgdp_icov, layer = 2) +
-               edgecov_layer(lgdp_ocov, layer = 2) +
-               edgecov_layer(pathdep_arms, layer = 2) +
-               edgecov_layer(pathdep_trade, layer = 2) +
-               duplexdyad(c("e", "h"), layers = list(1, 2)),
+               edgecov_layer(log_gdppc_in, layer = 2) +
+               edgecov_layer(log_gdp_out, layer = 2) +
+               edgecov_layer(cinc100_out, layer = 2) +
+               edgecov_layer(alliance, layer = 2) +
+               edgecov_layer(absdiff_polity, layer = 2) +
+               duplexdyad(c("e", "f", "h"), layers = list(1, 2)),
              check.degeneracy = TRUE,
              verbose = FALSE, 
              estimate = c("CD"),
              control = control.ergm(
-               CD.nsteps = 16,
+               parallel = 4,
+               CD.nsteps = 4096,
                CD.multiplicity = 2
              ),
              constraints = ~ fixallbut(free)
 )
 
 
+fit2_mple <- ergm(net ~ mutual(same = "layer.mem", diff = TRUE) +
+               gwidegree(decay = 1, fixed = TRUE, attr = "layer.mem") +
+               gwodegree(decay = 1, fixed = TRUE, attr = "layer.mem") +
+               edges_layer(layer = 1) +
+               gwesp_layer(decay = 1.5, fixed = TRUE, layer = 1) +
+               edgecov_layer(log_cdist, layer = 1) +
+               edgecov_layer(log_gdppc_in, layer = 1) +
+               edgecov_layer(log_gdp_out, layer = 1) +
+               edgecov_layer(cinc100_out, layer = 1) +
+               edgecov_layer(alliance, layer = 1) + 
+               edgecov_layer(absdiff_polity, layer = 1) +
+               
+               edges_layer(layer = 2) +
+               gwesp_layer(decay = 1.5, fixed = TRUE, layer = 2) +
+               edgecov_layer(log_cdist, layer = 2) +
+               edgecov_layer(log_gdppc_in, layer = 2) +
+               edgecov_layer(log_gdp_out, layer = 2) +
+               edgecov_layer(cinc100_out, layer = 2) +
+               edgecov_layer(alliance, layer = 2) +
+               edgecov_layer(absdiff_polity, layer = 2) +
+               duplexdyad(c("e", "f", "h"), layers = list(1, 2)),
+             check.degeneracy = TRUE,
+             verbose = FALSE, 
+             estimate = c("MPLE"),
+             constraints = ~ fixallbut(free)
+)
+
+
 # add aic and bic 
-fit1 <-logLik(fit1, add=TRUE)
-fit2 <-logLik(fit2, add=TRUE)
+#fit1 <-logLik(fit1, add=TRUE)
+#fit2 <-logLik(fit2, add=TRUE)
 
 
-# Goodness of fit simulations
-gof1 = gof(fit1,  control = control.gof.ergm(nsim = n_sim, seed = 1234), verbose = T)
-gof2 = gof(fit2,  control = control.gof.ergm(nsim = n_sim, seed = 1234), verbose = T)
+# Goodness of fit Simulations
+gof1 = gof(fit1, verbose = T)
+gof2 = gof(fit2, verbose = T)
+gof2_mple = gof(fit2_mple, verbose = T)
+
+
+# Saving outputs
+save(fit1, fit2, gof1, gof2, fit2_mple, gof2_mple, file = paste0(path, "/models/ERGM/estimation_cd_", year,".RData"))
+load(file = paste0(path, "/models/ERGM/estimation_cd_", year,".RData"))
 
 
 # Save Summary 
-sink(file = paste0("scripts/ERGM/1 summary cd ", year, ".txt"))
-summary(fit1)
-cat("\n \n \n")
-summary(fit2)
+sink(file = paste0("scripts/ERGM/1 screenreg cd ", year, ".txt"))
+screenreg(list(fit1, fit2, fit2_mple))
 sink()
 
+Sys.time()
 
 # Summary Statistics
-sink(file = paste0("scripts/ERGM/1 gof statistics cd ", year, ".txt"))
-options(width = 160)
-print(gof1)
-cat("\n \n Model Layer Independence: \n \n")
-print(gof2)
-sink()
+#sink(file = paste0("scripts/ERGM/1 gof statistics cd ", year, ".txt"))
+#options(width = 160)
+#print(gof1)
+#cat("\n \n Model Layer Independence: \n \n")
+#print(gof2)
+#sink()
 
 
 # Save GOF Plots
@@ -190,38 +217,17 @@ pdf(paste0("scripts/ERGM/1 gof statistics cd ", year, ".pdf"), paper = "a4r", wi
 par(mfrow = c(2,3))
 plot(gof1, main = paste0("Goodness-of-fit diagnostics: Independence Model ", year))
 plot.new()
-plot(gof2, main = paste0("Goodness-of-fit diagnostics: Dependence Model ", year))
+plot(gof2, main = paste0("Goodness-of-fit diagnostics: Dependence Model cd ", year))
+plot.new()
+plot(gof2, main = paste0("Goodness-of-fit diagnostics: Dependence Model mple ", year))
 plot.new()
 dev.off()
 
 
-# Saving outputs
-save(fit1, fit2, gof1, gof2, file = paste0(path, "/models/ERGM/estimation_cd_", year,".RData"))
 
-
-# Assessing fit of cross-layer terms
-#dyadfit_observed = summary(net ~ duplexdyad(type = c("e", "f", "g", "h"), layers = list(1, 2)))
-#dyadfit_full = simulate(fit2, nsim = 500, output = "stats", seed = 1234)[, 11:13]
-#dyadfit_reduced = simulate(fit1, nsim = 500, monitor = ~duplexdyad(type = c("e", "f", "g", "h"), layers = list(1, 2)),output = "stats", seed = 1234)[, 11:13]
-
-
-# Output Table 2
-#ans = cbind(dyadfit_observed,
-#      colMeans(dyadfit_reduced), apply(dyadfit_reduced, 2, sd),
-#      colMeans(dyadfit_full), apply(dyadfit_full, 2, sd)
-#)
-
-#colnames(ans) = c("observed", 
-#                 "reduced mean", "reduced sd", 
-#                "full mean", "full sd")
-
-#sink(file = paste0("scripts/ERGM/1 latex coeffs cd ", year, ".txt"))
-#ans
-#sink()
-
-
-# bootstrap ci's if estimated with contrastive divergence
-#define quantiles of interest
+if(FALSE){
+# Bootstrap ci's if estimated with contrastive divergence
+# Define quantiles of interest
 q = c(.05, .95)
 
 
@@ -317,18 +323,16 @@ save(fit1, fit2, fit1_bconf, fit2_bconf, file = paste0(path, "/models/ERGM/estim
 
 
 # Save Latex Coefficients Table
-out = matrix(NA, 28, 7)
-out = data.frame(out)
-
+out = data.frame(matrix(NA, length(coef(fit2)), 7))
 out[, 1] = names(coefficients(fit2))
-out[1:26, 2] = round(coefficients(fit1), 2)
-out[1:26, 3] = round(fit1_bconf$q5, 2)
-out[1:26, 4] = round(fit1_bconf$q95, 2)
+out[1:length(coef(fit1)), 2] = round(coefficients(fit1), 2)
+out[1:length(coef(fit1)), 3] = round(fit1_bconf$q5, 2)
+out[1:length(coef(fit1)), 4] = round(fit1_bconf$q95, 2)
 out[, 5]= round(c(coefficients(fit2)), 2)
 out[, 6] = round(fit2_bconf$q5, 2)
 out[, 7] = round(fit2_bconf$q95, 2)
 
-out = rbind(out[1:10, ], rep(NA, 7), out[11:26, ], rep(NA, 7), out[27:28,])
+#out = rbind(out[1:10, ], rep(NA, 7), out[11:24, ], rep(NA, 7), out[25:26,])
 out.table = xtable(out, auto = TRUE, label = "tab:mergm_cd_2003", caption = "Results for the year 2003. Multilayer exponential random graph model estimated with contrastive divergence. Confidence intervals based on 100 bootstrap iterations, 95pct confidence intervals provided.")
 names(out.table) = c("variable", "estimate", "lower ci", "upper ci", "estimate", "lower ci", "upper ci")
 align(out.table) = "llrrrrrr"
@@ -353,3 +357,6 @@ print(out.table,
   file = paste0("scripts/ERGM/1 latex coeffs cd ", year, ".txt")
 )
 
+
+
+}

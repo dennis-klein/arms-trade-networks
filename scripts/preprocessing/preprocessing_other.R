@@ -28,6 +28,9 @@ rownames(tmp) = country_list$V1
 colnames(tmp) = 1950:2018
 
 tmp[cbind(nmc$id, nmc$year-1949)] = nmc$cinc
+tmp[, 2017-1949] <- tmp[, 2016-1949]
+tmp[, 2018-1949] <- tmp[, 2016-1949]
+
 saveRDS(tmp, file = file.path(path, "out/nmc_cinc.rds"))
 
 
