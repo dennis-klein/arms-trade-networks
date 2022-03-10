@@ -1,4 +1,5 @@
 #' trade_exports_gdp_cutoff
+#' trade_flow_gdp_cutoff
 #' 
 #' Binary Trade measure based on exports, imports and GDP.
 #' Formula: Indicator_i = (flow_ij/gdp_i >= threshold).
