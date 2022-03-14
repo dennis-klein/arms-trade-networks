@@ -45,6 +45,8 @@ vignettes/*.pdf
 /data/**/*.csv
 /data/**/*.dta
 /data/**/*.xlsx
+/data/**/*.xls
+/data/**/*.pdf
 /data/**/*.txt
 /data/**/*.Rdata
 /data/**/*.rtf
