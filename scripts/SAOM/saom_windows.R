@@ -27,3 +27,5 @@ fit_saom_sliding_windows(win_size = 4,
                          save_dir = path(dpath, "models", "SAOM"),
                          model_id = paste0("test_tmp_", as.integer(Sys.time())),
                          test_mode = TRUE)
+
+# TODO there are goodness of fits test for SAOMS
