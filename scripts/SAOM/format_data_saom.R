@@ -3,6 +3,7 @@
 # This file produces the specific data objects used in the RSiena/SAOM models
 #
 
+
 library(Matrix)
 source("utils/utils.R")
 source("scripts/preprocessing/trade_flow_gdp_cutoff.R")
@@ -95,14 +96,27 @@ trd_lag3 <- list_lag(trd_lag2)
 
 # filter for years -------------------------------------------------------------
 year_filter <- paste(model_years)
+year_filter_dyad <- paste(head(model_years, -1))
 arm <- arm[year_filter]
-arm_lag1 <- arm_lag1[year_filter]
-arm_lag2 <- arm_lag2[year_filter]
-arm_lag3 <- arm_lag3[year_filter]
+arm_lag1 <- arm_lag1[year_filter_dyad]
+arm_lag2 <- arm_lag2[year_filter_dyad]
+arm_lag3 <- arm_lag3[year_filter_dyad]
 trd <- trd[year_filter]
-trd_lag1 <- trd_lag1[year_filter]
-trd_lag2 <- trd_lag2[year_filter]
-trd_lag3 <- trd_lag3[year_filter]
+trd_lag1 <- trd_lag1[year_filter_dyad]
+trd_lag2 <- trd_lag2[year_filter_dyad]
+trd_lag3 <- trd_lag3[year_filter_dyad]
+gdp_log <- gdp_log[, year_filter]
+nmc_std <- nmc_std[, year_filter]
+allied <- allied[year_filter_dyad]
+pol_diff_std <- pol_diff_std[year_filter_dyad]
+
+
+# any arms / conventional trade in the last 3 years ----------------------------
+arm_last3 <- mapply(function(l1, l2, l3) (l1 == 1) | (l2 == 1) | (l3 == 1),
+                    arm_lag1, arm_lag2, arm_lag3, SIMPLIFY = FALSE)
+
+trd_last3 <- mapply(function(l1, l2, l3) (l1 == 1) | (l2 == 1) | (l3 == 1),
+                    trd_lag1, trd_lag2, trd_lag3, SIMPLIFY = FALSE)
 
 
 # Sparse matrices --------------------------------------------------------------
@@ -110,11 +124,13 @@ arm <- lapply(arm, function(x) as(x, "dgTMatrix"))
 arm_lag1 <- lapply(arm_lag1, function(x) as(x, "dgTMatrix"))
 arm_lag2 <- lapply(arm_lag2, function(x) as(x, "dgTMatrix"))
 arm_lag3 <- lapply(arm_lag3, function(x) as(x, "dgTMatrix"))
+arm_last3 <- lapply(arm_last3, function(x) as(x, "dgTMatrix"))
 
 trd <- lapply(trd, function(x) as(x, "dgTMatrix"))
 trd_lag1 <- lapply(trd_lag1, function(x) as(x, "dgTMatrix"))
 trd_lag2 <- lapply(trd_lag2, function(x) as(x, "dgTMatrix"))
 trd_lag3 <- lapply(trd_lag3, function(x) as(x, "dgTMatrix"))
+trd_last3 <- lapply(trd_last3, function(x) as(x, "dgTMatrix"))
 
 pol_diff_std <- lapply(pol_diff_std, function(x) as(x, "dgTMatrix"))
 allied <- lapply(allied, function(x) as(x, "dgTMatrix"))
@@ -129,7 +145,7 @@ lapply(trd, function(x) sum(x)/length(x))
 
 
 # Save data --------------------------------------------------------------------
-save(trd, trd_lag1, trd_lag2, trd_lag3,
-     arm, arm_lag1, arm_lag2, arm_lag3,
+save(trd, trd_lag1, trd_lag2, trd_lag3, trd_last3,
+     arm, arm_lag1, arm_lag2, arm_lag3, arm_last3,
      gdp_log, pol_diff_std, nmc_std, cdist_std, allied,
      file = file.path(dpath, "out/saom_data_objects.RData"))
