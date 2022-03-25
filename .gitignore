@@ -51,3 +51,4 @@ vignettes/*.pdf
 /data/**/*.Rdata
 /data/**/*.rtf
 /data/**/*.rds
+*.out

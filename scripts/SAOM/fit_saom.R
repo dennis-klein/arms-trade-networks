@@ -15,7 +15,7 @@ source("scripts/SAOM/siena07ToConvergeMulticore.R")
 #
 # Covariates:
 # - GDP (log)
-# - absolut polity differences
+# - absolute polity differences
 # - Military expenditure (log)
 # - capital distances
 # - alliances
@@ -24,33 +24,20 @@ source("scripts/SAOM/siena07ToConvergeMulticore.R")
 
 # meta settings
 dpath <- data_path.get()
-model_id <- "Test"
+model_id <- paste0("test_tmp_", as.integer(Sys.time()))
 data_obj_path <- path(dpath, "out/saom_data_objects", ext = "RData")
 save_dir <- path(dpath, "models", "SAOM")
-
-# test mode
-test_mode <- TRUE
-model_id <- paste0("test_tmp_", as.integer(Sys.time()))
 
 # safety check to not override existing models
 if (dir.exists(path(save_dir, model_id))) stop("Model already exsists")
 
-# Setup
+# setup
 load(data_obj_path)
 model_dir <- path(save_dir, model_id)
 dir.create(model_dir)
 actors <- dimnames(arm[[1]])[[1]] # actors
 obs <- length(arm) # observations
-n <- length(actors)
-act <- 1:n
-
-# test_mode, actor subselection
-if (test_mode) {
-  message("TEST MODE")
-  act_sub <- c(sample(act, 10), c(4, 8, 21, 31, 36, 39, 47, 89, 91, 108, 109, 110))
-  actors <- actors[act_sub]
-  act <- act_sub
-}
+act <- 1:length(actors)
 
 # save model meta information
 model_meta <- list(
@@ -59,33 +46,49 @@ model_meta <- list(
 )
 saveRDS(model_meta, path(model_dir, "meta_info", ext = "rds"))
 
+# test mode
+test_mode <- TRUE
+if (test_mode) {
+  act <- c(sample(act, 10), c(4, 8, 21, 31, 36, 39, 47, 89, 91, 108, 109, 110))
+  
+  arm <- lapply(arm, function(x) x[act, act])
+  trd <- lapply(trd, function(x) x[act, act])
+  gdp_log <- gdp_log[act,]
+  milit_exp_log <- milit_exp_log[act,]
+  cdist_std <- cdist_std[act, act]
+  pol_diff_std <- lapply(pol_diff_std, function(x) x[act, act])
+  allied <- lapply(allied, function(x) x[act, act])
+  arm_last3 <- lapply(arm_last3, function(x) x[act, act])
+  trd_last3 <- lapply(trd_last3, function(x) x[act, act])
+}
+
 RSiena_vars <- list(
   # Dependent variables
-  arm = sienaNet(lapply(arm, function(x) x[act, act])),
-  trd = sienaNet(lapply(trd, function(x) x[act, act])),
+  arm = sienaNet(arm),
+  trd = sienaNet(trd),
   
   # Constant covariates
   # -
   
   # Varying covariates
-  gdp_log = varCovar(gdp_log[act,]),
-  milit_exp_log = varCovar(milit_exp_log[act,]),
+  gdp_log = varCovar(gdp_log),
+  milit_exp_log = varCovar(milit_exp_log),
   
   # Constant dyadic covariates
-  cdist_std = coDyadCovar(cdist_std[act, act]),
+  cdist_std = coDyadCovar(cdist_std),
   
   # Varying dyadic covariates
-  pol_diff_std = varDyadCovar(lapply(pol_diff_std, function(x) x[act, act])),
-  allied = varDyadCovar(lapply(allied, function(x) x[act, act])),
-  arm_last3 = varDyadCovar(lapply(arm_last3, function(x) x[act, act])),
-  trd_last3 = varDyadCovar(lapply(trd_last3, function(x) x[act, act]))
+  pol_diff_std = varDyadCovar(pol_diff_std),
+  allied = varDyadCovar(allied),
+  arm_last3 = varDyadCovar(arm_last3),
+  trd_last3 = varDyadCovar(trd_last3)
 )
 dat <- do.call(sienaDataCreate, RSiena_vars)
 
 # define effects
 eff <- getEffects(dat)
 ## within networks effects
-# standard effects (outdegree, reciprocity automatically added)
+# density, recip included (recip not possible for trd)
 eff <- includeEffects(eff, transTies, name = "trd", verbose = FALSE)
 eff <- includeEffects(eff, gwespFF, name = "arm", verbose = FALSE)
 eff <- includeEffects(eff, inPopSqrt, name = "arm", verbose = FALSE)
@@ -93,14 +96,14 @@ eff <- includeEffects(eff, inPopSqrt, name = "trd", verbose = FALSE)
 eff <- includeEffects(eff, outPopSqrt, name = "arm", verbose = FALSE)
 # covariate effects
 eff <- includeEffects(eff, egoX, altX, name = "arm", interaction1 = "gdp_log", verbose = FALSE)
-eff <- includeEffects(eff, egoX, altX, name = "arm", interaction1 = "milit_exp_log", verbose = FALSE)
+# eff <- includeEffects(eff, egoX, altX, name = "arm", interaction1 = "milit_exp_log", verbose = FALSE)
 eff <- includeEffects(eff, X, name = "arm", interaction1 = "pol_diff_std", verbose = FALSE)
 eff <- includeEffects(eff, X, name = "arm", interaction1 = "cdist_std", verbose = FALSE)
 eff <- includeEffects(eff, X, name = "arm", interaction1 = "allied", verbose = FALSE)
 eff <- includeEffects(eff, X, name = "arm", interaction1 = "arm_last3", verbose = FALSE)
 eff <- includeEffects(eff, X, name = "arm", interaction1 = "trd_last3", verbose = FALSE)
 eff <- includeEffects(eff, egoX, altX, name = "trd", interaction1 = "gdp_log", verbose = FALSE)
-eff <- includeEffects(eff, egoX, altX, name = "trd", interaction1 = "milit_exp_log", verbose = FALSE)
+# eff <- includeEffects(eff, egoX, altX, name = "trd", interaction1 = "milit_exp_log", verbose = FALSE)
 eff <- includeEffects(eff, X, name = "trd", interaction1 = "pol_diff_std", verbose = FALSE)
 eff <- includeEffects(eff, X, name = "trd", interaction1 = "cdist_std", verbose = FALSE)
 eff <- includeEffects(eff, X, name = "trd", interaction1 = "allied", verbose = FALSE)
@@ -112,11 +115,6 @@ eff <- includeEffects(eff, crprod, name = "trd", interaction1 = "arm", verbose =
 #eff <- includeEffects(eff, crprodRecip, name = "arm", interaction1 = "trd", verbose = FALSE)
 #eff <- includeEffects(eff, crprodRecip, name = "trd", interaction1 = "arm", verbose = FALSE)
 
-
-# # test mode effects
-# if (test_mode) {
-#   eff <- getEffects(dat)
-# }
 
 # run model
 alg <- sienaAlgorithmCreate(projname = model_id)
