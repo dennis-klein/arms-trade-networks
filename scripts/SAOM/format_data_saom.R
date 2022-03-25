@@ -10,7 +10,7 @@ source("scripts/preprocessing/trade_flow_gdp_cutoff.R")
 
 # Preliminaries ----------------------------------------------------------------
 dpath <- data_path.get()
-model_years <- 1998:2018
+model_years <- 1998:2017
 
 
 # Country list -----------------------------------------------------------------
@@ -27,6 +27,11 @@ gdp <- readRDS(file.path(dpath, "out/gdp.rds"))
 gdp <- gdp[ex,]
 gdp_list <- asplit(gdp, MARGIN = 2)
 gdp_log <- log1p(gdp)
+
+
+# Military expenditure ---------------------------------------------------------
+load(file.path(dpath, "out/milit_exp.RData"))
+milit_exp_log <- log1p(milit_exp[ex, paste(model_years)])
 
 
 # BACI trade data --------------------------------------------------------------
@@ -147,5 +152,5 @@ lapply(trd, function(x) sum(x)/length(x))
 # Save data --------------------------------------------------------------------
 save(trd, trd_lag1, trd_lag2, trd_lag3, trd_last3,
      arm, arm_lag1, arm_lag2, arm_lag3, arm_last3,
-     gdp_log, pol_diff_std, nmc_std, cdist_std, allied,
+     gdp_log, pol_diff_std, nmc_std, cdist_std, allied, milit_exp_log,
      file = file.path(dpath, "out/saom_data_objects.RData"))
