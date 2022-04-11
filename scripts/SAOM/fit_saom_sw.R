@@ -1,6 +1,8 @@
 # Script to fit the SAOM model
 
 
+# TODO refit cdist, because it was wrongly formatted (no stardardization by standard error)
+
 require(RSiena)
 require(fs)
 require(abind)
@@ -153,8 +155,8 @@ sum(arm_lag2[[18]]) > 10
 
 # meta settings
 dpath <- data_path.get()
-model_id <- "model_220407"
-# model_id <- paste0(as.integer(Sys.time()))
+# model_id <- "model_220407"
+model_id <- paste0(as.integer(Sys.time()))
 save_dir <- path(dpath, "models", "SAOM")
 
 # safety check to not override existing models
