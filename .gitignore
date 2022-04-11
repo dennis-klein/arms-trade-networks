@@ -52,4 +52,6 @@ vignettes/*.pdf
 /data/**/*.rtf
 /data/**/*.rds
 *.out
-.DS_Store
+
+**/.DS_Store
+./*.txt
