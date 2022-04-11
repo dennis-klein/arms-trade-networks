@@ -1,4 +1,4 @@
-# Script to fit the SAOM model
+# Fit the baseline SAOM model without between networks effects
 
 
 require(RSiena)
@@ -6,6 +6,7 @@ require(fs)
 source("scripts/SAOM/siena07ToConverge.R")
 source("scripts/SAOM/siena07ToConvergeMulticore.R")
 source("utils/utils.R")
+
 
 ##### LOAD DATA ----------------------------------------------------------------
 dpath <- data_path.get()
@@ -28,7 +29,6 @@ dir.create(model_dir)
 act <- dimnames(arm)[[1]] # actors
 obs <- length(arm) # observations
 
-# TODO make sensible subselection of countries
 # test mode
 test_mode <- FALSE
 if (test_mode) {
