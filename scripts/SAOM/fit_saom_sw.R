@@ -18,7 +18,7 @@ load(file = path(dpath, "out/saom_data.RData"))
 
 # meta settings
 dpath <- data_path.get()
-model_id <- "model_sw_220411"
+model_id <- "saom_sw_220411"
 # model_id <- paste0(as.integer(Sys.time()))
 save_dir <- path(dpath, "models", "SAOM")
 
@@ -115,9 +115,11 @@ for (t in 1:(length(periods)-win_size+1)) {
   eff <- includeEffects(eff, crprodRecip, name = "trd", interaction1 = "arm", verbose = FALSE)
   
   ## fitting
-  alg <- sienaAlgorithmCreate()
+  alg <- sienaAlgorithmCreate(projname = model_id,
+                              n3 = 5000)
   ans <- siena07ToConvergenceMulticore(alg = alg, dat = dat, eff = eff,
                                        save_dir = model_dir,
                                        ans_id = paste(model_id, sub_model_id, sep = "_"),
-                                       threshold = 0.40)
+                                       threshold = 0.40,
+                                       returnDeps = TRUE)
 }

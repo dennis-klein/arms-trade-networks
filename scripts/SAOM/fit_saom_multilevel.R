@@ -17,7 +17,7 @@ load(file = path(dpath, "out/saom_data.RData"))
 
 # meta settings
 dpath <- data_path.get()
-model_id <- "model_220411_multilevel"
+model_id <- "saom_multilevel_220411"
 # model_id <- paste0("test_", as.integer(Sys.time()))
 save_dir <- path(dpath, "models", "SAOM")
 
@@ -120,11 +120,13 @@ eff <- includeEffects(eff, crprodRecip, name = "arm", interaction1 = "trd", verb
 eff <- includeEffects(eff, crprodRecip, name = "trd", interaction1 = "arm", verbose = FALSE)
 
 # run model
-alg <- sienaAlgorithmCreate(projname = model_id)
+alg <- sienaAlgorithmCreate(projname = model_id,
+                            n3 = 5000)
 n.clus <- detectCores() - 1
 ans <- siena07ToConvergenceMulticore(alg = alg, dat = dat, eff = eff,
                                      save_dir = model_dir,
                                      ans_id = model_id,
-                                     threshold = 0.25)
+                                     threshold = 0.25,
+                                     returnDeps = TRUE)
 
 saveRDS(ans, file=path(model_dir, paste0("final_fit_", model_id), ext = "rds"))

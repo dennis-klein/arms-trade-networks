@@ -16,8 +16,8 @@ load(file = path(dpath, "out/saom_data.RData"))
 ##### FIT SAOM MODEL -----------------------------------------------------------
 
 # meta settings
-model_id <- "saom_simple_220411"
-# model_id <- paste0("test_", as.integer(Sys.time()))
+# model_id <- "saom_simple_220411"
+model_id <- paste0("test_", as.integer(Sys.time()))
 save_dir <- path(dpath, "models", "SAOM")
 
 # safety check to not override existing models
@@ -30,14 +30,14 @@ act <- dimnames(arm)[[1]] # actors
 obs <- length(arm) # observations
 
 # test mode
-test_mode <- FALSE
+test_mode <- TRUE
 if (test_mode) {
   act <- c(sample(act, 15), c("United States", "Russia", "France", "China", "Germany", "Italy",
                               "United Kingdom", "South Korea",
                               "Saudi Arabia", "India", "Egypt", "Australia",
                               "China", "Algeria", "South Korea"))
   # act <- c(sample(act, 10), c(4, 8, 21, 31, 36, 39, 47, 89, 91, 108, 109, 110))
-  per <- paste(1998:2007)
+  per <- paste(1998:2002)
   
   arm <- arm[act, act, per]
   trd <- trd[act, act, per]
@@ -127,11 +127,13 @@ eff <- includeEffects(eff, X, name = "trd", interaction1 = "allied", verbose = F
 # eff <- includeEffects(eff, crprodRecip, name = "trd", interaction1 = "arm", verbose = FALSE)
 
 # run model
-alg <- sienaAlgorithmCreate(projname = model_id)
+alg <- sienaAlgorithmCreate(projname = model_id,
+                            n3 = 5000)
 n.clus <- detectCores() - 1
 ans <- siena07ToConvergenceMulticore(alg = alg, dat = dat, eff = eff,
                                      save_dir = model_dir,
                                      ans_id = model_id,
-                                     threshold = 0.25)
+                                     threshold = 0.25,
+                                     returnDeps = TRUE)
 
 saveRDS(ans, file=path(model_dir, paste0("final_fit_", model_id), ext = "rds"))
