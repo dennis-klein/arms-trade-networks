@@ -1,0 +1,16 @@
+\begin{table}
+
+\caption{\label{tab:ergm_outofsample_scores}Out-of-sample validation for the ERGM in the year 2003.}
+\centering
+\fontsize{11}{13}\selectfont
+\begin{tabular}[t]{llrr}
+\toprule
+Model & Score & w..o.cross.layer.eff. & with.cross.layer.eff.\\
+\midrule
+Import Dep. & PR AUC & 0.82384 & 0.82438\\
+Import Dep. & Brier Score & 0.01944 & 0.01938\\
+Export Dep. & PR AUC & 0.80116 & 0.79991\\
+Export Dep. & Brier Score & 0.01923 & 0.01938\\
+\bottomrule
+\end{tabular}
+\end{table}

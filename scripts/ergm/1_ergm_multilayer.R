@@ -114,14 +114,21 @@ log_milit_exp_out <- matrix(log(milit_exp[included, i1 - 1]), n, n, byrow = FALS
 log_milit_exp_in <- matrix(log(milit_exp[included, i1 - 1]), n, n, byrow = TRUE)
 
 # define path dependency for each layer and once for import once export dependency
-pathdep_layer1 <- 1 * (sipri_tiv[[i1 - 1]][included, included] + sipri_tiv[[i1 - 2]][included, included] > 0)
-pathdep_layer2C <- 1 * (custom_trade_to_binary(trade[[i2 - 1]][included, included], type = "C", threshold = 0.01) +
-  custom_trade_to_binary(trade[[i2 - 2]][included, included], type = "C", threshold = 0.01))
-pathdep_layer2D <- 1 * (custom_trade_to_binary(trade[[i2 - 1]][included, included], type = "D", threshold = 0.01) +
-  custom_trade_to_binary(trade[[i2 - 2]][included, included], type = "D", threshold = 0.01))
+pathdep_layer1 <- 1 * (
+  sipri_tiv[[i1 - 1]][included, included] +
+    sipri_tiv[[i1 - 2]][included, included] +
+    sipri_tiv[[i1 - 3]][included, included] > 0)
+pathdep_layer2C <- 1 * (
+  custom_trade_to_binary(trade[[i2 - 1]][included, included], type = "C", threshold = 0.01) +
+    custom_trade_to_binary(trade[[i2 - 2]][included, included], type = "C", threshold = 0.01) +
+    custom_trade_to_binary(trade[[i2 - 3]][included, included], type = "C", threshold = 0.01))
+pathdep_layer2D <- 1 * (
+  custom_trade_to_binary(trade[[i2 - 1]][included, included], type = "D", threshold = 0.01) +
+    custom_trade_to_binary(trade[[i2 - 2]][included, included], type = "D", threshold = 0.01) +
+    custom_trade_to_binary(trade[[i2 - 3]][included, included], type = "D", threshold = 0.01))
 
 # distance
-log_cdist <- log(cdist[included, included] + 1)
+log_cdist <- log(cdist[included, included] + diag(n))
 
 
 
@@ -134,10 +141,10 @@ log_cdist <- log(cdist[included, included] + 1)
 modelC <- netC ~ edges_layer(layer = 1) +
   edges_layer(layer = 2) +
   mutual(same = "layer.mem", diff = TRUE) +
-  gwidegree(decay = 1, fixed = TRUE, attr = "layer.mem") +
-  gwodegree(decay = 1, fixed = TRUE, attr = "layer.mem") +
-  gwesp_layer(decay = 1.5, fixed = TRUE, layer = 1) +
-  gwesp_layer(decay = 1.5, fixed = TRUE, layer = 2) +
+  gwidegree(decay = 0.69, fixed = TRUE, attr = "layer.mem") +
+  gwodegree(decay = 0.69, fixed = TRUE, attr = "layer.mem") +
+  gwesp_layer(decay = 0.69, fixed = TRUE, layer = 1) +
+  gwesp_layer(decay = 0.69, fixed = TRUE, layer = 2) +
   duplexdyad(c("e", "f", "h"), layers = list(1, 2)) +
   edgecov_layer(log_cdist, layer = 1) +
   edgecov_layer(log_cdist, layer = 2) +
@@ -160,10 +167,10 @@ modelC_nn <- netC ~
   edges_layer(layer = 1) +
   edges_layer(layer = 2) +
   mutual(same = "layer.mem", diff = TRUE) +
-  gwidegree(decay = 1, fixed = TRUE, attr = "layer.mem") +
-  gwodegree(decay = 1, fixed = TRUE, attr = "layer.mem") +
-  gwesp_layer(decay = 1.5, fixed = TRUE, layer = 1) +
-  gwesp_layer(decay = 1.5, fixed = TRUE, layer = 2) +
+  gwidegree(decay = 0.69, fixed = TRUE, attr = "layer.mem") +
+  gwodegree(decay = 0.69, fixed = TRUE, attr = "layer.mem") +
+  gwesp_layer(decay = 0.69, fixed = TRUE, layer = 1) +
+  gwesp_layer(decay = 0.69, fixed = TRUE, layer = 2) +
   edgecov_layer(log_cdist, layer = 1) +
   edgecov_layer(log_cdist, layer = 2) +
   edgecov_layer(log_gdp_out, layer = 1) +
@@ -185,10 +192,10 @@ modelD <- netD ~
   edges_layer(layer = 1) +
   edges_layer(layer = 2) +
   mutual(same = "layer.mem", diff = TRUE) +
-  gwidegree(decay = 1, fixed = TRUE, attr = "layer.mem") +
-  gwodegree(decay = 1, fixed = TRUE, attr = "layer.mem") +
-  gwesp_layer(decay = 1.5, fixed = TRUE, layer = 1) +
-  gwesp_layer(decay = 1.5, fixed = TRUE, layer = 2) +
+  gwidegree(decay = 0.69, fixed = TRUE, attr = "layer.mem") +
+  gwodegree(decay = 0.69, fixed = TRUE, attr = "layer.mem") +
+  gwesp_layer(decay = 0.69, fixed = TRUE, layer = 1) +
+  gwesp_layer(decay = 0.69, fixed = TRUE, layer = 2) +
   duplexdyad(c("e", "f", "h"), layers = list(1, 2)) +
   edgecov_layer(log_cdist, layer = 1) +
   edgecov_layer(log_cdist, layer = 2) +
@@ -211,10 +218,10 @@ modelD_nn <- netD ~
   edges_layer(layer = 1) +
   edges_layer(layer = 2) +
   mutual(same = "layer.mem", diff = TRUE) +
-  gwidegree(decay = 1, fixed = TRUE, attr = "layer.mem") +
-  gwodegree(decay = 1, fixed = TRUE, attr = "layer.mem") +
-  gwesp_layer(decay = 1.5, fixed = TRUE, layer = 1) +
-  gwesp_layer(decay = 1.5, fixed = TRUE, layer = 2) +
+  gwidegree(decay = 0.69, fixed = TRUE, attr = "layer.mem") +
+  gwodegree(decay = 0.69, fixed = TRUE, attr = "layer.mem") +
+  gwesp_layer(decay = 0.69, fixed = TRUE, layer = 1) +
+  gwesp_layer(decay = 0.69, fixed = TRUE, layer = 2) +
   edgecov_layer(log_cdist, layer = 1) +
   edgecov_layer(log_cdist, layer = 2) +
   edgecov_layer(log_gdp_out, layer = 1) +
@@ -246,10 +253,19 @@ control_config_SA <- control.ergm(seed = 42L,
                                SA.initial_gain = NULL,
                                SA.nsubphases = 4,
                                SA.niterations = NULL,
-                               SA.phase3_n = NULL,
-                               SA.interval = 1024,
-                               SA.burnin = 1024 * 16 * 10,
-                               SA.samplesize = 1024)
+                               SA.phase3_n = 2500, #default is 1000 for samples 
+                               SA.interval = 1024 * 128,
+                               SA.burnin = 1024 * 8,
+                               SA.samplesize = 1024 * 4)
+
+control_config_RM <- control.ergm(seed = 42L, 
+                                  parallel = FALSE, 
+                                  main.method = "Robbins-Monro")
+
+control_config_MCMLE <- control.ergm(seed = 1234, 
+                                     parallel = 8, 
+                                     main.method = "MCMLE", 
+                                     MCMLE.maxit = 30)
 
 fit_C <- ergm(
   modelC, 
@@ -259,7 +275,6 @@ fit_C <- ergm(
   check.degeneracy = TRUE, 
   verbose = TRUE,
   control = control_config_SA
-  #control = control.ergm(seed = 1234, parallel = 8, main.method = "MCMLE", MCMLE.maxit = 30)
 )
 
 fit_C_nn <- ergm(
@@ -270,7 +285,6 @@ fit_C_nn <- ergm(
   check.degeneracy = TRUE, 
   verbose = TRUE,
   control = control_config_SA
-  #control = control.ergm(seed = 1234, parallel = 8, main.method = "MCMLE", MCMLE.maxit = 30)
 )
 
 fit_D <- ergm(
@@ -281,7 +295,6 @@ fit_D <- ergm(
   check.degeneracy = TRUE, 
   verbose = TRUE,
   control = control_config_SA
-  #control = control.ergm(seed = 1234, parallel = 8, main.method = "MCMLE", MCMLE.maxit = 30)
 )
 
  fit_D_nn <- ergm(
@@ -292,20 +305,14 @@ fit_D <- ergm(
   check.degeneracy = TRUE, 
   verbose = TRUE,
   control = control_config_SA
-  #control = control.ergm(seed = 1234, parallel = 8, main.method = "MCMLE", MCMLE.maxit = 30)
 )
 
 cat("Estimation of models finished. \n")
 
-stop("here")
 
 #------------------------------------------------------------------------------#
 # MCMC Diagnostics and Goodness of Fit
 #------------------------------------------------------------------------------#
-
-split_net <- function(net){
-  mat <- as.network.matrix(net)
-}
 
 sim_C <- simulate(fit_C,
                   nsim = 10000,
@@ -320,9 +327,6 @@ temp <- simulate(fit_C,
                  output = "network",
                  monitor = NULL,
                  control = control.simulate.ergm(parallel = 6))
-
-#temp <- sapply(temp, FUN = split_net)
-
 
 sim_D <- simulate(fit_D,
                   nsim = 10000,
@@ -366,19 +370,19 @@ save.image(file = paste0(path, "/models/ERGM/ergm_results_2003.RData"))
 
 # output mcmc statistics
 pdf(file = "figures/ergm_mcmc_1C_2003.pdf", width = 10, height = 0.9*sqrt(2)*10)
-mcmc.diagnostics(fit_C, vars.per.page = 8, which = c("plots"))
+mcmc.diagnostics(fit_C, vars.per.page = 6, which = c("plots"))
 dev.off()
 
 pdf(file = "figures/ergm_mcmc_1Cnn_2003.pdf", width = 10, height = 0.9*sqrt(2)*10)
-mcmc.diagnostics(fit_C_nn, vars.per.page = 8, which = c("plots"))
+mcmc.diagnostics(fit_C_nn, vars.per.page = 6, which = c("plots"))
 dev.off()
 
 pdf(file = "figures/ergm_mcmc_1D_2003.pdf", width = 10, height = 0.9*sqrt(2)*10)
-mcmc.diagnostics(fit_D, vars.per.page = 8, which = c("plots"))
+mcmc.diagnostics(fit_D, vars.per.page = 6, which = c("plots"))
 dev.off()
 
 pdf(file = "figures/ergm_mcmc_1Dnn_2003.pdf", width = 10, height = 0.9*sqrt(2)*10)
-mcmc.diagnostics(fit_D_nn, vars.per.page = 8, which = c("plots"))
+mcmc.diagnostics(fit_D_nn, vars.per.page = 6, which = c("plots"))
 dev.off()
 
 
@@ -459,12 +463,12 @@ custom.coef.names <- c(
   "Edges",
   "Reciprocity",
   "Reciprocity",
-  "Gw Indegree (d = 1)",
-  "Gw Indegree (d = 1)",
-  "Gw Outdegree (d = 1)",
-  "Gw Outdegree (d = 1)",
-  "GWESP Outgoing Two-path (d = 1.5)",
-  "GWESP Outgoing Two-path (d = 1.5)",
+  "Gw Indegree (d = 0.69)",
+  "Gw Indegree (d = 0.69)",
+  "Gw Outdegree (d = 0.69)",
+  "Gw Outdegree (d = 0.69)",
+  "GWESP Outgoing Two-path (d = 0.69)",
+  "GWESP Outgoing Two-path (d = 0.69)",
   "E",
   "F",
   "H",
