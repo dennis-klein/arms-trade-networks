@@ -1,0 +1,19 @@
+\begin{table}
+
+\caption{\label{tab:summary_statistics}Summary statistics of exogenous covariates (1995--2017)}
+\centering
+\fontsize{11}{13}\selectfont
+\begin{tabular}[t]{lrrrrr}
+\toprule
+Name & N & Mean & SD & Min & Max\\
+\midrule
+MCW Trade Tie (TIV, '000s) & 391690 & 0.00 & 0.05 & 0.00 & 10.26\\
+Conventional Trade Tie (2010 USD '000 000s) & 391690 & 602.25 & 5353.08 & 0.00 & 406338.63\\
+GDP per capita (log) & 3013 & 24.69 & 1.98 & 20.38 & 30.49\\
+Military Expenditure (log) & 3013 & 20.55 & 2.26 & 14.41 & 27.37\\
+Difference in Polity (abs) & 391690 & 6.70 & 5.52 & 0.00 & 20.00\\
+Alliance & 391690 & 0.23 & 0.42 & 0.00 & 1.00\\
+Distance in km (log) & 17030 & 1.76 & 0.79 & -4.88 & 2.99\\
+\bottomrule
+\end{tabular}
+\end{table}
