@@ -9,6 +9,7 @@ library(texreg)
 library(kableExtra)
 library(stargazer)
 library(coda)
+library(plyr)
 
 
 rm(list = ls(all.names = TRUE))
@@ -370,19 +371,19 @@ save.image(file = paste0(path, "/models/ERGM/ergm_results_2003.RData"))
 
 # output mcmc statistics
 pdf(file = "figures/ergm_mcmc_1C_2003.pdf", width = 10, height = 0.9*sqrt(2)*10)
-mcmc.diagnostics(fit_C, vars.per.page = 6, which = c("plots"))
+mcmc.diagnostics(fit_C, vars.per.page = 8, which = c("plots"))
 dev.off()
 
 pdf(file = "figures/ergm_mcmc_1Cnn_2003.pdf", width = 10, height = 0.9*sqrt(2)*10)
-mcmc.diagnostics(fit_C_nn, vars.per.page = 6, which = c("plots"))
+mcmc.diagnostics(fit_C_nn, vars.per.page = 8, which = c("plots"))
 dev.off()
 
 pdf(file = "figures/ergm_mcmc_1D_2003.pdf", width = 10, height = 0.9*sqrt(2)*10)
-mcmc.diagnostics(fit_D, vars.per.page = 6, which = c("plots"))
+mcmc.diagnostics(fit_D, vars.per.page = 8, which = c("plots"))
 dev.off()
 
 pdf(file = "figures/ergm_mcmc_1Dnn_2003.pdf", width = 10, height = 0.9*sqrt(2)*10)
-mcmc.diagnostics(fit_D_nn, vars.per.page = 6, which = c("plots"))
+mcmc.diagnostics(fit_D_nn, vars.per.page = 8, which = c("plots"))
 dev.off()
 
 
@@ -391,6 +392,25 @@ mcmc.diagnostics(fit_C, which = c("burnin"))
 mcmc.diagnostics(fit_C_nn, which = c("burnin"))
 mcmc.diagnostics(fit_D, which = c("burnin"))
 mcmc.diagnostics(fit_D_nn, which = c("burnin"))
+
+
+# Effective Sample Size
+neff_C <- data.frame("neff" = coda::effectiveSize(as.mcmc.list(fit_C$sample)), "Name" = names(coda::effectiveSize(as.mcmc.list(fit_C$sample))))
+neff_C_nn <- data.frame("neff" = coda::effectiveSize(as.mcmc.list(fit_C_nn$sample)), "Name" = names(coda::effectiveSize(as.mcmc.list(fit_C_nn$sample))))
+neff_D <- data.frame("neff" = coda::effectiveSize(as.mcmc.list(fit_D$sample)), "Name" = names(coda::effectiveSize(as.mcmc.list(fit_D$sample))))
+neff_D_nn <- data.frame("neff" = coda::effectiveSize(as.mcmc.list(fit_D_nn$sample)), "Name" = names(coda::effectiveSize(as.mcmc.list(fit_D_nn$sample))))
+
+neff_C %>% 
+  rename("Import Dep. with" = neff) %>%
+  full_join(neff_C_nn, by = "Name") %>%
+  rename("Import Dep. without" = neff) %>%
+  full_join(neff_D, by = "Name") %>%
+  rename("Export Dep. with" = neff) %>%
+  full_join(neff_D_nn, by = "Name") %>%
+  rename("Export Dep. without" = neff)%>%
+  relocate(Name) -> neff
+  
+
 
 
 # recover observed statistics
@@ -442,12 +462,11 @@ dev.off()
 
 # in-degree statistics
 # but these do account for cross-layer "ties" -> manual simulation and net separation necessary.
-colnames(sim_C)[30:40]
-boxplot(sim_C[, 30:40])
+#colnames(sim_C)[30:40]
+#boxplot(sim_C[, 30:40])
 
-
-colnames(sim_C)[30:40]
-boxplot(sim_C[, 30:40])
+#colnames(sim_C)[30:40]
+#boxplot(sim_C[, 30:40])
 
 
 
@@ -492,6 +511,15 @@ custom.coef.names <- c(
 )
 
 
+sink("figures/ergm_effectivesize_2003.txt")
+neff$Name <- custom.coef.names
+kbl(neff, booktabs = T,  format = "latex", 
+    digits = 0,  escape = F, linesep = "",
+    caption = "Effective Sample Size of the MCMC Sample Statistics", label = "ergm_effectivesize_2003") %>%
+  kable_styling(font_size = 11, full_width = FALSE) %>%
+  landscape
+sink()
+
 # output 
 sink(file = "figures/ergm_estimates_1CD_2003.txt")
 texreg(list(fit_C, fit_D),
@@ -533,6 +561,54 @@ sink()
 
 
 
+custom.coef.names2 <- c(
+  "Edges",
+  "Edges",
+  "Reciprocity",
+  "Reciprocity",
+  "Gw Indegree (d = 0.69)",
+  "Gw Indegree (d = 0.69)",
+  "Gw Outdegree (d = 0.69)",
+  "Gw Outdegree (d = 0.69)",
+  "GWESP Outgoing Two-path (d = 0.69)",
+  "GWESP Outgoing Two-path (d = 0.69)",
+  "Distance (log)",
+  "Distance (log)",
+  "GDP in (log)",
+  "GDP in (log)",
+  "GDP out (log)",
+  "GDP out (log)",
+  "Alliance",
+  "Alliance",
+  "Polity Diff. (abs)",
+  "Polity Diff. (abs)",
+  "Military Expenditure in (log)",
+  "Military Expenditure in (log)",
+  "Military Expenditure out (log)",
+  "Military Expenditure out (log)",
+  "Path Dependency",
+  "Path Dependency", 
+  "Path Dependency"
+)
+
+
+
+# output 
+sink(file = "figures/ergm_estimates_1CnnDnn_2003.txt")
+texreg(list(fit_C_nn, fit_D_nn),
+       single.row = T, 
+       use.packages = FALSE,
+       custom.coef.names = custom.coef.names2, 
+       custom.model.names = c("Import Dep.", "Export Dep."),
+       booktabs = T, dcolumn = T, include.nobs = F,
+       reorder.coef = c(1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25,
+                        2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26),
+       groups = list("Layer 1: Arms Trade" = 1:13,
+                     "Layer 2: Conventional Trade" = 14:26),
+       caption = "MERGM results for two-layer network of weapons and import (left) or export (right) trade dependency in the year 2003 - without cross-layer effects.", 
+       label = "tab:ergm_estimates_model1CnnDnn", 
+       custom.note = "Estimates based on Stochastic Approximation. Standard Errors in parenthesis.\\newline%stars. ")
+sink()
 
 
 
