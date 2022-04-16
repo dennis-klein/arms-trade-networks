@@ -1,44 +1,16 @@
-
-\begin{landscape}\begin{table}
+\begin{table}[H]
 
 \caption{\label{tab:ergm_effectivesize_2003}Effective Sample Size of the MCMC Sample Statistics}
 \centering
 \fontsize{11}{13}\selectfont
-\begin{tabular}[t]{lrrrr}
+\begin{tabular}[t]{lrr}
 \toprule
-Name & Import Dep. with & Import Dep. without & Export Dep. with & Export Dep. without\\
+Model & Mean & SD\\
 \midrule
-Edges & 268 & 312 & 177 & 212\\
-Edges & 147 & 155 & 167 & 136\\
-Reciprocity & 189 & 286 & 171 & 206\\
-Reciprocity & 197 & 139 & 112 & 180\\
-Gw Indegree (d = 0.69) & 396 & 428 & 310 & 385\\
-Gw Indegree (d = 0.69) & 157 & 105 & 250 & 289\\
-Gw Outdegree (d = 0.69) & 420 & 442 & 281 & 402\\
-Gw Outdegree (d = 0.69) & 433 & 296 & 22 & 100\\
-GWESP Outgoing Two-path (d = 0.69) & 107 & 195 & 141 & 147\\
-GWESP Outgoing Two-path (d = 0.69) & 151 & 166 & 182 & 133\\
-E & 234 & NA & 153 & NA\\
-F & 212 & NA & 182 & NA\\
-H & 191 & NA & 117 & NA\\
-Distance (log) & 284 & 334 & 184 & 285\\
-Distance (log) & 146 & 209 & 174 & 150\\
-GDP in (log) & 262 & 308 & 178 & 208\\
-GDP in (log) & 140 & 155 & 174 & 135\\
-GDP out (log) & 262 & 307 & 171 & 205\\
-GDP out (log) & 147 & 157 & 160 & 133\\
-Alliance & 219 & 228 & 132 & 181\\
-Alliance & 206 & 86 & 113 & 137\\
-Polity Diff. (abs) & 369 & 224 & 316 & 298\\
-Polity Diff. (abs) & 118 & 167 & 169 & 138\\
-Military Expenditure in (log) & 261 & 308 & 178 & 207\\
-Military Expenditure in (log) & 140 & 155 & 174 & 130\\
-Military Expenditure out (log) & 259 & 304 & 170 & 203\\
-Military Expenditure out (log) & 146 & 157 & 158 & 132\\
-Path Dependency & 138 & 190 & 183 & 149\\
-Path Dependency & 61 & 75 & NA & NA\\
-Path Dependency & NA & NA & 61 & 61\\
+Export Dep. with & 216 & 61\\
+Export Dep. without & 188 & 60\\
+Import Dep. with & 189 & 64\\
+Import Dep. without & 198 & 92\\
 \bottomrule
 \end{tabular}
 \end{table}
-\end{landscape}

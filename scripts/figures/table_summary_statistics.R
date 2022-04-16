@@ -197,6 +197,7 @@ sink("figures/table_summary_statistics.txt")
 kbl(df[, 1:6], booktabs = T,  format = "latex", 
     digits = 2,  escape = F, linesep = "",
     caption = "Summary statistics of exogenous covariates (1995--2017)", label = "summary_statistics") %>%
-  kable_styling(font_size = 11, full_width = FALSE)
+  kable_styling(font_size = 11, full_width = FALSE) %>%
+  kable_styling(latex_options = "HOLD_position")
 
 sink()

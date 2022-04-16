@@ -7,10 +7,10 @@
 \toprule
 Model & Score & w..o.cross.layer.eff. & with.cross.layer.eff.\\
 \midrule
-Import Dep. & PR AUC & 0.82384 & 0.82438\\
-Import Dep. & Brier Score & 0.01944 & 0.01938\\
-Export Dep. & PR AUC & 0.80116 & 0.79991\\
-Export Dep. & Brier Score & 0.01923 & 0.01938\\
+Import Dep. & PR AUC & 0.82376 & 0.82418\\
+Import Dep. & Brier Score & 0.01942 & 0.01938\\
+Export Dep. & PR AUC & 0.80143 & 0.80119\\
+Export Dep. & Brier Score & 0.01917 & 0.01919\\
 \bottomrule
 \end{tabular}
 \end{table}
