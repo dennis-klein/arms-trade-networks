@@ -1,3 +1,7 @@
+#------------------------------------------------------------------------------#
+# Descriptive Statistics for SIPRI and BACI
+#------------------------------------------------------------------------------#
+
 library(scales)
 library(network)
 library(networkDynamic)
@@ -7,90 +11,87 @@ library(tsna)
 
 rm(list = ls(all.names = TRUE))
 
+# setup
 source("utils/utils.R")
-path = data_path.get()
+source("utils/construct_header.R")
+source("utils/custom_trade_to_binary.R")
+path <- data_path.get()
+set.seed(1234)
 
 
-# load data
+# load data 
 load(file.path(path, "out/EX.RData"))
 load(file.path(path, "out/colony.RData"))
 load(file.path(path, "out/country_list.RData"))
+sipri_tiv <- readRDS(file.path(path, "out/sipri_tiv.rds"))
+trade <- readRDS(file.path(path, "out/baci_aggregated.rds"))
 
-sipri_tiv = readRDS(file.path(path, "out/sipri_tiv.rds"))
-baci_aggregated = readRDS(file.path(path, "out/baci_aggregated.rds"))
-itpd_mining = readRDS(file.path(path, "out/itpd_mining-energy.rds"))
+thrshld1 <- 0
+thrshld2 <- 100
+year <- 2003
+start <- 1995
+end <- 2018
 
-period = 1995:2018
-networks_yearly_sipri = list()
-networks_yearly_cepii = list()
-networks_yearly_itpd = list()
+period <- 1995:2018
+networks_yearly_sipri <- list()
+networks_yearly_cepii <- list()
 
-# some data frames are in the time period 1950:2018 
+
+# selection of countries included: present over the complete time horizon (cf. soam)
+included <- rowSums(EX[, (start:end) - 1949]) == length(start:end)
+n <- sum(included)
+
+
+# some data frames are in the time period 1950:2018
 # trade data is only available for 1995:2018
-# itpd mining is only available for 2000:2016
 
-for(i in 1:length(period)){
-  j = i + 1994 - 1949
-  ind = (EX[, j] == 1) 
-  
-  net = network(sipri_tiv[[j]][ind, ind])
-  set.edge.value(net, "TIV (in thousands)", sipri_tiv[[j]][ind, ind])
-  set.vertex.attribute(net, "index", country_list$ID[ind])
-  set.vertex.attribute(net, "iso3", country_list$iso3[ind])
-  networks_yearly_sipri[[i]] = net
-  
-  net = network(baci_aggregated[[i]][ind, ind])
-  set.edge.value(net, "Trade Flow", baci_aggregated[[i]][ind, ind])
-  set.vertex.attribute(net, "index", country_list$ID[ind])
-  set.vertex.attribute(net, "iso3", country_list$iso3[ind])
-  networks_yearly_cepii[[i]] = net
-  
+
+for (i in 1:length(period)) {
+  j <- i + 1994 - 1949
+
+  net <- network(sipri_tiv[[j]][included, included])
+  set.edge.value(net, "TIV (in thousands)", sipri_tiv[[j]][included, included])
+  set.vertex.attribute(net, "index", country_list$ID[included])
+  set.vertex.attribute(net, "iso3", country_list$iso3[included])
+  networks_yearly_sipri[[i]] <- net
+
+  net <- network(trade[[i]][included, included])
+  set.edge.value(net, "Trade Flow", trade[[i]][included, included])
+  set.vertex.attribute(net, "index", country_list$ID[included])
+  set.vertex.attribute(net, "iso3", country_list$iso3[included])
+  networks_yearly_cepii[[i]] <- net
 }
 
-for(i in 1:length(2000:2016)){
-  j = i + 1999 - 1949
-  ind = (EX[, j] == 1) 
-  
-  net = network(itpd_mining[[i]][ind, ind])
-  set.edge.value(net, "ITPD Mining/Energy", itpd_mining[[i]][ind, ind])
-  set.vertex.attribute(net, "index", country_list$ID[ind])
-  set.vertex.attribute(net, "iso3", country_list$iso3[ind])
-  networks_yearly_itpd[[i]] = net
-}
-
-# plot networks
-# needs improvements, take in / outdegree for nodal size
-# tune colors and labels, e.g. with ggraph
 
 
-par(mfrow = c(2,2))
 
-for (i in c(1, 6, 11, 16)) {
-  plot(networks_yearly_sipri[[i]],
-       displayisolates = FALSE,  
-       label.pos=5,  label.cex = 0.6, 
-       vertex.cex = 2.2, pad = 0.5,
-       label = networks_yearly_sipri[[i]] %v% "iso3", 
-       main = paste("International Arms Transfers in", i + 1994))
-}
 
-for (i in c(1, 6, 11, 16)) {
-  plot(networks_yearly_cepii[[i]],
-       displayisolates = FALSE,  
-       label.pos=5,  label.cex = 0.6, 
-       vertex.cex = 2.2, pad = 0.5,
-       label = networks_yearly_cepii[[i]] %v% "iso3", 
-       main = paste("International Trade in", i + 1994))
-}
+pdf("figures/figure_network_density.pdf", width = 10, height = 4)
+par(mfrow = c(1, 2))
 
-for (i in c(1, 6, 11)) {
-  plot(networks_yearly_itpd[[i]],
-       displayisolates = FALSE,  
-       label.pos=5,  label.cex = 0.6, 
-       vertex.cex = 2.2, pad = 0.5,
-       label = networks_yearly_itpd[[i]] %v% "iso3", 
-       main = paste("International Trade Energy / Mining in", i + 1994))
-}
+plot(1995:2018, 
+     unlist(lapply(networks_yearly_sipri, FUN = function(x){network.density(x)})), 
+     type = "l", xlab = "Year", ylab = "", main = "Network Density: SIPRI MCWs", yaxt = 'n', 
+     ylim = c(0, 0.02))
+axis(side = 2, at = c(0.005, .010, .015), labels = c('0.005', '0.010', '0.015'), las = 1)
+
+plot(1995:2018, 
+     unlist(lapply(networks_yearly_cepii, FUN = function(x){network.density(x)})), 
+     type = "l", xlab = "Year", ylab = "", main = "Network Density: CEPII BACI", yaxt = 'n')
+axis(side = 2, at = c(.75, .80, .85, .90), labels = c('0.75', '0.80', '0.85', '0.90'), las = 1)
+
+dev.off()
+
+
+plot(1995:2018, 
+     unlist(lapply(networks_yearly_sipri, FUN = function(x){sum(get.edge.value(x,"TIV (in thousands)"))})),  
+     type = "l", xlab = "Year", ylab = "", sub = "SIPRI: TIV (in thousands)")
+
+
+
+
+
+
 
 
 # create networkDynamic object
@@ -119,7 +120,6 @@ plot(tErgmStats(networks_dynamic_arms, '~idegree(d=1)', start = 1995, end = 2018
 plot.new()
 
 
-plot(1995:2018, unlist(lapply(networks_yearly_sipri, FUN = function(x){sum(get.edge.value(x,"TIV (in thousands)"))})),  type = "l", xlab = "Year", ylab = "", main ="SIPRI: TIV (in thousands)")
 plot(1995:2018, unlist(lapply(networks_yearly_cepii, FUN = function(x){sum(get.edge.value(x,"Trade Flow"))})),  type = "l", xlab = "Year", ylab = "", main ="CEPII BACI: Flow Value")
 plot(2000:2016, unlist(lapply(networks_yearly_itpd, FUN = function(x){sum(get.edge.value(x,"ITPD Mining/Energy"))})),  type = "l", xlab = "Year", ylab = "", main ="ITPD Mining/Energy: Flow Value")
 

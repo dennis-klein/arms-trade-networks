@@ -7,10 +7,10 @@
 \toprule
 Model & Mean & SD\\
 \midrule
-Export Dep. with & 216 & 61\\
-Export Dep. without & 188 & 60\\
-Import Dep. with & 189 & 64\\
-Import Dep. without & 198 & 92\\
+Export Dep. with & 1468 & 344\\
+Export Dep. without & 1106 & 196\\
+Import Dep. with & 903 & 51\\
+Import Dep. without & 1109 & 171\\
 \bottomrule
 \end{tabular}
 \end{table}

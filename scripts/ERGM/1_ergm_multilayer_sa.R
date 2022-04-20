@@ -1,5 +1,6 @@
 #------------------------------------------------------------------------------#
 # Replication code for the ERGM Analysis
+# Starting Values for MCMLE: Stochastic Approximation
 #------------------------------------------------------------------------------#
 
 library(network)
@@ -10,6 +11,8 @@ library(kableExtra)
 library(stargazer)
 library(coda)
 library(plyr)
+library(dplyr)
+library(tidyr)
 
 
 rm(list = ls(all.names = TRUE))
@@ -142,8 +145,8 @@ log_cdist <- log(cdist[included, included] + diag(n))
 modelC <- netC ~ edges_layer(layer = 1) +
   edges_layer(layer = 2) +
   mutual(same = "layer.mem", diff = TRUE) +
-  gwidegree(decay = 0.69, fixed = TRUE, attr = "layer.mem") +
-  gwodegree(decay = 0.69, fixed = TRUE, attr = "layer.mem") +
+  gwidegree(decay = 1.5, fixed = TRUE, attr = "layer.mem") +
+  gwodegree(decay = 1.5, fixed = TRUE, attr = "layer.mem") +
   gwesp_layer(decay = 0.69, fixed = TRUE, layer = 1) +
   gwesp_layer(decay = 0.69, fixed = TRUE, layer = 2) +
   duplexdyad(c("e", "f", "h"), layers = list(1, 2)) +
@@ -168,8 +171,8 @@ modelC_nn <- netC ~
   edges_layer(layer = 1) +
   edges_layer(layer = 2) +
   mutual(same = "layer.mem", diff = TRUE) +
-  gwidegree(decay = 0.69, fixed = TRUE, attr = "layer.mem") +
-  gwodegree(decay = 0.69, fixed = TRUE, attr = "layer.mem") +
+  gwidegree(decay = 1.5, fixed = TRUE, attr = "layer.mem") +
+  gwodegree(decay = 1.5, fixed = TRUE, attr = "layer.mem") +
   gwesp_layer(decay = 0.69, fixed = TRUE, layer = 1) +
   gwesp_layer(decay = 0.69, fixed = TRUE, layer = 2) +
   edgecov_layer(log_cdist, layer = 1) +
@@ -193,8 +196,8 @@ modelD <- netD ~
   edges_layer(layer = 1) +
   edges_layer(layer = 2) +
   mutual(same = "layer.mem", diff = TRUE) +
-  gwidegree(decay = 0.69, fixed = TRUE, attr = "layer.mem") +
-  gwodegree(decay = 0.69, fixed = TRUE, attr = "layer.mem") +
+  gwidegree(decay = 1.5, fixed = TRUE, attr = "layer.mem") +
+  gwodegree(decay = 1.5, fixed = TRUE, attr = "layer.mem") +
   gwesp_layer(decay = 0.69, fixed = TRUE, layer = 1) +
   gwesp_layer(decay = 0.69, fixed = TRUE, layer = 2) +
   duplexdyad(c("e", "f", "h"), layers = list(1, 2)) +
@@ -219,8 +222,8 @@ modelD_nn <- netD ~
   edges_layer(layer = 1) +
   edges_layer(layer = 2) +
   mutual(same = "layer.mem", diff = TRUE) +
-  gwidegree(decay = 0.69, fixed = TRUE, attr = "layer.mem") +
-  gwodegree(decay = 0.69, fixed = TRUE, attr = "layer.mem") +
+  gwidegree(decay = 1.5, fixed = TRUE, attr = "layer.mem") +
+  gwodegree(decay = 1.5, fixed = TRUE, attr = "layer.mem") +
   gwesp_layer(decay = 0.69, fixed = TRUE, layer = 1) +
   gwesp_layer(decay = 0.69, fixed = TRUE, layer = 2) +
   edgecov_layer(log_cdist, layer = 1) +
@@ -246,18 +249,19 @@ modelD_nn <- netD ~
 # Model Estimation
 #------------------------------------------------------------------------------#
 
-# chose parallel = 1 only because function seems broken
+# chose parallel = 1 only because function seems broken and does not aggregate 
+# multiple chains
+
 control_config_SA <- control.ergm(seed = 42L, 
-                               parallel = 1, 
-                               main.method = "Stochastic-Approximation", 
-                               SA.phase1_n = NULL,
-                               SA.initial_gain = NULL,
-                               SA.nsubphases = 4,
-                               SA.niterations = NULL,
-                               SA.phase3_n = 2500, #default is 1000 for samples 
-                               SA.interval = 1024 * 128,
-                               SA.burnin = 1024 * 8,
-                               SA.samplesize = 1024 * 4)
+                                  main.method = "Stochastic-Approximation", 
+                                  SA.phase1_n = NULL,
+                                  SA.initial_gain = NULL,
+                                  SA.nsubphases = 4,
+                                  SA.niterations = NULL,
+                                  SA.phase3_n = 2500, #default is 1000 for samples 
+                                  SA.interval = 1024 * 96,
+                                  SA.burnin = 1024 * 12,
+                                  SA.samplesize = 1024 * 4)
 
 control_config_RM <- control.ergm(seed = 42L, 
                                   parallel = FALSE, 
@@ -267,6 +271,7 @@ control_config_MCMLE <- control.ergm(seed = 1234,
                                      parallel = 8, 
                                      main.method = "MCMLE", 
                                      MCMLE.maxit = 30)
+
 
 fit_C <- ergm(
   modelC, 
@@ -311,80 +316,43 @@ fit_D <- ergm(
 cat("Estimation of models finished. \n")
 
 
-#------------------------------------------------------------------------------#
-# MCMC Diagnostics and Goodness of Fit
-#------------------------------------------------------------------------------#
-
-sim_C <- simulate(fit_C,
-                  nsim = 10000,
-                  seed = 42L,
-                  output = "stats",
-                  monitor = NULL,
-                  control = control.simulate.ergm(parallel = 6))
-
-temp <- simulate(fit_C,
-                 nsim = 10,
-                 seed = 42L,
-                 output = "network",
-                 monitor = NULL,
-                 control = control.simulate.ergm(parallel = 6))
-
-sim_D <- simulate(fit_D,
-                  nsim = 10000,
-                  seed = 42L,
-                  output = "stats",
-                  monitor = NULL,
-                  control = control.simulate.ergm(parallel = 6))
-
-sim_C_nn <- simulate(fit_C_nn,
-                     nsim = 10000,
-                     seed = 42L,
-                     output = "stats",
-                     monitor = ~ duplexdyad(c("e", "f", "h"), layers = list(1, 2)),
-                     control = control.simulate.ergm(parallel = 6))
-
-sim_D_nn <- simulate(fit_D_nn,
-                     nsim = 10000,
-                     seed = 42L,
-                     output = "stats",
-                     monitor = ~ duplexdyad(c("e", "f", "h"), layers = list(1, 2)),
-                     control = control.simulate.ergm(parallel = 6))
-
-
 
 #------------------------------------------------------------------------------#
 # Save results
 #------------------------------------------------------------------------------#
 
 # save
-save.image(file = paste0(path, "/models/ERGM/ergm_results_2003.RData"))
+save.image(file = paste0(path, "/models/ERGM/ergm_results_2003_SA.RData"))
 
 # load
-#load(file = paste0(path, "/models/ERGM/ergm_results_2003.RData"))
+#load(file = paste0(path, "/models/ERGM/ergm_results_2003_SA.RData"))
 
 
 
 #------------------------------------------------------------------------------#
-# Goodness of Fit Assessment
+# Save Coefficients for MCMLE Estimation
 #------------------------------------------------------------------------------#
 
+init_val <- list()
+
+init_val$fit_C <- coef(fit_C)
+init_val$fit_C_nn <- coef(fit_C_nn)
+init_val$fit_D <- coef(fit_D)
+init_val$fit_D_nn <- coef(fit_D_nn)
+
+saveRDS(init_val, paste0(path, "/models/ERGM/ergm_results_2003_init_val.rds"))
+
+
+
+#------------------------------------------------------------------------------#
+# MCMC Assessment
+#------------------------------------------------------------------------------#
 
 # output mcmc statistics
-pdf(file = "figures/ergm_mcmc_1C_2003.pdf", width = 10, height = 0.9*sqrt(2)*10)
 mcmc.diagnostics(fit_C, vars.per.page = 8, which = c("plots"))
-dev.off()
-
-pdf(file = "figures/ergm_mcmc_1Cnn_2003.pdf", width = 10, height = 0.9*sqrt(2)*10)
 mcmc.diagnostics(fit_C_nn, vars.per.page = 8, which = c("plots"))
-dev.off()
-
-pdf(file = "figures/ergm_mcmc_1D_2003.pdf", width = 10, height = 0.9*sqrt(2)*10)
 mcmc.diagnostics(fit_D, vars.per.page = 8, which = c("plots"))
-dev.off()
-
-pdf(file = "figures/ergm_mcmc_1Dnn_2003.pdf", width = 10, height = 0.9*sqrt(2)*10)
 mcmc.diagnostics(fit_D_nn, vars.per.page = 8, which = c("plots"))
-dev.off()
 
 
 # Gweke Diagnostic?
@@ -400,6 +368,7 @@ neff_C_nn <- data.frame("neff" = coda::effectiveSize(as.mcmc.list(fit_C_nn$sampl
 neff_D <- data.frame("neff" = coda::effectiveSize(as.mcmc.list(fit_D$sample)), "Name" = names(coda::effectiveSize(as.mcmc.list(fit_D$sample))))
 neff_D_nn <- data.frame("neff" = coda::effectiveSize(as.mcmc.list(fit_D_nn$sample)), "Name" = names(coda::effectiveSize(as.mcmc.list(fit_D_nn$sample))))
 
+
 neff_C %>% 
   rename("Import Dep. with" = neff) %>%
   full_join(neff_C_nn, by = "Name") %>%
@@ -408,68 +377,10 @@ neff_C %>%
   rename("Export Dep. with" = neff) %>%
   full_join(neff_D_nn, by = "Name") %>%
   rename("Export Dep. without" = neff)%>%
-  relocate(Name) -> neff
-  
-
-
-
-# recover observed statistics
-obs_stats_C <- as.data.frame(as.list(summary(modelC)))
-obs_stats_C_nn <- as.data.frame(as.list(summary(modelC_nn)))
-obs_stats_D <- as.data.frame(as.list(summary(modelD)))
-obs_stats_D_nn <- as.data.frame(as.list(summary(modelC_nn)))
-
-
-# plot raster of distributions with observed and simulated sufficient statistics
-# first: cross-layer statistics
-pdf(file = "figures/ergm_gof_duplex_2003.pdf", width = 10, height = 0.3*sqrt(2)*10)
-par(mfrow = c(2,3))
-
-plot(density(sim_C[, "duplexdyad.e"]) , main = "Import Dependency Model: E", col = 1)
-lines(density(sim_C_nn[, "duplexdyad.e"]), col = 2)
-abline(v = obs_stats_C$duplexdyad.e, col = 3)
-legend("topright", legend = c("with", "without", "observed"), lty = 1, col = 1:3)
-
-plot(density(sim_C[, "duplexdyad.f"]) , main = "Import Dependency Model: F", col = 1)
-lines(density(sim_C_nn[, "duplexdyad.f"]), col = 2)
-abline(v = obs_stats_C$duplexdyad.f, col = 3)
-legend("topright", legend = c("with", "without", "observed"), lty = 1, col = 1:3)
-
-plot(density(sim_C[, "duplexdyad.h"]) , main = "Import Dependency Model: H", col = 1)
-lines(density(sim_C_nn[, "duplexdyad.h"]), col = 2)
-abline(v = obs_stats_C$duplexdyad.h, col = 3)
-legend("topright", legend = c("with", "without", "observed"), lty = 1, col = 1:3)
-
-
-plot(density(sim_D[, "duplexdyad.e"]) , main = "Export Dependency Model: E", col = 1)
-lines(density(sim_D_nn[, "duplexdyad.e"]), col = 2)
-abline(v = obs_stats_D$duplexdyad.e, col = 3)
-legend("topright", legend = c("with", "without", "observed"), lty = 1, col = 1:3)
-
-plot(density(sim_D[, "duplexdyad.f"]) , main = "Export Dependency Model: F", col = 1)
-lines(density(sim_D_nn[, "duplexdyad.f"]), col = 2)
-abline(v = obs_stats_D$duplexdyad.f, col = 3)
-legend("topright", legend = c("with", "without", "observed"), lty = 1, col = 1:3)
-
-plot(density(sim_D[, "duplexdyad.h"]) , main = "Export Dependency Model: H", col = 1)
-lines(density(sim_D_nn[, "duplexdyad.h"]), col = 2)
-abline(v = obs_stats_D$duplexdyad.h, col = 3)
-legend("topright", legend = c("with", "without", "observed"), lty = 1, col = 1:3)
-
-dev.off()
-
-
-
-# in-degree statistics
-# but these do account for cross-layer "ties" -> manual simulation and net separation necessary.
-#colnames(sim_C)[30:40]
-#boxplot(sim_C[, 30:40])
-
-#colnames(sim_C)[30:40]
-#boxplot(sim_C[, 30:40])
-
-
-
+  relocate(Name) %>%
+  pivot_longer(2:5, names_to = "Model", values_to = "eff") %>%
+  group_by(Model) %>%
+  summarise(Mean = mean(eff, na.rm = TRUE), SD = sd(eff, na.rm = TRUE)) -> neff
 
 
 
@@ -482,10 +393,10 @@ custom.coef.names <- c(
   "Edges",
   "Reciprocity",
   "Reciprocity",
-  "Gw Indegree (d = 0.69)",
-  "Gw Indegree (d = 0.69)",
-  "Gw Outdegree (d = 0.69)",
-  "Gw Outdegree (d = 0.69)",
+  "Gw Indegree (d = 1.5)",
+  "Gw Indegree (d = 1.5)",
+  "Gw Outdegree (d = 1.5)",
+  "Gw Outdegree (d = 1.5)",
   "GWESP Outgoing Two-path (d = 0.69)",
   "GWESP Outgoing Two-path (d = 0.69)",
   "E",
@@ -510,66 +421,15 @@ custom.coef.names <- c(
   "Path Dependency"
 )
 
-
-sink("figures/ergm_effectivesize_2003.txt")
-neff$Name <- custom.coef.names
-kbl(neff, booktabs = T,  format = "latex", 
-    digits = 0,  escape = F, linesep = "",
-    caption = "Effective Sample Size of the MCMC Sample Statistics", label = "ergm_effectivesize_2003") %>%
-  kable_styling(font_size = 11, full_width = FALSE) %>%
-  landscape
-sink()
-
-# output 
-sink(file = "figures/ergm_estimates_1CD_2003.txt")
-texreg(list(fit_C, fit_D),
-       single.row = T, 
-       use.packages = FALSE,
-       custom.coef.names = custom.coef.names, 
-       custom.model.names = c("Import Dep.", "Export Dep."),
-       booktabs = T, dcolumn = T, include.nobs = F,
-       reorder.coef = c(1, 3, 5, 7, 9, 14, 16, 18, 20, 22, 24, 26, 28,
-                        2, 4, 6, 8, 10, 15, 17, 19, 21, 23, 25, 27, 29, 
-                        11, 12, 13), 
-       groups = list("Layer 1: Arms Trade" = 1:13,
-                     "Layer 2: Conventional Trade" = 14:26, 
-                     "Cross Layer Network Effects" = 27:29),
-       caption = "MERGM results for two-layer network of weapons and import (left) or export (right) trade dependency in the year 2003.", 
-       label = "tab:ergm_estimates_model1C", 
-       custom.note = "Estimates based on Stochastic Approximation. Standard Errors in parenthesis.\\newline%stars. ")
-
-if(FALSE){
-  texreg(
-    list(fit_D, fit_D_nn),
-    single.row = T, 
-    use.packages = FALSE,
-    custom.coef.names = custom.coef.names, 
-    booktabs = T, dcolumn = T, include.nobs = F,
-    reorder.coef = c(1, 3, 5, 7, 9, 14, 16, 18, 20, 22, 24, 26, 28,
-                     2, 4, 6, 8, 10, 15, 17, 19, 21, 23, 25, 27, 29,
-                     11, 12, 13), 
-    groups = list("Layer 1 Arms Trade" = 1:13,
-                  "Layer 2 Conventional Trade (Export Dependency)" = 14:26, 
-                  "Cross Layer Network Effects" = 27:29),
-    caption = "MERG model for weapons and export dependency in the year 2003.", 
-    label = "tab:ergm_estimates_model1C", 
-    custom.note = "Estimates based on Stochastic Approximation. Standard Errors in parenthesis.\\newline%stars. "
-  )
-}
-sink()
-
-
-
-
 custom.coef.names2 <- c(
   "Edges",
   "Edges",
   "Reciprocity",
   "Reciprocity",
-  "Gw Indegree (d = 0.69)",
-  "Gw Indegree (d = 0.69)",
-  "Gw Outdegree (d = 0.69)",
-  "Gw Outdegree (d = 0.69)",
+  "Gw Indegree (d = 1.5)",
+  "Gw Indegree (d = 1.5)",
+  "Gw Outdegree (d = 1.5)",
+  "Gw Outdegree (d = 1.5)",
   "GWESP Outgoing Two-path (d = 0.69)",
   "GWESP Outgoing Two-path (d = 0.69)",
   "Distance (log)",
@@ -592,12 +452,29 @@ custom.coef.names2 <- c(
 )
 
 
+# output 
+screenreg(list(fit_C, fit_D),
+       single.row = T,
+       float.pos = "H",
+       use.packages = FALSE,
+       custom.coef.names = custom.coef.names, 
+       custom.model.names = c("Import Dep.", "Export Dep."),
+       booktabs = T, dcolumn = T, include.nobs = F,
+       reorder.coef = c(1, 3, 5, 7, 9, 14, 16, 18, 20, 22, 24, 26, 28,
+                        2, 4, 6, 8, 10, 15, 17, 19, 21, 23, 25, 27, 29, 
+                        11, 12, 13), 
+       groups = list("Layer 1: Arms Trade" = 1:13,
+                     "Layer 2: Conventional Trade" = 14:26, 
+                     "Cross Layer Network Effects" = 27:29),
+       caption = "MERGM results for two-layer network of weapons and import (left) or export (right) trade dependency in the year 2003.", 
+       label = "tab:ergm_estimates_model1C", 
+       custom.note = "Estimates based on Stochastic Approximation. Standard Errors in parenthesis.\\newline%stars. ")
 
 # output 
-sink(file = "figures/ergm_estimates_1CnnDnn_2003.txt")
 texreg(list(fit_C_nn, fit_D_nn),
        single.row = T, 
        use.packages = FALSE,
+       float.pos = "H",
        custom.coef.names = custom.coef.names2, 
        custom.model.names = c("Import Dep.", "Export Dep."),
        booktabs = T, dcolumn = T, include.nobs = F,
@@ -605,13 +482,6 @@ texreg(list(fit_C_nn, fit_D_nn),
                         2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26),
        groups = list("Layer 1: Arms Trade" = 1:13,
                      "Layer 2: Conventional Trade" = 14:26),
-       caption = "MERGM results for two-layer network of weapons and import (left) or export (right) trade dependency in the year 2003 - without cross-layer effects.", 
+       caption = "MERGM results for two-layer network of weapons and import (left) or export (right) trade dependency in the year 2003 - estimated without cross-layer effects.", 
        label = "tab:ergm_estimates_model1CnnDnn", 
        custom.note = "Estimates based on Stochastic Approximation. Standard Errors in parenthesis.\\newline%stars. ")
-sink()
-
-
-
-
-
-

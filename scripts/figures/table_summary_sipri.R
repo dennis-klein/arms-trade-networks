@@ -100,6 +100,10 @@ dfl_summary = dfl_summary[order(-Count)]
 setnames(dfl_summary, "Armament.category", "Armament Category")
 
 
+dfl_volume = dfl[, .("tiv_deal_unit" = sum(TIV.deal.unit, na.rm = TRUE)), by=c("Order.date")]
+dfl_volume = dfl_volume[order(Order.date)]
+
+
 ## Output
 
 sink("figures/table_overview_sipri.txt")
