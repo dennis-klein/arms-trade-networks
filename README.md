@@ -1,33 +1,14 @@
-# Statistical Consulting
-## Thema: Statistische Modellierung von Internationalen Waffenhandelsströmen als Dynamische Netzwerke
+# International Arms Transfers and Conventional Trade: \break A Multilayer Network Approach
+## A Statistical Consulting Project
 
-Projektpartner: 	 Prof. Dr. Göran Kauermann (Institut für Statistik, LMU), in Zusammenarbeit mit Prof. Dr. Paul W. Thurner (Institut für Politikwissenschaft, GSI-LMU);
+Topic provided by Prof. Dr. Göran Kauermann (Institute for Statistics, LMU), in Collaboration with Prof. Dr. Paul W. Thurner (Institute for Political Science, GSI-LMU); supervised by Cornelius Fritz and Dr. Marius Mehrl. 
 
-betreut durch Dr. Mehrl, Cornelius Fritz;
+**Research Task**
 
-bearbeitet durch Dennis Klein, Daniel Seussler. 
+Explorative analyses of parallel and interlinked networks, are there connections of coventional and weapons trade between countries. Are there temporal lags? Which role do hyperdyadic network interdependencies play? Modeling of Multilevel Network Analysis (ERGMs) and other temporal statistical network approaches. 
 
-### Protokoll, 29. Oktober 2021
-
-Teilnehmer: Prof. Dr. Thurner, Dr. Mehrl, Dennis Klein, Daniel Seussler.
-
-**Zu bearbeitende Fragestellung:**
-
-Explorative Analyse von parallel verlaufenden und sich beeinflussenden Netzwerken, i.e. gibt es Zusammenhänge zwischen allgemeinem Handel und Waffentransfers zwischen Ländern? Gibt es zeitliche Lags?  Welche Rolle spielen hyperdyadische Netzwerkdependenzen? Ggf. Statistische Modellierung mittels Multilevel Network Analysis (ERGMs). Gegenüberstellung von binär und kontinuierlich codierten Transfers.
-
-**Politikwissenschaftlicher Hintergrund:**
+**Background (Political science)**
 
 Major Conventional Weapons sind strategische Güter – insofern stellt sich die Frage, wie Exportländer ggf. Kompromisse eingehen bei Bereitstellung von solchen sicherheitsrelevanten Gütern, wenn der kommerzielle Handel sehr groß ist zwischen ihnen. Gibt es andererseits Dyaden und höhere Cluster, wo wir eine vollkommene Entkoppelung feststellen – siehe etwa den Fall China ? 
 
-**Daten:**
-
-- Major Conventional Weapons.
-    - Bilaterale Flows in der Nachkriegszeit. Erhalten wir von den Projektpartnern. 
-
-- Bilaterale Handelsdaten.
-    - Ifo Daten - Herr Professor Thurner erkundigt sich nach Daten beim Ifo Institut. 
-    - alternativ: UN COMTRADE oder CEPII TRADEHIST Daten (freie Verfügbarkeit).
-
-**Zeitrahmen:**
-
-Im Rahmen dieses Semesters. Planung eines Vortrags im Kolloquiums des GSI im Januar, zeitnah auch der Vortrag am Institut für Statistik. 
+Major Conventional Weapons (MCWs) are strategic goods - as such, how do strong ties in conventional trade moderate the decision to sell and deliver such security relevant objects? Are there hyer dyadic constellations where a complete decoupling of economic and security interests is observable - such as in the case of China?
