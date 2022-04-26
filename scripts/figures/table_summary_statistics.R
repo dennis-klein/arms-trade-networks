@@ -108,7 +108,7 @@ df[2, "Max"] <- max(trade_pooled$value, na.rm = TRUE)
 
 # GDP per capita
 tmp <- log(gdp[ind, i1])
-df[3, "Name"] <- "GDP per capita (log)"
+df[3, "Name"] <- "GDP (log)"
 df[3, "N"] <- sum(ind)*length(period)
 df[3, "Mean"] <- mean(tmp)
 df[3, "SD"] <- sd(tmp)

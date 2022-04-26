@@ -6,10 +6,11 @@ library(network)
 library(ergm)
 library(multilayer.ergm)
 library(texreg)
-library(kableExtra)
 library(stargazer)
 library(coda)
 library(PRROC)
+library(dplyr)
+library(xtable)
 
 rm(list = ls(all.names = TRUE))
 
@@ -23,7 +24,7 @@ set.seed(1234)
 
 
 # load output from results file including model, fits, original networks
-load(file = paste0(path, "/models/ERGM/ergm_results_2003.RData"))
+load(file = paste0(path, "/models/ERGM/ergm_results_2003_mcmle.RData"))
 
 
 # define year for out-of-sample prediction
@@ -93,12 +94,16 @@ free_mat <- as.matrix.network(free)
 obs_C <- as.matrix.network(netC_future)[which(free_mat == 1, arr.ind = T)]
 obs_D <- as.matrix.network(netD_future)[which(free_mat == 1, arr.ind = T)]
 
+
+
+
 # config
 control_simulate_config <- control.simulate(MCMC.interval = 1024 * 4, parallel = 6)
 
 
-### For each of the four we simulate 1000 models with the old formula (but
-### updated covariates, fitted coefs)
+# For each of the four we simulate 1000 models with the old formula (but
+# updated covariates, fitted coefs)
+
 
 ## C
 pred_Sim_C <- simulate(modelC, 
@@ -163,12 +168,12 @@ bs_D <- mean((pred_Sim_D - obs_D)**2)
 
 ## D_nn
 pred_Sim_D_nn <- simulate(modelD_nn, 
-                       coef = coef(fit_D_nn), 
-                       nsim = 1000,
-                       seed = 42L,
-                       output = "network",
-                       constraints = ~fixallbut(free), 
-                       control = control_simulate_config)
+                           coef = coef(fit_D_nn), 
+                           nsim = 1000,
+                           seed = 42L,
+                           output = "network",
+                           constraints = ~fixallbut(free), 
+                           control = control_simulate_config)
 
 pred_Sim_D_nn <- lapply(pred_Sim_D_nn, as.matrix.network)
 pred_Sim_D_nn <- Reduce("+", pred_Sim_D_nn) / length(pred_Sim_D_nn)
@@ -181,21 +186,22 @@ pr_auc_D_nn <- pr.curve(scores.class0 = fg, scores.class1 = bg, curve = T)$auc.i
 bs_D_nn <- mean((pred_Sim_D_nn - obs_D)**2)
 
 
-out <- data.frame(
-  "Model" = c("Import Dep.", "Import Dep.", "Export Dep.", "Export Dep."),
-  "Score" = c("PR AUC", "Brier Score", "PR AUC", "Brier Score"),
-  "w\ /o cross-layer eff." = c(pr_auc_C_nn, bs_C_nn, pr_auc_D_nn, bs_D_nn),
-  "with cross-layer eff." = c(pr_auc_C, bs_C, pr_auc_D, bs_D)
-  )
-
 
 ## Output
 
+out <- data.frame(
+  "Model" = c("Import Dependency", "Import Dependency", "Export Dependency", "Export Dependency"),
+  "Metric" = c("PR AUC", "Brier Score", "PR AUC", "Brier Score"),
+  "without" = c(pr_auc_C_nn, bs_C_nn, pr_auc_D_nn, bs_D_nn),
+  "with" = c(pr_auc_C, bs_C, pr_auc_D, bs_D)
+  )
+
+
 sink("figures/ergm_outofsample_scores_2003.txt")
 
-kbl(out, booktabs = T,  format = "latex", 
-    digits = 5,  escape = F, linesep = "",
-    caption = "Out-of-sample validation for the ERGM in the year 2003.", label = "ergm_outofsample_scores") %>%
-  kable_styling(font_size = 11, full_width = FALSE)
+xtable(out, booktabs = T,  format = "latex", 
+    digits = 4,  escape = F, linesep = "",
+    caption = "Out-of-sample validation for the ERGM \\newline \\footnotesize Comparison of out-of-sample validation with and without cross-layer effects.", 
+    label = "tab:ergm_outofsample_scores") 
 
 sink()
