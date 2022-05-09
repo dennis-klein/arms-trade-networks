@@ -560,6 +560,8 @@ bind_rows(list(sim_C, sim_C_nn)) %>%
   mutate(model = as.factor(c(rep("Import - with", 2000), rep("Import - without", 2000)))) -> pl_sim
 
 
+
+
 pdf(file = "figures/ergm_gof_import_models_pt1_2003.pdf",  width = 10, height = 0.9*sqrt(2)*10)
 layout(matrix(c(1,2,3,4,
                 5,5,5,6,
@@ -593,6 +595,7 @@ boxplot(mutual.same.layer.mem.2 ~ model,
         horizontal=TRUE, 
         las = 1, main = 4)
 points(c(obs_stats_C$mutual, obs_stats_C$mutual), 1:2, pch = 19, col = "red", lwd = 4)
+
 
 # Plot Geodist for ARMS
 tmp <- filter(pl_sim, model == "Import - with" & network == 1)
@@ -723,6 +726,43 @@ dev.off()
 
 
 
+pdf(file = "figures/ergm_gof_import_models_sl1_2003.pdf", width = 10, height = 6)
+layout(matrix(c(1,1,2,2,
+                3,3,4,4
+                ), nrow = 2, ncol = 4, byrow = TRUE))
+
+# Outdegree ARMS
+tmp <- filter(pl_sim, model == "Import - with" & network == 1)
+take <- c("odegree0", "odegree1", "odegree2", "odegree3", "odegree4", "odegree5", "odegree6", "odegree7", "odegree8", "odegree9", "odegree10")
+boxplot(tmp[, take], 
+        xlab = "Outdegree - MCW - with cross-layer effects", 
+        ylab = "", las = 1, main = 1)
+points(1:length(take), obs_stats_arms[take], pch = 19, col = "red", lwd = 4)
+
+tmp <- filter(pl_sim, model == "Import - without" & network == 1)
+boxplot(tmp[, take], 
+        xlab = "Outdegree - MCW - without cross-layer effects", 
+        ylab = "", las = 1, main = 2)
+points(1:length(take), obs_stats_arms[take], pch = 19, col = "red", lwd = 4)
+
+
+# Outdegree TRADE
+tmp <- filter(pl_sim, model == "Import - with" & network == 2)
+boxplot(tmp[, take], 
+        xlab = "Outdegree - Conventional Trade - with cross-layer effects", 
+        ylab = "", las = 1, main = 3)
+points(1:length(take), obs_stats_C[take], pch = 19, col = "red", lwd = 4)
+
+tmp <- filter(pl_sim, model == "Import - without" & network == 2)
+boxplot(tmp[, take], 
+        xlab = "Outdegree - Conventional Trade - without cross-layer effects", 
+        ylab = "", las = 1, main = 4)
+points(1:length(take), obs_stats_C[take], pch = 19, col = "red", lwd = 4)
+
+dev.off()
+
+
+
 # Plot ESP
 
 pdf(file = "figures/ergm_gof_import_models_pt3_2003.pdf",  width = 10, height = 0.9*sqrt(2)*10)
@@ -792,6 +832,39 @@ dev.off()
 
 
 
+pdf(file = "figures/ergm_gof_import_models_sl2_2003.pdf",  width = 10, height = 6)
+layout(matrix(c(1,1,2,2,
+                3,3,4,4), nrow = 2, ncol = 4, byrow = TRUE))
+
+# ESP ARMS
+tmp <- filter(pl_sim, model == "Import - with" & network == 1)
+take <- c("esp0", "esp1", "esp2", "esp3" ,"esp4" ,"esp5", "esp6" ,"esp7", "esp8", "esp9" ,"esp10" ,"esp11" ,"esp12" ,"esp13", "esp14", "esp15", "esp16", "esp17" ,"esp18" ,"esp19", "esp20")
+boxplot(tmp[, take], 
+        xlab = "ESP - MCW - with cross-layer effects", 
+        ylab = "", las = 1, main = 1)
+points(1:length(take), obs_stats_arms[take], pch = 19, col = "red", lwd = 4)
+
+tmp <- filter(pl_sim, model == "Import - without" & network == 1)
+boxplot(tmp[, take], 
+        xlab = "ESP - MCW - without cross-layer effects", 
+        ylab = "", las = 1, main = 2)
+points(1:length(take), obs_stats_arms[take], pch = 19, col = "red", lwd = 4)
+
+
+# ESP TRADE
+tmp <- filter(pl_sim, model == "Import - with" & network == 2)
+boxplot(tmp[, take], 
+        xlab = "ESP - Conventional Trade - with cross-layer effects", 
+        ylab = "", las = 1, main = 3)
+points(1:length(take), obs_stats_C[take], pch = 19, col = "red", lwd = 4)
+
+tmp <- filter(pl_sim, model == "Import - without" & network == 2)
+boxplot(tmp[, take], 
+        xlab = "ESP - Conventional Trade - without cross-layer effects", 
+        ylab = "", las = 1, main = 4)
+points(1:length(take), obs_stats_C[take], pch = 19, col = "red", lwd = 4)
+
+dev.off()
 
 
 #------------------------------------------------------------------------------#
