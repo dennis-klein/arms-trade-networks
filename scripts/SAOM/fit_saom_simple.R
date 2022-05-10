@@ -30,7 +30,7 @@ act <- dimnames(arm)[[1]] # actors
 obs <- length(arm) # observations
 
 # test mode
-test_mode <- TRUE
+test_mode <- FALSE
 if (test_mode) {
   act <- c(sample(act, 15), c("United States", "Russia", "France", "China", "Germany", "Italy",
                               "United Kingdom", "South Korea",
