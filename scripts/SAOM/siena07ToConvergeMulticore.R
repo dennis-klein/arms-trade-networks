@@ -17,7 +17,7 @@ siena07ToConvergenceMulticore <- function(alg, dat, eff, save_dir, ans_id,
     if (is.na(tm)) {break} # calculation of convergence ratio not possible
     if (tm < threshold) {break} # success
     if (tm > 2) {break} # divergence without much hope of good return
-    if (numr > 10) {break} # now it has lasted too long
+    if (numr > 4) {break} # now it has lasted too long
     ans <- siena07(alg, data=dat, effects=eff, prevAns=ans,
                    useCluster = TRUE, nbrNodes = n.clus, initC = TRUE)
   }
