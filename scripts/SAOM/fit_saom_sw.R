@@ -18,7 +18,7 @@ load(file = path(dpath, "out/saom_data.RData"))
 
 # meta settings
 dpath <- data_path.get()
-model_id <- "saom_sw_220411"
+model_id <- "saom_sw_220510"
 # model_id <- paste0(as.integer(Sys.time()))
 save_dir <- path(dpath, "models", "SAOM")
 

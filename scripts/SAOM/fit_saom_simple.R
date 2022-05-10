@@ -16,8 +16,8 @@ load(file = path(dpath, "out/saom_data.RData"))
 ##### FIT SAOM MODEL -----------------------------------------------------------
 
 # meta settings
-# model_id <- "saom_simple_220411"
-model_id <- paste0("test_", as.integer(Sys.time()))
+model_id <- "saom_simple_220510"
+# model_id <- paste0("test_", as.integer(Sys.time()))
 save_dir <- path(dpath, "models", "SAOM")
 
 # safety check to not override existing models
