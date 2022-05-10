@@ -19,7 +19,7 @@ siena07ToConvergenceMulticore <- function(alg, dat, eff, save_dir, ans_id,
     if (tm > 2) {break} # divergence without much hope of good return
     if (numr > 4) {break} # now it has lasted too long
     ans <- siena07(alg, data=dat, effects=eff, prevAns=ans,
-                   useCluster = TRUE, nbrNodes = n.clus, initC = TRUE)
+                   useCluster = TRUE, nbrNodes = n.clus, initC = TRUE, ...)
   }
   saveRDS(ans, file=path(save_dir, paste0("final_fit_", ans_id), ext = "rds"))
   return(ans)
