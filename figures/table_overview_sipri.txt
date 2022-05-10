@@ -1,0 +1,22 @@
+\begin{table}[H]
+
+\caption{\label{tab:overview_sipri}Major Conventional Weapons Transfers (1995-2018)}
+\centering
+\begin{tabular}[t]{lrr}
+\toprule
+Armament Category & Count & TIV (Deal Unit)\\
+\midrule
+Aircraft & 4019 & 50408\\
+Missiles & 3573 & 1299\\
+Armoured vehicles & 2552 & 1838\\
+Sensors & 1971 & 10940\\
+Engines & 1881 & 2551\\
+Ships & 787 & 53513\\
+Artillery & 766 & 571\\
+Air defence systems & 409 & 7711\\
+Naval weapons & 335 & 2110\\
+Other & 264 & 524\\
+Satellites & 9 & 450\\
+\bottomrule
+\end{tabular}
+\end{table}

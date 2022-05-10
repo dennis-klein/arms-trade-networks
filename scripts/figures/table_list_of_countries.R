@@ -15,6 +15,6 @@ country_list = country_list[include, ]
 sum(include)
 
 
-sink("figures/list of included countries.txt")
+sink("figures/list_of_included_countries.txt")
 cat(paste(country_list$V1, collapse = "\n \n"), sep = "\n")
 sink()

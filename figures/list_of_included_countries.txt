@@ -1,3 +1,5 @@
+
+> cat(paste(country_list$V1, collapse = "\n \n"), sep = "\n")
 Albania
  
 Algeria
@@ -225,3 +227,5 @@ Viet Nam
 Zambia
  
 Zimbabwe
+
+> sink()

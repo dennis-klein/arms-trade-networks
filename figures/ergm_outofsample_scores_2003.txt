@@ -1,0 +1,17 @@
+% latex table generated in R 4.1.0 by xtable 1.8-4 package
+% Tue Apr 26 10:27:06 2022
+\begin{table}[ht]
+\centering
+\begin{tabular}{rllrr}
+  \hline
+ & Model & Score & without & with \\ 
+  \hline
+1 & Import Dependency & PR AUC & 0.8239 & 0.8242 \\ 
+  2 & Import Dependency & Brier Score & 0.0195 & 0.0194 \\ 
+  3 & Export Dependency & PR AUC & 0.8018 & 0.8012 \\ 
+  4 & Export Dependency & Brier Score & 0.0192 & 0.0192 \\ 
+   \hline
+\end{tabular}
+\caption{Out-of-sample validation \newline \footnotesize Comparison of out-of-sample validation with and without cross-layer effects.} 
+\label{tab:ergm_outofsample_scores}
+\end{table}

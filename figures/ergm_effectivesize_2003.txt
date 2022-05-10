@@ -1,0 +1,16 @@
+\begin{table}[H]
+
+\caption{\label{tab:ergm_effectivesize_2003}Effective Sample Size of the MCMC Sample Statistics}
+\centering
+\fontsize{11}{13}\selectfont
+\begin{tabular}[t]{lrr}
+\toprule
+Model & Mean & SD\\
+\midrule
+Export Dep. with & 1468 & 344\\
+Export Dep. without & 1106 & 196\\
+Import Dep. with & 903 & 51\\
+Import Dep. without & 1109 & 171\\
+\bottomrule
+\end{tabular}
+\end{table}
