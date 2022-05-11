@@ -1,3 +1,7 @@
+
+> kbl(neff, booktabs = T,  format = "latex", 
++     digits = 0,  escape = F, linesep = "",
++     caption = "Effective Sample Size of the MCMC Sample S ..." ... [TRUNCATED] 
 \begin{table}[H]
 
 \caption{\label{tab:ergm_effectivesize_2003}Effective Sample Size of the MCMC Sample Statistics}
@@ -14,3 +18,5 @@ Import Dep. without & 1109 & 171\\
 \bottomrule
 \end{tabular}
 \end{table}
+
+> sink()

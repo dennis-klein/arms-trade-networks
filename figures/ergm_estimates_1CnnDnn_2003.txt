@@ -1,4 +1,10 @@
 
+> texreg(list(fit_C_nn, fit_D_nn),
++        single.row = T, 
++        use.packages = FALSE,
++        float.pos = "H",
++        custom.coef.names = cus .... [TRUNCATED] 
+
 \begin{table}[H]
 \begin{center}
 \begin{tabular}{l D{)}{)}{10)3} D{)}{)}{10)3}}
@@ -44,3 +50,5 @@ Log Likelihood                           & -702.07                & -851.43     
 \label{tab:ergm_estimates_model1CnnDnn}
 \end{center}
 \end{table}
+
+> sink()
