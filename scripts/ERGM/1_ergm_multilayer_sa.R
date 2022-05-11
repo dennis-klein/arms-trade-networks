@@ -20,7 +20,6 @@ rm(list = ls(all.names = TRUE))
 
 # setup
 source("utils/utils.R")
-source("utils/construct_header.R")
 source("utils/custom_trade_to_binary.R")
 path <- data_path.get()
 set.seed(1234)
@@ -52,6 +51,10 @@ start <- 1995
 end <- 2018
 maxlag <- 1
 
+
+#------------------------------------------------------------------------------#
+# Construct Covariates
+#------------------------------------------------------------------------------#
 
 # selection of countries included: present over the complete time horizon (cf. soam)
 included <- rowSums(EX[, (start:end) - 1949]) == length(start:end)
@@ -250,7 +253,7 @@ modelD_nn <- netD ~
 #------------------------------------------------------------------------------#
 
 # chose parallel = 1 only because function seems broken and does not aggregate 
-# multiple chains
+# with multiple chains
 
 control_config_SA <- control.ergm(seed = 42L, 
                                   main.method = "Stochastic-Approximation", 
@@ -258,7 +261,7 @@ control_config_SA <- control.ergm(seed = 42L,
                                   SA.initial_gain = NULL,
                                   SA.nsubphases = 4,
                                   SA.niterations = NULL,
-                                  SA.phase3_n = 2500, #default is 1000 for samples 
+                                  SA.phase3_n = 2500, # default is 1000 
                                   SA.interval = 1024 * 96,
                                   SA.burnin = 1024 * 12,
                                   SA.samplesize = 1024 * 4)
@@ -303,7 +306,7 @@ fit_D <- ergm(
   control = control_config_SA
 )
 
- fit_D_nn <- ergm(
+fit_D_nn <- ergm(
   modelD_nn, 
   constraints = ~fixallbut(free), 
   estimate = "MLE", 
