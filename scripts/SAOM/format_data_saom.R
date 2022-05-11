@@ -4,6 +4,7 @@
 require(fs)
 require(abind)
 source("scripts/preprocessing/trade_gdp_relevance_unidir.R")
+source("scripts/SAOM/trade_import_gdp_relevance.R")
 source("utils/utils.R")
 
 
@@ -37,8 +38,7 @@ mil_log <- log1p(milit_exp[ex, paste(model_years)])
 baci <- readRDS(file.path(dpath, "out/baci_aggregated.rds"))
 baci <- lapply(baci, function(x) x[ex, ex])
 names(baci) <- paste(1995:2019)
-trd <- mapply(function(x,y) trade_gdp_relevance_unidir(trd = x, gdp = y,
-                                                       threshold = 0.01),
+trd <- mapply(function(x,y) trade_import_gdp_relevance(trd = x, gdp = y),
               baci[paste(1995:2018)], gdp_list[paste(1995:2018)],
               SIMPLIFY = FALSE)
 tmp <- sum(trd[["2000"]])/length(trd[["2000"]])
