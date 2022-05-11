@@ -1,32 +1,23 @@
 # Estimation Strategy: Multilayer ERGMs
 
-## Descriptions
+## Description
 
-check.R helper script which checks for NA's in later used data 
-setup, not required to run
+### 0
 
-
-estimation hyper.R script to determine hyper parameters in the 
-decay values of gwesp. grid search of dependence model in the year 2008 (network rise in densities, hence median of time period) estimated by mple (because feasible)
+Data check files was used to check for necessary imputation in data obtained from replication files and own pre-processing. 
 
 
-estimation model 2003.R
+### 1 
+
+Cross-sectional Multilayer ERGM estimation. First, models are calibrated with Stochastic Approximation. Final results serve as starting values for the MCMLE approach in the ERGM package. This 'two-stage' approach results in the best trace plots for the sampled statistics. 
 
 
-evaluation.R
+### 2
+
+For documentation only. Temporal extension of the Multilayer ERGM is currently not possible because the ``btergm`` package does not support appropriate constraints on a multiplex network as required by the implementation of Chen 2021. 
 
 
 
-## To Do's for the ERGM model
-
-- fix NA's in polity and ia nmc i.e. transparent implementation
-- check if correct specficiation of nodal io covariates is implemented
-- list of coefficients for binomial model as cornelius proposed
-- glm mgcv binomial yearly interaction model 
-- iptd data adapt by sector - test energy network density
 
 
-- plot overview over categories of trend
-- easy statistics for development of trade i..e mining vs. services etc. 
-- 
-- 
+
