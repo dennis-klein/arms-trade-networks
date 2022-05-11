@@ -1,14 +1,12 @@
-# International Arms Transfers and Conventional Trade: \break A Multilayer Network Approach
-## A Statistical Consulting Project
+# A Statistical Consulting Project
+## International Arms Transfers and Conventional Trade: \break A Multilayer Network Approach
 
 Topic provided by Prof. Dr. Göran Kauermann (Institute for Statistics, LMU), in Collaboration with Prof. Dr. Paul W. Thurner (Institute for Political Science, GSI-LMU); supervised by Cornelius Fritz and Dr. Marius Mehrl. 
 
-**Research Task**
+**Project Presentation**
+Date, Time  12.05.2022, 17:30 
 
-Explorative analyses of parallel and interlinked networks, are there connections of coventional and weapons trade between countries. Are there temporal lags? Which role do hyperdyadic network interdependencies play? Modeling of Multilevel Network Analysis (ERGMs) and other temporal statistical network approaches. 
 
-**Background (Political science)**
+**Abstract**
 
-Major Conventional Weapons sind strategische Güter – insofern stellt sich die Frage, wie Exportländer ggf. Kompromisse eingehen bei Bereitstellung von solchen sicherheitsrelevanten Gütern, wenn der kommerzielle Handel sehr groß ist zwischen ihnen. Gibt es andererseits Dyaden und höhere Cluster, wo wir eine vollkommene Entkoppelung feststellen – siehe etwa den Fall China ? 
-
-Major Conventional Weapons (MCWs) are strategic goods - as such, how do strong ties in conventional trade moderate the decision to sell and deliver such security relevant objects? Are there hyer dyadic constellations where a complete decoupling of economic and security interests is observable - such as in the case of China?
+Researchers repeatedly claim that alliances lead to an intensification of trade and service flows. However, formal alliances tend to be the exception in international relations. In contrast, arms trade networks can be conceptualized as relationships that are likewise based to a large extent on trust. The question then arises whether such networks induce trade and service flows to the same extent, which is the respective sequential dynamics, and to what extent such relationships are conflict mitigating and stabilizing. Based on data from the Stockholm International Peace Research Institute (SIPRI) and the Centre d'Études Prospectives et d'Informations Internationales (CEPII) we study the interlinkages of conventional trade networks and flows of Major Conventional Weapons (MCWs). The data shows both temporal-spatial dependencies as well as network structures, which necessitate the use of inferential network analysis. To adequately model the co-evolution and cross-network interdependence of the two networks, we employ novel methods for networks with multiple layers, in both cross-sectional and longitudinal analyses.
