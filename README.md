@@ -5,7 +5,11 @@ Topic provided by Prof. Dr. Göran Kauermann (Institute for Statistics, LMU), in
 
 **Project Presentation**
 
-Date, Time  12.05.2022, 17:30 
+Date, Time:  12.05.2022, 17:30 (LMU Munich, Department of Statistics)
+
+**Submission**
+
+Date:  23.05.2022
 
 
 **Abstract**
