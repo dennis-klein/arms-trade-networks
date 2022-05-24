@@ -4,7 +4,9 @@ This is the repository of a Statistical Consulting project within M.Sc. Statisti
 
 Project Members:<br>
 Daniel Seußler, M.Sc. Statistics candidate, LMU Munich <br>
-Dennis Klein, M.Sc. Economics candidate, LMU Munich
+[daniel.seussler@campus.lmu.de](mailto:daniel.seussler@campus.lmu.de)<br>
+Dennis Klein, M.Sc. Economics candidate, LMU Munich<br>
+[dennis.klein@campus.lmu.de](mailto:dennis.klein@campus.lmu.de)
 
 Topic provided by Prof. Dr. Göran Kauermann (Institute for Statistics, LMU), in Collaboration with Prof. Dr. Paul W. Thurner (Institute for Political Science, GSI-LMU); supervised by Cornelius Fritz and Dr. Marius Mehrl. 
 
