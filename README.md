@@ -1,5 +1,11 @@
 # A Statistical Consulting Project
-## International Arms Transfers and Conventional Trade: A Multilayer Network Approach
+# International Arms Transfers and Conventional Trade: A Multilayer Network Approach
+
+This is the repository of a Statistical Consulting project within M.Sc. Statistics program of LMU Munich
+
+Project Members:<br>
+Daniel Seußler, M.Sc. Statistics candidate, LMU Munich <br>
+Dennis Klein, M.Sc. Economics candidate, LMU Munich
 
 Topic provided by Prof. Dr. Göran Kauermann (Institute for Statistics, LMU), in Collaboration with Prof. Dr. Paul W. Thurner (Institute for Political Science, GSI-LMU); supervised by Cornelius Fritz and Dr. Marius Mehrl. 
 
