@@ -1,0 +1,45 @@
+\captionsetup[table]{labelformat=empty,skip=1pt}
+\begin{longtable}{lcccc}
+\caption*{
+{\large Estimated Coeffcients for the Stochastic Actor-Oriented Models} \\ 
+{\small Main model and restricted model without between networks effects}
+} \\ 
+\toprule
+ & \multicolumn{2}{c}{Restricted Model\textsuperscript{1}} & \multicolumn{2}{c}{With Between Effects\textsuperscript{2}} \\ 
+ \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+Effect & Arms & Trade & Arms & Trade \\ 
+\midrule
+\multicolumn{1}{l}{Covariates} \\ 
+\midrule
+Capital Distance & -0.36 (0.02)*** & -0.41 (0.02)*** & -0.36 (0.02)*** & -0.40 (0.02)*** \\ 
+Abs. Polity Difference & -0.53 (0.06)*** & -0.08 (0.05).   & -0.52 (0.06)*** & -0.06 (0.05)    \\ 
+Alliance & -0.18 (0.04)*** &  0.55 (0.03)*** & -0.18 (0.04)*** &  0.53 (0.03)*** \\ 
+GDP Alter (log) & -0.03 (0.02)    &  0.05 (0.03).   & -0.01 (0.02)    &  0.05 (0.03).   \\ 
+GDP Ego (log) &  0.28 (0.04)*** & -0.31 (0.03)*** &  0.27 (0.04)*** & -0.29 (0.04)*** \\ 
+Military Exp. Alter (log) &  0.13 (0.02)*** &  0.08 (0.02)*** &  0.13 (0.02)*** &  0.07 (0.02)*** \\ 
+Military Exp. Ego (log) &  0.47 (0.07)*** &  0.03 (0.02)*   &  0.46 (0.07)*** &  0.02 (0.02)    \\ 
+\midrule
+\multicolumn{1}{l}{Within} \\ 
+\midrule
+Outdegree & -4.84 (0.15)*** & -3.43 (0.08)*** & -4.86 (0.16)*** & -3.41 (0.08)*** \\ 
+Reciprocity &  0.26 (0.13).   &  1.01 (0.06)*** &  0.27 (0.12)*   &  1.04 (0.06)*** \\ 
+Transit. Recip. Triplets & -0.15 (0.22)    &  0.03 (0.01)*   & -0.16 (0.21)    &  0.02 (0.01)*   \\ 
+3-cycles & -0.04 (0.09)    & -0.13 (0.01)*** & -0.03 (0.09)    & -0.12 (0.01)*** \\ 
+GWESP &  0.76 (0.16)*** &  1.25 (0.05)*** &  0.74 (0.16)*** &  1.29 (0.05)*** \\ 
+Indegree Popularity (sqrt) &  0.51 (0.04)*** &  0.10 (0.01)*** &  0.51 (0.04)*** &  0.09 (0.01)*** \\ 
+Indegree Activity (sqrt) & -0.49 (0.18)**  &  0.15 (0.03)*** & -0.45 (0.16)**  &  0.13 (0.03)*** \\ 
+Outdegree Activity (sqrt) &  0.02 (0.03)    & -0.06 (0.02)*** &  0.03 (0.03)    & -0.06 (0.02)*** \\ 
+\midrule
+\multicolumn{1}{l}{Between} \\ 
+\midrule
+Conventional Trade &  &  & -0.08 (0.05)    &  \\ 
+Recip. Conventional Trade &  &  &  0.03 (0.05)    &  \\ 
+Arms Trade &  &  &  &  0.02 (0.19)    \\ 
+Recip. Arms Trade &  &  &  &  1.08 (0.17)*** \\ 
+ \bottomrule
+\end{longtable}
+\vspace{-5mm}
+\begin{minipage}{\linewidth}
+\textsuperscript{1}Overall max. conv. ratio: 0.31; all t-conv. ratios below 0.05. \\ 
+\textsuperscript{2}Overall max. conv. ratio: 0.18; all t-conv. ratios below 0.04. \\ 
+\end{minipage}

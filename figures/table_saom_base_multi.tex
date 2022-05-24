@@ -1,7 +1,11 @@
 \captionsetup[table]{labelformat=empty,skip=1pt}
 \begin{longtable}{lcccc}
+\caption*{
+{\large Estimated Coeffcients for the Stochastic Actor-Oriented Models} \\ 
+{\small Main model and restricted model without between networks effects}
+} \\ 
 \toprule
- & \multicolumn{2}{c}{Restricted Model} & \multicolumn{2}{c}{With Between Effects} \\ 
+ & \multicolumn{2}{c}{Restricted Model\textsuperscript{1}} & \multicolumn{2}{c}{With Between Effects\textsuperscript{2}} \\ 
  \cmidrule(lr){2-3} \cmidrule(lr){4-5}
 Effect & Arms & Trade & Arms & Trade \\ 
 \midrule
@@ -34,3 +38,8 @@ Arms Trade &  &  &  &  0.06 (0.21)    \\
 Recip. Arms Trade &  &  &  &  1.01 (0.17)*** \\ 
  \bottomrule
 \end{longtable}
+\vspace{-5mm}
+\begin{minipage}{\linewidth}
+\textsuperscript{1}Overall max. conv. ratio: 0.19; all t-conv. ratios below 0.04. \\ 
+\textsuperscript{2}Overall max. conv. ratio: 0.22; all t-conv. ratios below 0.03. \\ 
+\end{minipage}
