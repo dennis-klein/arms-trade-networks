@@ -1,4 +1,3 @@
-# A Statistical Consulting Project
 # International Arms Transfers and Conventional Trade: A Multilayer Network Approach
 
 This is the repository of a Statistical Consulting project within M.Sc. Statistics program of LMU Munich
