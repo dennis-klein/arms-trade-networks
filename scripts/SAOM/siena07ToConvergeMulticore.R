@@ -22,5 +22,7 @@ siena07ToConvergenceMulticore <- function(alg, dat, eff, save_dir, ans_id,
                    useCluster = TRUE, nbrNodes = n.clus, initC = TRUE, ...)
   }
   saveRDS(ans, file=path(save_dir, paste0("final_fit_", ans_id), ext = "rds"))
+  saveRDS(dat, file=path(save_dir, paste0("data_object_", ans_id), ext = "rds"))
+  saveRDS(eff, file=path(save_dir, paste0("effects_object_", ans_id), ext = "rds"))
   return(ans)
 }
