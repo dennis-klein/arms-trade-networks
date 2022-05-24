@@ -2,12 +2,20 @@ library(tidyverse)
 library(fs)
 library(gt)
 library(gtools)
+library(RSiena)
+library(parallel)
+library(patchwork)
+library(ggplot2)
+library(gridExtra)
 
 source("utils/utils.R")
 
+
+### Results table
+
 dpath <- data_path.get()
-saom_multi <- readRDS(path(dpath, "models/SAOM/saom_multilevel_220412/final_fit_saom_multilevel_220412.rds"))
-saom_simple <- readRDS(path(dpath, "models/SAOM/saom_simple_220412/final_fit_saom_simple_220412.rds"))
+saom_multi <- readRDS(path(dpath, "models/main-saom-models/saom_multilevel_220510_import/final_fit_saom_multilevel_220510_import.rds"))
+saom_simple <- readRDS(path(dpath, "models/main-saom-models/saom_simple_220511_import/final_fit_saom_simple_220511_import.rds"))
 
 conv_multi <- saom_multi$tconv.max[1,1]
 all_t_multi <- max(saom_multi$tconv)
@@ -144,6 +152,70 @@ t1
 t1 %>%
   as_latex() %>% 
   as.character() %>% 
-  cat(file = "figures/table_saom_base_multi.tex")
+  cat(file = "figures/table_saom_base_multi_import.tex")
 
 # TODO get latex table header center
+
+### GOFs
+
+dat_simple <- readRDS(file = path(dpath, "models/main-saom-models/saom_simple_220511_import/data_object_saom_simple_220511_import.rds"))
+eff_simple <- readRDS(file = path(dpath, "models/main-saom-models/saom_simple_220511_import/effects_object_saom_simple_220511_import.rds"))
+eff_simple$initialValue[eff_simple$include] <- saom_simple$theta
+
+dat_multi <- readRDS(file = path(dpath, "models/main-saom-models/saom_multilevel_220510_import/data_object_saom_multilevel_220510_import.rds"))
+eff_multi <- readRDS(file = path(dpath, "models/main-saom-models/saom_multilevel_220510_import/effects_object_saom_multilevel_220510_import.rds"))
+eff_multi$initialValue[eff_multi$include] <- saom_multi$theta
+
+# simulations, multicore
+# n.clus <- detectCores() - 1
+# 
+# alg_sim <- sienaAlgorithmCreate(projname = "alg_sim", cond = FALSE,
+#                                 useStdInits = FALSE, nsub = 0, simOnly = TRUE, n3 = 100)
+# 
+# sims_simple <- siena07(alg_sim, data = dat_simple, effects = eff_simple, batch = TRUE,
+#                        returnDeps = T,
+#                        useCluster = TRUE, nbrNodes = n.clus, initC = TRUE)
+# sims_multi <- siena07(alg_sim, data = dat_multi, effects = eff_multi, batch = TRUE,
+#                        returnDeps = T,
+#                       useCluster = TRUE, nbrNodes = n.clus)
+# 
+# saveRDS(sims_simple, file = path(dpath, "models/main-saom-models/saom_simple_220511_import/sims_saom_simple_220511_import.rds"))
+# saveRDS(sims_multi, file = path(dpath, "models/main-saom-models/saom_multilevel_220510_import/sims_saom_multilevel_220510_import.rds"))
+
+sims_simple <- readRDS(file = path(dpath, "models/main-saom-models/saom_simple_220511_import/sims_saom_simple_220511_import.rds"))
+sims_multi <- readRDS(file = path(dpath, "models/main-saom-models/saom_multilevel_220510_import/sims_saom_multilevel_220510_import.rds"))
+
+
+stats <- c(OutdegreeDistribution, IndegreeDistribution, TriadCensus)
+dep_vars <- c("arm", "trd")
+gofs <- expand_grid(stats, dep_vars)
+
+
+# gof_out_arm <- sienaGOF(sims_multi, OutdegreeDistribution, verbose = T, join = T, varName = "arm")
+# gof_out_trd <- sienaGOF(sims_multi, OutdegreeDistribution, verbose = T, join = T, varName = "trd")
+# gof_in_arm <- sienaGOF(sims_multi, IndegreeDistribution, verbose = T, join = T, varName = "arm")
+# gof_in_trd <- sienaGOF(sims_multi, IndegreeDistribution, verbose = T, join = T, varName = "trd")
+# gof_tri_arm <- sienaGOF(sims_multi, TriadCensus, verbose = T, join = T, varName = "arm")
+# gof_tri_trd <- sienaGOF(sims_multi, TriadCensus, verbose = T, join = T, varName = "trd")
+# 
+# save(gof_out_arm, gof_out_trd,
+#      gof_in_arm, gof_in_trd,
+#      gof_tri_arm, gof_tri_trd,
+#      file = path(dpath, "models/main-saom-models/saom_multilevel_220510_import/gofs.RData"))
+
+load(file = path(dpath, "models/main-saom-models/saom_multilevel_220510_import/gofs.RData"))
+
+p1 <- plot(gof_out_arm)
+p2 <- plot(gof_out_trd)
+p3 <- plot(gof_in_arm)
+p4 <- plot(gof_in_trd)
+p5 <- plot(gof_tri_arm)
+p6 <- plot(gof_tri_trd)
+
+# ggsave("figures/sliding_windows_netstruc.pdf", plot = p2, width = 8.27, height = 10.69)
+
+p_slide <- grid.arrange(p1, p3, p5, p2, p4, p6, nrow = 2)
+ggsave("figures/gofs_multi_slide.pdf", plot = p_slide, width = 5*2.5, height = 3.8*2.5)
+
+p_report <- grid.arrange(p1, p2, p3, p4, p5, p6, nrow = 3)
+ggsave("figures/gofs_multi_report.pdf", plot = p_report, width = 1.5*8.27, height = 1.5*10.69)
