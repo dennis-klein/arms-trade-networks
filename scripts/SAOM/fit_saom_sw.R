@@ -18,22 +18,17 @@ load(file = path(dpath, "out/saom_data.RData"))
 
 # meta settings
 dpath <- data_path.get()
-model_id <- "saom_sw_220510"
-# model_id <- paste0(as.integer(Sys.time()))
+model_id <- "saom_sw_220520    _import"
 save_dir <- path(dpath, "models", "SAOM")
 
-# safety check to not override existing models
-if (dir.exists(path(save_dir, model_id))) stop("Model already exsists")
-
 # setup
-model_dir <- path(save_dir, model_id)
-dir.create(model_dir)
 act <- dimnames(arm)[[1]] # actors
 obs <- length(arm) # observations
 
 # test mode
 test_mode <- FALSE
 if (test_mode) {
+  model_id <- paste0(as.integer(Sys.time()))
   act <- c(sample(act, 15), c("United States", "Russia", "France", "China", "Germany", "Italy",
                               "United Kingdom", "South Korea",
                               "Saudi Arabia", "India", "Egypt", "Australia",
@@ -50,12 +45,19 @@ if (test_mode) {
   allied <- allied[act, act, per]
 }
 
+# safety check to not override existing models
+if (dir.exists(path(save_dir, model_id))) stop("Model already exsists")
+
+# create directory
+model_dir <- path(save_dir, model_id)
+dir.create(model_dir)
 
 # Loop: fit sliding windows SAOMs ----------------------------------------------
 
 periods <- dimnames(arm)[[3]]
 win_size <- 4
 for (t in 1:(length(periods)-win_size+1)) {
+  message(sprintf("Started SW Fit %i", t))
   sub_model_id <- sprintf("win_%02d", t)
   win_per <- periods[t:(t+win_size-1)]
   vars <- list(
@@ -121,5 +123,5 @@ for (t in 1:(length(periods)-win_size+1)) {
                                        save_dir = model_dir,
                                        ans_id = paste(model_id, sub_model_id, sep = "_"),
                                        threshold = 0.40,
-                                       returnDeps = TRUE)
+                                       batch = TRUE)
 }

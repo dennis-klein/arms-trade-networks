@@ -17,22 +17,17 @@ load(file = path(dpath, "out/saom_data.RData"))
 
 # meta settings
 dpath <- data_path.get()
-model_id <- "saom_multilevel_220510"
-# model_id <- paste0("test_", as.integer(Sys.time()))
+model_id <- "saom_multilevel_220511_import"
 save_dir <- path(dpath, "models", "SAOM")
 
-# safety check to not override existing models
-if (dir.exists(path(save_dir, model_id))) stop("Model already exsists")
-
 # setup
-model_dir <- path(save_dir, model_id)
-dir.create(model_dir)
 act <- dimnames(arm)[[1]] # actors
 obs <- length(arm) # observations
 
 # test mode
 test_mode <- FALSE
 if (test_mode) {
+  model_id <- paste0("test_", as.integer(Sys.time()))
   act <- c(sample(act, 15), c("United States", "Russia", "France", "China", "Germany", "Italy",
               "United Kingdom", "South Korea",
               "Saudi Arabia", "India", "Egypt", "Australia",
@@ -48,6 +43,13 @@ if (test_mode) {
   pol_diff <- pol_diff[act, act, head(per, -1)]
   allied <- allied[act, act, head(per, -1)]
 }
+
+# safety check to not override existing models
+if (dir.exists(path(save_dir, model_id))) stop("Model already exsists")
+
+# create directory
+model_dir <- path(save_dir, model_id)
+dir.create(model_dir)
 
 # create RSiena data
 RSiena_vars <- list(
@@ -122,11 +124,8 @@ eff <- includeEffects(eff, crprodRecip, name = "trd", interaction1 = "arm", verb
 # run model
 alg <- sienaAlgorithmCreate(projname = model_id,
                             n3 = 5000)
-n.clus <- detectCores() - 1
 ans <- siena07ToConvergenceMulticore(alg = alg, dat = dat, eff = eff,
                                      save_dir = model_dir,
                                      ans_id = model_id,
-                                     threshold = 0.25,
-                                     returnDeps = TRUE)
-
-saveRDS(ans, file=path(model_dir, paste0("final_fit_", model_id), ext = "rds"))
+                                     threshold = 0.30,
+                                     batch = TRUE)
