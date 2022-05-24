@@ -3,7 +3,7 @@
 This is the repository of a Statistical Consulting project within M.Sc. Statistics program of LMU Munich
 
 Project Members:<br>
-Daniel Seußler, M.Sc. Statistics candidate, LMU Munich <br>
+Daniel Seussler, M.Sc. Statistics candidate, LMU Munich <br>
 [daniel.seussler@campus.lmu.de](mailto:daniel.seussler@campus.lmu.de)<br>
 Dennis Klein, M.Sc. Economics candidate, LMU Munich<br>
 [dennis.klein@campus.lmu.de](mailto:dennis.klein@campus.lmu.de)
