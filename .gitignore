@@ -48,9 +48,7 @@ vignettes/*.pdf
 /data/**/*.xls
 /data/**/*.pdf
 /data/**/*.txt
-/data/**/*.Rdata
 /data/**/*.rtf
-/data/**/*.rds
 *.out
 
 **/.DS_Store
